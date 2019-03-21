@@ -1,0 +1,22 @@
+{
+  "name": "YetAnotherAudioVisualizer",
+  "description": "",
+  "version": "0.0.0",
+  "main": "./src/index.js",
+  "author": "Razvan Negrea <howl@wolfpilot.co> (www.wolfpilot.co)",
+  "license": "MIT",
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "parcel ./src/index.html",
+    "build": "parcel ./src/index.html"
+  },
+  "keywords": [
+    "javascript",
+    "canvas",
+    "audio",
+    "visualization"
+  ],
+  "devDependencies": {
+    "parcel-bundler": "^1.12.3"
+  }
+}
