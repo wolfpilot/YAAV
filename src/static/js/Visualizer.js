@@ -1,37 +1,85 @@
 // Setup
 const defaults = {
+  // Status
   isRunning: true,
   isPlaying: false,
+  // Audio
   audioSource: require('../sounds/music.mp3'),
+  blockLength: 512,
+  // Styling
   canvasFill: 'rgb(0, 0, 0)',
-  audioBarFill: 'rgb(255, 255, 255)',
-  blockLength: 1024
+  circle: {
+    radius: 150,
+    lineWidth: 3,
+    stroke: ['blue', 'purple']
+  },
+  volumeBar: {
+    lineWidth: 3,
+    fill: frequency => `rgb(100, ${frequency}, 205)`
+  }
 };
+
+function getCenter() {
+  return {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
+  }
+}
 
 class Visualizer {
   state = {
     ...defaults
   };
 
-  _drawVolumeBars() {
-    const bufferLength = this.analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    const barWidth = (window.innerWidth / bufferLength) * 2.5;
-    let posX = 0;
-    let posY = 0;
+  _drawVolumeBar(coords, frequency) {
+    this.canvasCtx.lineWidth = defaults.volumeBar.lineWidth;
+    this.canvasCtx.strokeStyle = defaults.volumeBar.fill(frequency);
 
-    this.analyser.getByteFrequencyData(dataArray);
+    this.canvasCtx.beginPath();
+    this.canvasCtx.moveTo(coords.xStart, coords.yStart);
+    this.canvasCtx.lineTo(coords.xEnd, coords.yEnd);
+    this.canvasCtx.stroke();
+  }
 
+  _drawVolume() {
+    const bufferLength = this.analyser.frequencyBinCount; // Frequency bar count
+    const freqData = new Uint8Array(bufferLength);
+    const rads = Math.PI * 2 / bufferLength;
+    const centre = getCenter();
+
+    this.analyser.getByteFrequencyData(freqData);
+
+    // Draw volume bars
     for (let i = 0; i < bufferLength; i++) {
-      const barHeight = dataArray[i] / 2;
+      const angle = rads * i;
+      const length = freqData[i] / 2;
 
-      posY = window.innerHeight - barHeight / 2;
+      // Calculate coordinates
+      const xStart = centre.x + (Math.cos(angle) * defaults.circle.radius);
+      const yStart = centre.y + (Math.sin(angle) * defaults.circle.radius);
+      const xEnd = centre.x + (Math.cos(angle) * (defaults.circle.radius + length));
+      const yEnd = centre.y + (Math.sin(angle) * (defaults.circle.radius + length));
 
-      this.canvasCtx.fillStyle = defaults.audioBarFill;
-      this.canvasCtx.fillRect(posX, posY, barWidth, barHeight);
+      const coords = { xStart, yStart, xEnd, yEnd };
 
-      posX += barWidth + 1;
+      // Draw single bar
+      this._drawVolumeBar(coords, freqData[i]);
     }
+  }
+
+  _drawUI() {
+    const centre = getCenter();
+    // @TODO: Add dynamic multiple coloured arc generator
+    const gradient = this.canvasCtx.createLinearGradient(0, window.innerHeight, 0, 0);
+    gradient.addColorStop(0, defaults.circle.stroke[0]);
+    gradient.addColorStop(1, defaults.circle.stroke[1]);
+
+    this.canvasCtx.lineWidth = defaults.circle.lineWidth;
+    this.canvasCtx.strokeStyle = gradient;
+
+    this.canvasCtx.beginPath();
+    this.canvasCtx.arc(centre.x, centre.y, defaults.circle.radius, 0, Math.PI * 2);
+    this.canvasCtx.stroke();
   }
 
   _tick() {
@@ -41,8 +89,10 @@ class Visualizer {
     this.canvasCtx.fillStyle = defaults.canvasFill;
     this.canvasCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
+    this._drawUI();
+
     if (this.analyser && this.state.isPlaying) {
-      this._drawVolumeBars();
+      this._drawVolume();
     }
 
     requestAnimationFrame(timestamp => this._tick(timestamp));
