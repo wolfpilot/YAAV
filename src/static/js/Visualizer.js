@@ -1,8 +1,11 @@
 // Setup
 const defaults = {
-  isRunning: false,
-  fill: '#000',
-  audioSource: require('../sounds/music.mp3')
+  isRunning: true,
+  isPlaying: false,
+  audioSource: require('../sounds/music.mp3'),
+  canvasFill: 'rgb(0, 0, 0)',
+  audioBarFill: 'rgb(255, 255, 255)',
+  blockLength: 1024
 };
 
 class Visualizer {
@@ -10,12 +13,37 @@ class Visualizer {
     ...defaults
   };
 
-  _tick() {
-    if (this.state.isRunning) { return; }
+  _drawVolumeBars() {
+    const bufferLength = this.analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    const barWidth = (window.innerWidth / bufferLength) * 2.5;
+    let posX = 0;
+    let posY = 0;
 
-    this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    this.ctx.fillStyle = defaults.fill;
-    this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    this.analyser.getByteFrequencyData(dataArray);
+
+    for (let i = 0; i < bufferLength; i++) {
+      const barHeight = dataArray[i] / 2;
+
+      posY = window.innerHeight - barHeight / 2;
+
+      this.canvasCtx.fillStyle = defaults.audioBarFill;
+      this.canvasCtx.fillRect(posX, posY, barWidth, barHeight);
+
+      posX += barWidth + 1;
+    }
+  }
+
+  _tick() {
+    if (!this.state.isRunning) { return; }
+
+    this.canvasCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    this.canvasCtx.fillStyle = defaults.canvasFill;
+    this.canvasCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+    if (this.analyser && this.state.isPlaying) {
+      this._drawVolumeBars();
+    }
 
     requestAnimationFrame(timestamp => this._tick(timestamp));
   }
@@ -27,7 +55,17 @@ class Visualizer {
 
   _setupCanvas() {
     this.canvasEl = document.getElementById('canvas');
-    this.ctx = this.canvasEl.getContext('2d');
+    this.canvasCtx = this.canvasEl.getContext('2d');
+  }
+
+  _setupAudioAnalyser() {
+    this.audioCtx = new AudioContext();
+    this.analyser = this.audioCtx.createAnalyser();
+    this.analyser.fftSize = defaults.blockLength;
+
+    const source = this.audioCtx.createMediaElementSource(this.audio);
+    source.connect(this.analyser);
+    this.analyser.connect(this.audioCtx.destination);
   }
 
   _startPlayback() {
@@ -37,7 +75,7 @@ class Visualizer {
   _addEventListeners() {
     const playBtn = document.getElementById('play-btn');
 
-    playBtn.addEventListener('click', () => this._startPlayback());
+    playBtn.addEventListener('click', () => this._initAudio());
   }
 
   /**
@@ -47,13 +85,13 @@ class Visualizer {
   _initAudio() {
     this._startPlayback()
       .then(() => {
-        this.state.isRunning = true;
+        this.state.isPlaying = true;
+
+        this._setupAudioAnalyser();
       })
       .catch(error => {
         // The play() Promise has been rejected, waiting for user input
         console.log(error);
-
-        this._addEventListeners();
       });
   }
 
@@ -69,7 +107,7 @@ class Visualizer {
 
   init() {
     this._setupWebAudio();
-    this._initAudio();
+    this._addEventListeners();
     this._setupCanvas();
     this._resizeCanvas();
     this._tick();
