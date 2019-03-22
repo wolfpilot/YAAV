@@ -7,6 +7,10 @@ const defaults = {
   isPlaying: true,
   // Audio
   audioSource: require('../../../sounds/music.mp3'),
+  channels: {
+    left: 'L',
+    right: 'R'
+  },
   blockLength: 512,
   // Styling
   circle: {
@@ -16,7 +20,8 @@ const defaults = {
   },
   volumeBar: {
     lineWidth: 3,
-    fill: frequency => `rgb(100, ${frequency}, 205)`
+    fillLeft: frequency => `rgb(255, ${frequency}, 0)`,
+    fillRight: frequency => `rgb(0, ${frequency}, 255)`
   }
 };
 
@@ -29,9 +34,13 @@ class Visualizer {
     ...defaults
   };
 
-  _drawVolumeBar(coords, frequency) {
+  _drawVolumeBar(channel, frequency, coords) {
+    const fill = channel === defaults.channels.left ?
+      defaults.volumeBar.fillLeft(frequency) :
+      defaults.volumeBar.fillRight(frequency);
+
     this._canvasCtx.lineWidth = defaults.volumeBar.lineWidth;
-    this._canvasCtx.strokeStyle = defaults.volumeBar.fill(frequency);
+    this._canvasCtx.strokeStyle = fill;
 
     this._canvasCtx.beginPath();
     this._canvasCtx.moveTo(coords.xStart, coords.yStart);
@@ -39,13 +48,13 @@ class Visualizer {
     this._canvasCtx.stroke();
   }
 
-  _drawVolume() {
-    const bufferLength = this._analyser.frequencyBinCount; // Frequency bar count
+  _drawVolume(analyser, channel) {
+    const bufferLength = analyser.frequencyBinCount; // Frequency bar count
     const freqData = new Uint8Array(bufferLength);
     const rads = Math.PI * 2 / bufferLength;
     const centre = getCenter();
 
-    this._analyser.getByteFrequencyData(freqData);
+    analyser.getByteFrequencyData(freqData);
 
     // Loop through all sample frames
     for (let i = 0; i < bufferLength; i++) {
@@ -61,7 +70,7 @@ class Visualizer {
       const coords = { xStart, yStart, xEnd, yEnd };
 
       // Draw single bar
-      this._drawVolumeBar(coords, freqData[i]);
+      this._drawVolumeBar(channel, freqData[i], coords);
     }
   }
 
@@ -86,19 +95,41 @@ class Visualizer {
   draw() {
     this._drawUI();
 
-    if (this._analyser && this.state.isPlaying) {
-      this._drawVolume();
+    if (!this.state.isPlaying) { return; }
+
+    if (this._analyserL && this._analyserR) {
+      this._drawVolume(this._analyserL, defaults.channels.left);
+      this._drawVolume(this._analyserR, defaults.channels.right);
     }
   }
 
   _setupAudioAnalyser() {
     this._audioCtx = new AudioContext();
-    this._analyser = this._audioCtx.createAnalyser();
-    this._analyser.fftSize = defaults.blockLength;
 
+    this._analyserL = this._audioCtx.createAnalyser();
+    this._analyserR = this._audioCtx.createAnalyser();
+    this._analyserL.fftSize = defaults.blockLength;
+    this._analyserR.fftSize = defaults.blockLength;
+
+    const splitter = this._audioCtx.createChannelSplitter(2);
+    const merger = this._audioCtx.createChannelMerger(2);
+
+    // Connect to source
     const source = this._audioCtx.createMediaElementSource(this._audio);
-    source.connect(this._analyser);
-    this._analyser.connect(this._audioCtx.destination);
+
+    // Connect source to splitter
+    source.connect(splitter, 0, 0);
+
+    // Connect each channel to its own analyser
+    splitter.connect(this._analyserL, 0);
+    splitter.connect(this._analyserR, 1);
+
+    // Connect back to the merger
+    this._analyserL.connect(merger, 0, 0);
+    this._analyserR.connect(merger, 0, 1);
+
+    // Connect both channels back to the audio source
+    merger.connect(this._audioCtx.destination, 0, 0);
   }
 
   _startPlayback() {
