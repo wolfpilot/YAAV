@@ -1,0 +1,103 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  font-family: sans-serif, Arial;
+}
+
+body {
+  position: relative;
+}
+
+canvas {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.btn {
+  position: relative;
+}
+
+.player {
+  position: fixed;
+  right: 0;
+  bottom: 50px;
+  left: 0;
+  max-width: 80%;
+  margin: 0 auto;
+  color: #fff;
+}
+
+.player__controls {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.player__track-info {
+  margin-bottom: 20px;
+}
+
+.player__artist-name {
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.player__timeline {
+  width: 100%;
+}
+
+.player__time {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.player__total-time {
+  margin-left: auto;
+}
+
+.player__progress {
+  position: relative;
+}
+
+.player__progress-track,
+.player__progress-bar {
+  width: 100%;
+  height: 2px;
+  background-color: blue;
+}
+
+.player__progress-track {
+  opacity: 0.75;
+}
+
+.player__progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.player__progress-thumb {
+  position: absolute;
+  left: 0;
+  top: calc(-50% + 1px);
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: blue;
+}

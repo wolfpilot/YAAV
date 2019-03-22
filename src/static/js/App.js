@@ -1,16 +1,16 @@
-// Actors
+// Modules
 import Canvas from './actors/Canvas/Canvas';
 import Visualizer from './actors/Visualizer/Visualizer';
 
 // Setup
-const defaults = {
+const initialState = {
   isRunning: true
 };
 
 // Setup
 class App {
   state = {
-    ...defaults
+    ...initialState
   };
 
   _tick() {

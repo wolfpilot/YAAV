@@ -1,29 +1,10 @@
 // Utils
+import { config } from "./config";
 import { getCenter } from "../../utils/helpers";
 
-// Setup
-const defaults = {
-  // Status
-  isPlaying: true,
-  // Audio
-  audioSource: require('../../../sounds/music.mp3'),
-  channels: {
-    left: 'L',
-    right: 'R'
-  },
-  blockLength: 256,
-  // Styling
-  circle: {
-    radius: 150,
-    lineWidth: 3,
-    stroke: ['blue', 'purple']
-  },
-  volumeBar: {
-    angleOffset: 1.5 * Math.PI, // Start drawing arc from top center
-    lineWidth: 3,
-    fillLeft: frequency => `rgb(255, ${frequency}, 0)`,
-    fillRight: frequency => `rgb(0, ${frequency}, 255)`
-  }
+const initialState = {
+  hasUserInteracted: false,
+  isPlaying: true
 };
 
 class Visualizer {
@@ -32,15 +13,15 @@ class Visualizer {
   }
 
   state = {
-    ...defaults
+    ...initialState
   };
 
   _drawVolumeBar(channel, frequency, coords) {
-    const fill = channel === defaults.channels.left ?
-      defaults.volumeBar.fillLeft(frequency) :
-      defaults.volumeBar.fillRight(frequency);
+    const fill = channel === config.channels.left ?
+      config.volumeBar.fillLeft(frequency) :
+      config.volumeBar.fillRight(frequency);
 
-    this._canvasCtx.lineWidth = defaults.volumeBar.lineWidth;
+    this._canvasCtx.lineWidth = config.volumeBar.lineWidth;
     this._canvasCtx.strokeStyle = fill;
 
     this._canvasCtx.beginPath();
@@ -50,10 +31,10 @@ class Visualizer {
   }
 
   _getVolumeBarCoords(centre, angle, length) {
-    const xStart = centre.x + (Math.cos(angle) * defaults.circle.radius);
-    const yStart = centre.y + (Math.sin(angle) * defaults.circle.radius);
-    const xEnd = centre.x + (Math.cos(angle) * (defaults.circle.radius + length));
-    const yEnd = centre.y + (Math.sin(angle) * (defaults.circle.radius + length));
+    const xStart = centre.x + (Math.cos(angle) * config.circle.radius);
+    const yStart = centre.y + (Math.sin(angle) * config.circle.radius);
+    const xEnd = centre.x + (Math.cos(angle) * (config.circle.radius + length));
+    const yEnd = centre.y + (Math.sin(angle) * (config.circle.radius + length));
 
     return { xStart, yStart, xEnd, yEnd };
   }
@@ -65,14 +46,14 @@ class Visualizer {
 
     // Calculate angle
     const rads = Math.PI / bufferLength;
-    const angleMultiplier = channel === defaults.channels.left ? -1 : 1;
+    const angleMultiplier = channel === config.channels.left ? -1 : 1;
     const centre = getCenter();
 
     analyser.getByteFrequencyData(freqData);
 
     // Loop through all sample frames
     for (let i = 0; i < bufferLength; i++) {
-      const angle = (angleMultiplier * rads * i) + defaults.volumeBar.angleOffset;
+      const angle = (angleMultiplier * rads * i) + config.volumeBar.angleOffset;
       const length = freqData[i] / 2;
 
       // Calculate coordinates
@@ -87,14 +68,14 @@ class Visualizer {
     const centre = getCenter();
     // @TODO: Add dynamic multiple coloured arc generator
     const gradient = this._canvasCtx.createLinearGradient(0, window.innerHeight, 0, 0);
-    gradient.addColorStop(0, defaults.circle.stroke[0]);
-    gradient.addColorStop(1, defaults.circle.stroke[1]);
+    gradient.addColorStop(0, config.circle.stroke[0]);
+    gradient.addColorStop(1, config.circle.stroke[1]);
 
-    this._canvasCtx.lineWidth = defaults.circle.lineWidth;
+    this._canvasCtx.lineWidth = config.circle.lineWidth;
     this._canvasCtx.strokeStyle = gradient;
 
     this._canvasCtx.beginPath();
-    this._canvasCtx.arc(centre.x, centre.y, defaults.circle.radius, 0, Math.PI * 2);
+    this._canvasCtx.arc(centre.x, centre.y, config.circle.radius, 0, Math.PI * 2);
     this._canvasCtx.stroke();
   }
 
@@ -107,8 +88,8 @@ class Visualizer {
     if (!this.state.isPlaying) { return; }
 
     if (this._analyserL && this._analyserR) {
-      this._drawVolume(this._analyserL, defaults.channels.left);
-      this._drawVolume(this._analyserR, defaults.channels.right);
+      this._drawVolume(this._analyserL, config.channels.left);
+      this._drawVolume(this._analyserR, config.channels.right);
     }
   }
 
@@ -117,8 +98,8 @@ class Visualizer {
 
     this._analyserL = this._audioCtx.createAnalyser();
     this._analyserR = this._audioCtx.createAnalyser();
-    this._analyserL.fftSize = defaults.blockLength;
-    this._analyserR.fftSize = defaults.blockLength;
+    this._analyserL.fftSize = config.blockLength;
+    this._analyserR.fftSize = config.blockLength;
 
     const splitter = this._audioCtx.createChannelSplitter(2);
     const merger = this._audioCtx.createChannelMerger(2);
@@ -141,23 +122,14 @@ class Visualizer {
     merger.connect(this._audioCtx.destination, 0, 0);
   }
 
-  _startPlayback() {
-    return this._audio.play();
-  }
-
-  _addEventListeners() {
-    const playBtn = document.getElementById('play-btn');
-
-    playBtn.addEventListener('click', () => this._initAudio());
-  }
-
   /**
    * @NOTE: On Chrome, this auto-play was temporarily disabled. For more info, see link below:
    * @NOTE: https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio
    */
   _initAudio() {
-    this._startPlayback()
+    this._audio.play()
       .then(() => {
+        this.state.hasUserInteracted = true;
         this.state.isPlaying = true;
 
         this._setupAudioAnalyser();
@@ -168,14 +140,33 @@ class Visualizer {
       });
   }
 
+  _pauseAudio() {
+    this._audio.pause();
+  }
+
+  _playAudio() {
+    if (this.state.hasUserInteracted) {
+      this._audio.play();
+
+      return;
+    }
+
+    this._initAudio();
+  }
+
+  _addEventListeners() {
+    const playBtn = document.getElementById('play-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+
+    playBtn.addEventListener('click', () => this._playAudio());
+    pauseBtn.addEventListener('click', () => this._pauseAudio());
+  }
+
   _setupWebAudio() {
     this._audio = document.createElement('audio');
-    this._audio.src = defaults.audioSource;
-    this._audio.controls = 'true';
+    this._audio.src = config.audioSource;
 
     document.body.appendChild(this._audio);
-
-    this._audio.style.width = `${window.innerWidth}px`;
   }
 
   /**
