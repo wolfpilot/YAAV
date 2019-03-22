@@ -11,7 +11,7 @@ const defaults = {
     left: 'L',
     right: 'R'
   },
-  blockLength: 512,
+  blockLength: 256,
   // Styling
   circle: {
     radius: 150,
@@ -19,6 +19,7 @@ const defaults = {
     stroke: ['blue', 'purple']
   },
   volumeBar: {
+    angleOffset: 1.5 * Math.PI, // Start drawing arc from top center
     lineWidth: 3,
     fillLeft: frequency => `rgb(255, ${frequency}, 0)`,
     fillRight: frequency => `rgb(0, ${frequency}, 255)`
@@ -48,26 +49,34 @@ class Visualizer {
     this._canvasCtx.stroke();
   }
 
+  _getVolumeBarCoords(centre, angle, length) {
+    const xStart = centre.x + (Math.cos(angle) * defaults.circle.radius);
+    const yStart = centre.y + (Math.sin(angle) * defaults.circle.radius);
+    const xEnd = centre.x + (Math.cos(angle) * (defaults.circle.radius + length));
+    const yEnd = centre.y + (Math.sin(angle) * (defaults.circle.radius + length));
+
+    return { xStart, yStart, xEnd, yEnd };
+  }
+
   _drawVolume(analyser, channel) {
+    // Extract audio data
     const bufferLength = analyser.frequencyBinCount; // Frequency bar count
     const freqData = new Uint8Array(bufferLength);
-    const rads = Math.PI * 2 / bufferLength;
+
+    // Calculate angle
+    const rads = Math.PI / bufferLength;
+    const angleMultiplier = channel === defaults.channels.left ? -1 : 1;
     const centre = getCenter();
 
     analyser.getByteFrequencyData(freqData);
 
     // Loop through all sample frames
     for (let i = 0; i < bufferLength; i++) {
-      const angle = rads * i;
+      const angle = (angleMultiplier * rads * i) + defaults.volumeBar.angleOffset;
       const length = freqData[i] / 2;
 
       // Calculate coordinates
-      const xStart = centre.x + (Math.cos(angle) * defaults.circle.radius);
-      const yStart = centre.y + (Math.sin(angle) * defaults.circle.radius);
-      const xEnd = centre.x + (Math.cos(angle) * (defaults.circle.radius + length));
-      const yEnd = centre.y + (Math.sin(angle) * (defaults.circle.radius + length));
-
-      const coords = { xStart, yStart, xEnd, yEnd };
+      const coords = this._getVolumeBarCoords(centre, angle, length);
 
       // Draw single bar
       this._drawVolumeBar(channel, freqData[i], coords);
