@@ -1,6 +1,6 @@
-# Yet Another Audio Visualizer
+# YAAV (Yet Another Audio Visualizer)
 
-Yep, I did it. I am building yet another audio visualizer. Difference is, this one's mine.
+Yep, I'm doing it. I am building yet another audio visualizer.
 
 ## Features
 

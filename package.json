@@ -1,6 +1,6 @@
 {
-  "name": "YetAnotherAudioVisualizer",
-  "description": "",
+  "name": "YAAV",
+  "description": "Yet Another Audio Visualizer. Build with Parcel & JS Canvas.",
   "version": "0.0.0",
   "main": "./src/index.js",
   "author": "Razvan Negrea <howl@wolfpilot.co> (www.wolfpilot.co)",
@@ -12,6 +12,7 @@
   },
   "keywords": [
     "javascript",
+    "parcel",
     "canvas",
     "audio",
     "visualization"
