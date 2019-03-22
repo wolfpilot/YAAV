@@ -1,6 +1,6 @@
 // Utils
 import { config } from "./config";
-import { getCenter } from "../../utils/helpers";
+import { getCenter, formatSeconds } from "../../utils/helpers";
 
 const initialState = {
   hasUserInteracted: false,
@@ -93,6 +93,14 @@ class Visualizer {
     }
   }
 
+  _updateProgress = () => {
+    const _percent = (this._audio.currentTime / this._audio.duration) * 100;
+
+    this._elements.progressBar.style.maxWidth = `${_percent}%`;
+    this._elements.elapsedTime.textContent = formatSeconds(this._audio.currentTime);
+    this._elements.totalTime.textContent = formatSeconds(this._audio.duration);
+  };
+
   _setupAudioAnalyser() {
     this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -155,11 +163,21 @@ class Visualizer {
   }
 
   _addEventListeners() {
-    const playBtn = document.getElementById('play-btn');
-    const pauseBtn = document.getElementById('pause-btn');
+    const playBtn = document.querySelector('[data-play-btn]');
+    const pauseBtn = document.querySelector('[data-pause-btn]');
 
     playBtn.addEventListener('click', () => this._playAudio());
     pauseBtn.addEventListener('click', () => this._pauseAudio());
+
+    this._audio.addEventListener('timeupdate', this._updateProgress);
+  }
+
+  _cacheSelectors() {
+    this._elements = {
+      progressBar: document.querySelector('[data-player-progress-bar]'),
+      elapsedTime: document.querySelector('[data-player-elapsed-time]'),
+      totalTime: document.querySelector('[data-player-total-time]')
+    };
   }
 
   _setupWebAudio() {
@@ -174,6 +192,7 @@ class Visualizer {
    */
   init() {
     this._setupWebAudio();
+    this._cacheSelectors();
     this._addEventListeners();
   }
 }
