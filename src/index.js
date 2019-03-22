@@ -1,6 +1,6 @@
-import Visualizer from '../src/static/js/Visualizer';
+import App from './static/js/App';
 
-const vis = new Visualizer;
+const app = new App();
 
 const isReady = () => {
   return new Promise(resolve => {
@@ -12,4 +12,4 @@ const isReady = () => {
   });
 };
 
-isReady().then(() => vis.init());
+isReady().then(() => app.init());
