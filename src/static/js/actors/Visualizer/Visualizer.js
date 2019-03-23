@@ -1,6 +1,7 @@
 // Utils
 import { config } from "./config";
 import { getCenter, formatSeconds } from "../../utils/helpers";
+import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers";
 
 const initialState = {
   hasUserInteracted: false,
@@ -10,6 +11,9 @@ const initialState = {
 class Visualizer {
   constructor(canvasCtx) {
     this._canvasCtx = canvasCtx;
+
+    this._onPointerMove = this._onPointerMove.bind(this);
+    this._onPointerUp = this._onPointerUp.bind(this);
   }
 
   state = {
@@ -93,6 +97,55 @@ class Visualizer {
     }
   }
 
+  _resetVolume() {
+    this._audio.volume = 1;
+    this._audio.muted = false;
+  }
+
+  _muteVolume() {
+    this._audio.volume = 0;
+    this._audio.muted = true;
+  }
+
+  /**
+   * @param {Object} e - The mouse event
+   */
+  _seek = e => {
+    const _bounds = this._elements.progress.getBoundingClientRect();
+    const _min = _bounds.x;
+    const _max = _bounds.x + _bounds.width;
+
+    // Out of bounds
+    if (e.pageX < _min || e.pageX > _max) { return; }
+
+    const val = e.clientX - _bounds.x;
+
+    this._audio.currentTime = this._audio.duration * (val / _bounds.width);
+  };
+
+  _onPointerUp = () => {
+    unlockUserSelection(document.body);
+
+    this._resetVolume();
+
+    document.removeEventListener('pointerup', this._onPointerUp);
+    document.removeEventListener('pointermove', this._onPointerMove);
+  };
+
+  _onPointerMove = e => {
+    this._seek(e);
+  };
+
+  _onPointerDown = e => {
+    lockUserSelection(document.body);
+
+    this._muteVolume();
+    this._seek(e);
+
+    document.addEventListener('pointermove', this._onPointerMove);
+    document.addEventListener('pointerup', this._onPointerUp);
+  };
+
   _updateProgress = () => {
     const _percent = (this._audio.currentTime / this._audio.duration) * 100;
 
@@ -102,8 +155,6 @@ class Visualizer {
   };
 
   _setupAudioAnalyser() {
-    this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
     this._analyserL = this._audioCtx.createAnalyser();
     this._analyserR = this._audioCtx.createAnalyser();
     this._analyserL.fftSize = config.blockLength;
@@ -131,13 +182,25 @@ class Visualizer {
   }
 
   /**
-   * @NOTE: On Chrome, this auto-play was temporarily disabled. For more info, see link below:
-   * @NOTE: https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio
+   * @NOTE: In some browsers (ex: Safari), the AudioContext starts in 'suspended' state
+   * @NOTE: and unlocking it requires a user-gesture event.
    */
+  _unlockAudioContext() {
+    if (this._audioCtx.state === 'suspended') {
+      this._audioCtx.resume();
+    }
+  }
+
   _initAudio() {
+    // The AudioContext needs to be created after a user interaction has taken place
+    this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    this.state.hasUserInteracted = true;
+
+    this._unlockAudioContext();
+
     this._audio.play()
       .then(() => {
-        this.state.hasUserInteracted = true;
         this.state.isPlaying = true;
 
         this._setupAudioAnalyser();
@@ -150,11 +213,19 @@ class Visualizer {
 
   _pauseAudio() {
     this._audio.pause();
+
+    this.state.isPlaying = false;
   }
 
+  /**
+   * @NOTE: On Chrome, this auto-play was temporarily disabled. For more info, see link below:
+   * @NOTE: https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio
+   */
   _playAudio() {
     if (this.state.hasUserInteracted) {
       this._audio.play();
+
+      this.state.isPlaying = true;
 
       return;
     }
@@ -169,11 +240,13 @@ class Visualizer {
     playBtn.addEventListener('click', () => this._playAudio());
     pauseBtn.addEventListener('click', () => this._pauseAudio());
 
-    this._audio.addEventListener('timeupdate', this._updateProgress);
+    this._audio.addEventListener('timeupdate', () => this._updateProgress());
+    this._elements.progress.addEventListener('pointerdown', e => this._onPointerDown(e));
   }
 
   _cacheSelectors() {
     this._elements = {
+      progress: document.querySelector('[data-player-progress]'),
       progressBar: document.querySelector('[data-player-progress-bar]'),
       elapsedTime: document.querySelector('[data-player-elapsed-time]'),
       totalTime: document.querySelector('[data-player-total-time]')

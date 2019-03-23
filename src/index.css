@@ -17,6 +17,10 @@ body {
   position: relative;
 }
 
+[data-prevent-selection] {
+  user-select: none;
+}
+
 canvas {
   position: absolute;
   height: 100%;
@@ -34,7 +38,7 @@ canvas {
 .player {
   position: fixed;
   right: 0;
-  bottom: 50px;
+  bottom: 40px;
   left: 0;
   max-width: 80%;
   margin: 0 auto;
@@ -63,7 +67,6 @@ canvas {
 
 .player__time {
   display: flex;
-  margin-bottom: 10px;
 }
 
 .player__total-time {
@@ -72,6 +75,16 @@ canvas {
 
 .player__progress {
   position: relative;
+  display: flex;
+  align-items: center;
+  height: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.player__progress-wrapper {
+  position: relative;
+  width: 100%;
 }
 
 .player__progress-track,
@@ -100,6 +113,12 @@ canvas {
   transform: translate(-50%, -50%);
   width: 10px;
   height: 10px;
+  opacity: 0;
   border-radius: 50%;
   background-color: blue;
+  transition: 0.15s ease-in-out opacity;
+}
+
+.player__progress:hover .player__progress-thumb {
+  opacity: 1;
 }
