@@ -1,6 +1,6 @@
 // Modules
+import Player from './actors/Player/Player';
 import Canvas from './actors/Canvas/Canvas';
-import Visualizer from './actors/Visualizer/Visualizer';
 
 // Setup
 const initialState = {
@@ -26,11 +26,12 @@ class App {
     const canvasCtx = canvasEl.getContext('2d');
 
     this._canvas = new Canvas(canvasEl, canvasCtx);
-    this._visualizer = new Visualizer(canvasCtx);
+    this._player = new Player(canvasCtx);
 
+    // Order is important, canvas needs to be first to draw
     this._actors = [
       this._canvas,
-      this._visualizer
+      this._player
     ];
 
     this._actors.forEach(actor => actor.init());

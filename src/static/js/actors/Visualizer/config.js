@@ -1,12 +1,4 @@
 export const config = {
-  // Audio
-  audioSource: require('../../../sounds/music.mp3'),
-  channels: {
-    left: 'L',
-    right: 'R'
-  },
-  blockLength: 256,
-  // Styling
   circle: {
     radius: 150,
     lineWidth: 3,
