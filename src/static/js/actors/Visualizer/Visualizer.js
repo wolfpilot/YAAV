@@ -113,7 +113,7 @@ class Visualizer {
   }
 
   _setupAudioAnalyser() {
-    this._audioCtx = new AudioContext();
+    this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     this._analyserL = this._audioCtx.createAnalyser();
     this._analyserR = this._audioCtx.createAnalyser();
