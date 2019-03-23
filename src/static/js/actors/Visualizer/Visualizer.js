@@ -1,7 +1,7 @@
 // Utils
 import { config } from "./config";
 import { config as globalConfig } from "../../config";
-import { getCenter } from "../../utils/helpers";
+import { getCenter } from "../../utils/uiHelpers";
 
 class Visualizer {
   constructor(canvasCtx) {

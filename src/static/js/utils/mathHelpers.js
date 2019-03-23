@@ -1,10 +1,3 @@
-export function getCenter() {
-  return {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2
-  }
-}
-
 /**
  * Format seconds to hours and minutes
  * @NOTE: Will always return at least minutes and seconds

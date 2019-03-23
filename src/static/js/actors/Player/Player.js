@@ -1,7 +1,7 @@
 // Utils
 import { config } from "./config";
 import { config as globalConfig } from "../../config";
-import { formatSeconds } from "../../utils/helpers";
+import { formatSeconds } from "../../utils/mathHelpers";
 import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers";
 
 // Modules

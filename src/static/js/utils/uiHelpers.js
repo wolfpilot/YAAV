@@ -7,3 +7,10 @@ export const lockUserSelection = elem => {
 export const unlockUserSelection = elem => {
   elem.removeAttribute(DATA_LOCK_SELECTION_ATTR);
 };
+
+export function getCenter() {
+  return {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
+  }
+}
