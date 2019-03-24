@@ -2,6 +2,7 @@
 import { config } from "./config";
 import { config as globalConfig } from "../../config";
 import { formatSeconds } from "../../utils/mathHelpers";
+import { getKeyCode } from "../../utils/inputHelpers";
 import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers";
 
 // Modules
@@ -111,6 +112,21 @@ class Player {
     document.addEventListener('pointerup', this._onPointerUp);
   };
 
+  _onKeyDown(e) {
+    const _keyCode = getKeyCode(e);
+
+    if (!_keyCode) { return; }
+
+    // Detect spacebar press
+    if (_keyCode === 32) {
+      // Prevent triggering other events when any UI buttons (ex: play, pause)
+      // are focused and the user presses spacebar
+      e.preventDefault();
+
+      this._togglePlayback();
+    }
+  }
+
   _updateProgress = () => {
     const _percent = (this._audio.currentTime / this._audio.duration) * 100;
 
@@ -176,6 +192,10 @@ class Player {
       });
   }
 
+  _togglePlayback() {
+    this.state.isPlaying ? this._pauseAudio() : this._playAudio();
+  }
+
   _pauseAudio() {
     this._audio.pause();
 
@@ -204,9 +224,9 @@ class Player {
 
     _playBtn.addEventListener('click', () => this._playAudio());
     _pauseBtn.addEventListener('click', () => this._pauseAudio());
-
-    this._audio.addEventListener('timeupdate', () => this._updateProgress());
+    window.addEventListener('keydown', e => this._onKeyDown(e));
     this._elements.progress.addEventListener('pointerdown', e => this._onPointerDown(e));
+    this._audio.addEventListener('timeupdate', () => this._updateProgress());
   }
 
   _cacheSelectors() {
