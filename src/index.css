@@ -17,6 +17,13 @@ body {
   position: relative;
 }
 
+button {
+  padding: 0;
+  outline: none;
+  background: none;
+  cursor: pointer;
+}
+
 [data-prevent-selection] {
   user-select: none;
 }
@@ -50,6 +57,25 @@ canvas {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.player__btn {
+  display: none;
+  border: none;
+}
+
+.player__btn svg {
+  height: 50px;
+  width: auto;
+  fill: blue;
+}
+
+.player[data-is-playing="true"] .player__pause-btn {
+  display: block;
+}
+
+.player[data-is-playing="false"] .player__play-btn {
+  display: block;
 }
 
 .player__track-info {

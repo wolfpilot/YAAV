@@ -183,6 +183,7 @@ class Player {
     this._audio.play()
       .then(() => {
         this.state.isPlaying = true;
+        this._elements.player.setAttribute('data-is-playing', 'true');
 
         this._setupAudioAnalyser();
       })
@@ -200,6 +201,7 @@ class Player {
     this._audio.pause();
 
     this.state.isPlaying = false;
+    this._elements.player.setAttribute('data-is-playing', 'false');
   }
 
   /**
@@ -211,6 +213,7 @@ class Player {
       this._audio.play();
 
       this.state.isPlaying = true;
+      this._elements.player.setAttribute('data-is-playing', 'true');
 
       return;
     }
@@ -231,6 +234,7 @@ class Player {
 
   _cacheSelectors() {
     this._elements = {
+      player: document.querySelector('[data-player]'),
       progress: document.querySelector('[data-player-progress]'),
       progressBar: document.querySelector('[data-player-progress-bar]'),
       elapsedTime: document.querySelector('[data-player-elapsed-time]'),
