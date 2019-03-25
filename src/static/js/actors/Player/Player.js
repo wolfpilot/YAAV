@@ -4,13 +4,15 @@ import { config as globalConfig } from "../../config";
 import { formatSeconds } from "../../utils/mathHelpers";
 import { getKeyCode } from "../../utils/inputHelpers";
 import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers";
+import { fadeIn, fadeOut } from "../../utils/audioHelpers";
 
 // Modules
 import Visualizer from '../Visualizer/Visualizer';
 
 const initialState = {
   hasUserInteracted: false,
-  isPlaying: false
+  isPlaying: false,
+  isVolumeFading: false
 };
 
 class Player {
@@ -197,23 +199,41 @@ class Player {
     this.state.isPlaying ? this._pauseAudio() : this._playAudio();
   }
 
-  _pauseAudio() {
+  async _pauseAudio() {
+    if (this.state.isVolumeFading) { return; }
+
+    this.state.isVolumeFading = true;
+    this._elements.player.setAttribute('data-is-playing', 'false');
+
+    await fadeOut(this._audio);
+
+    this.state.isVolumeFading = false;
     this._audio.pause();
 
-    this.state.isPlaying = false;
-    this._elements.player.setAttribute('data-is-playing', 'false');
+    // @TODO: Make volume bars return to center by default, that should remove this annoying buffer
+    // Give some time for the volume bars to scale down
+    setTimeout(() => {
+      this.state.isPlaying = false;
+    }, 500);
   }
 
   /**
    * @NOTE: On Chrome, this auto-play was temporarily disabled. For more info, see link below:
    * @NOTE: https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio
    */
-  _playAudio() {
+  async _playAudio() {
     if (this.state.hasUserInteracted) {
-      this._audio.play();
+      if (this.state.isVolumeFading) { return; }
 
       this.state.isPlaying = true;
+      this.state.isVolumeFading = true;
       this._elements.player.setAttribute('data-is-playing', 'true');
+
+      this._audio.play();
+
+      await fadeIn(this._audio);
+
+      this.state.isVolumeFading = false;
 
       return;
     }
