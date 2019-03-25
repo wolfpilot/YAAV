@@ -8,6 +8,7 @@ Thumbs.db
 
 # NPM
 node_modules
+package-lock.json
 
 # Build files
 dist/
