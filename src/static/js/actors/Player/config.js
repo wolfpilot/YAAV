@@ -1,4 +1,8 @@
 export const config = {
-  audioSource: require('../../../sounds/music.mp3'),
+  track: {
+    source: require('../../../sounds/music.mp3'),
+    artistName: 'Cry',
+    trackName: 'Vibe Tracks'
+  },
   blockLength: 256
 };

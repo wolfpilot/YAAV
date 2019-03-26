@@ -185,6 +185,14 @@ class Player {
     _merger.connect(this._audioCtx.destination, 0, 0);
   }
 
+  _loadTrack(track) {
+    this._audio.src = track.source;
+    this._audio.load();
+
+    this._elements.artistName.textContent = track.artistName;
+    this._elements.trackName.textContent = track.trackName;
+  }
+
   /**
    * @NOTE: In some browsers (ex: Safari), the AudioContext starts in 'suspended' state
    * @NOTE: and unlocking it requires a user-gesture event.
@@ -202,6 +210,7 @@ class Player {
     this.state.hasUserInteracted = true;
 
     this._unlockAudioContext();
+    this._loadTrack(config.track);
 
     this._audio.play()
       .then(() => {
@@ -276,6 +285,8 @@ class Player {
       player: document.querySelector('[data-player]'),
       progress: document.querySelector('[data-player-progress]'),
       progressBar: document.querySelector('[data-player-progress-bar]'),
+      artistName: document.querySelector('[data-player-artist-name]'),
+      trackName: document.querySelector('[data-player-track-name]'),
       elapsedTime: document.querySelector('[data-player-elapsed-time]'),
       totalTime: document.querySelector('[data-player-total-time]')
     };
@@ -283,7 +294,6 @@ class Player {
 
   _setupWebAudio() {
     this._audio = document.createElement('audio');
-    this._audio.src = config.audioSource;
 
     document.body.appendChild(this._audio);
   }
