@@ -23,7 +23,7 @@ Click the title or check it out at https://wolfpilot.github.io/YAAV/
 - [ ] Mobile design (?)
 
 ## Resources
-Track by [Cry](https://soundcloud.com/royaltyfreemusic-nocopyrightmusic/cry-vibe-tracks-free-download?in=royaltyfreemusic-nocopyrightmusic/sets/r-b-soul). Royalty free, no copyright music. Many thanks nonetheless!
+- Track by [Cry](https://soundcloud.com/royaltyfreemusic-nocopyrightmusic/cry-vibe-tracks-free-download?in=royaltyfreemusic-nocopyrightmusic/sets/r-b-soul) (royalty free, no copyright music). Many thanks for this awesome track!
 
 ## Links
 - [Web Audio API basics](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Basic_concepts_behind_Web_Audio_API)
