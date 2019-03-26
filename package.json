@@ -6,6 +6,7 @@
   "author": "Razvan Negrea <howl@wolfpilot.co> (www.wolfpilot.co)",
   "license": "MIT",
   "scripts": {
+    "prebuild": "rm -rf dist",
     "start": "npm run dev",
     "dev": "parcel ./src/index.html",
     "build": "parcel build ./src/index.html"
