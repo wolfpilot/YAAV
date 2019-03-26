@@ -7,9 +7,11 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "start": "npm run dev",
+    "start": "yarn dev",
     "dev": "parcel ./src/index.html",
-    "build": "parcel build ./src/index.html"
+    "build": "parcel build ./src/index.html --public-url ./",
+    "predeploy": "yarn build",
+    "deploy": "gh-pages -d dist"
   },
   "keywords": [
     "javascript",
