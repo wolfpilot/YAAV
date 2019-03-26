@@ -1,16 +1,19 @@
 // Utils
 import { config } from "./config";
 import { config as globalConfig } from "../../config";
-import { formatSeconds } from "../../utils/mathHelpers";
+import { formatSeconds, isArrayZeroedOut } from "../../utils/mathHelpers";
 import { getKeyCode } from "../../utils/inputHelpers";
 import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers";
+import { fadeIn, fadeOut } from "../../utils/audioHelpers";
 
 // Modules
 import Visualizer from '../Visualizer/Visualizer';
 
 const initialState = {
   hasUserInteracted: false,
-  isPlaying: false
+  isPlaying: false,
+  isVolumeFading: false,
+  isBinDataEmpty: true
 };
 
 class Player {
@@ -29,7 +32,14 @@ class Player {
     const bufferLength = analyser.frequencyBinCount; // Frequency bar count
     const frequencyData = new Uint8Array(bufferLength);
 
+    // Order is important; first read the data, then process it.
+    // .getByteFrequencyData() doesn't return anything, it simply updates the original object.
     analyser.getByteFrequencyData(frequencyData);
+
+    // A completely zeroed-out bin data array means total silence
+    const dataIsEmpty = isArrayZeroedOut(frequencyData);
+
+    if (dataIsEmpty) { return; }
 
     return {
       bufferLength,
@@ -38,10 +48,23 @@ class Player {
   }
 
   _getAudioData() {
-    if (!this.state.isPlaying) { return; }
+    // Unfortunately, after pausing there is a small delay until the bin data array empties out
+    // which means that calling .pause() doesn't necessarily reflect the real state of the audio.
+    // This is mostly a performance optimisation so that we don't draw empty sample frames.
+    if (!this.state.isPlaying && this.state.isBinDataEmpty) { return; }
 
     const channelLeftData = Player.getChannelData(this._analyserL);
     const channelRightData = Player.getChannelData(this._analyserR);
+
+    // Because we're processing each channel separately, some tracks may (at times)
+    // only return data for one channel. Therefore, the channels are to be drawn separately.
+    if (!channelLeftData && !channelRightData) {
+      this.state.isBinDataEmpty = true;
+
+      return;
+    }
+
+    this.state.isBinDataEmpty = false;
 
     return {
       channels: [
@@ -183,6 +206,7 @@ class Player {
     this._audio.play()
       .then(() => {
         this.state.isPlaying = true;
+        this.state.isBinDataEmpty = false;
         this._elements.player.setAttribute('data-is-playing', 'true');
 
         this._setupAudioAnalyser();
@@ -197,23 +221,38 @@ class Player {
     this.state.isPlaying ? this._pauseAudio() : this._playAudio();
   }
 
-  _pauseAudio() {
-    this._audio.pause();
+  async _pauseAudio() {
+    if (this.state.isVolumeFading) { return; }
+
+    this.state.isVolumeFading = true;
+    this._elements.player.setAttribute('data-is-playing', 'false');
+
+    await fadeOut(this._audio);
 
     this.state.isPlaying = false;
-    this._elements.player.setAttribute('data-is-playing', 'false');
+    this.state.isVolumeFading = false;
+
+    this._audio.pause();
   }
 
   /**
    * @NOTE: On Chrome, this auto-play was temporarily disabled. For more info, see link below:
    * @NOTE: https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio
    */
-  _playAudio() {
+  async _playAudio() {
     if (this.state.hasUserInteracted) {
-      this._audio.play();
+      if (this.state.isVolumeFading) { return; }
 
       this.state.isPlaying = true;
+      this.state.isVolumeFading = true;
+      this.state.isBinDataEmpty = false;
       this._elements.player.setAttribute('data-is-playing', 'true');
+
+      this._audio.play();
+
+      await fadeIn(this._audio);
+
+      this.state.isVolumeFading = false;
 
       return;
     }

@@ -32,6 +32,8 @@ class Visualizer {
   }
 
   _drawChannel(channel) {
+    if (!channel.data) { return; }
+
     // Cache centre coordinates
     const _centre = getCenter();
 
