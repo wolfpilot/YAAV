@@ -1,8 +1,11 @@
-# YAAV (Yet Another Audio Visualizer)
+# [YAAV (Yet Another Audio Visualizer)](https://wolfpilot.github.io/YAAV/)
 
 Yep, I'm doing it. I am building yet another audio visualizer.
 
 **STATUS:** work in progress
+
+## Demo
+Click the title or check it out at https://wolfpilot.github.io/YAAV/
 
 ## Features
 
