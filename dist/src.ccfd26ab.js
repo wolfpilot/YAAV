@@ -13,7 +13,7 @@ module.exports=require("regenerator-runtime");
 },{"regenerator-runtime":"QVnC"}],"agGE":[function(require,module,exports) {
 function n(n,t,o,r,e,i,u){try{var c=n[i](u),v=c.value}catch(a){return void o(a)}c.done?t(v):Promise.resolve(v).then(r,e)}function t(t){return function(){var o=this,r=arguments;return new Promise(function(e,i){var u=t.apply(o,r);function c(t){n(u,e,i,c,v,"next",t)}function v(t){n(u,e,i,c,v,"throw",t)}c(void 0)})}}module.exports=t;
 },{}],"VG8M":[function(require,module,exports) {
-module.exports="/music.b6944546.mp3";
+module.exports="/YAAV/music.b6944546.mp3";
 },{}],"Ofbi":[function(require,module,exports) {
 "use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.config=void 0;var e={track:{source:require("../../../sounds/music.mp3"),artistName:"Cry",trackName:"Vibe Tracks"},blockLength:256};exports.config=e;
 },{"../../../sounds/music.mp3":"VG8M"}],"nUR9":[function(require,module,exports) {
@@ -43,4 +43,4 @@ module.exports="/music.b6944546.mp3";
 },{"@babel/runtime/helpers/objectSpread":"fwAU","@babel/runtime/helpers/classCallCheck":"0fcM","@babel/runtime/helpers/createClass":"P8NW","@babel/runtime/helpers/defineProperty":"IxO8","./actors/Player/Player":"RV4F","./actors/Canvas/Canvas":"uLQq"}],"Focm":[function(require,module,exports) {
 "use strict";var e=t(require("./static/js/App"));function t(e){return e&&e.__esModule?e:{default:e}}var n=new e.default,r=function(){return new Promise(function(e){"complete"===document.readyState?e():document.addEventListener("DOMContentLoaded",e)})};r().then(function(){return n.init()});
 },{"./static/js/App":"9kSL"}]},{},["Focm"], null)
-//# sourceMappingURL=/src.ccfd26ab.js.map
+//# sourceMappingURL=/YAAV/src.ccfd26ab.js.map

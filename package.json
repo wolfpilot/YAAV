@@ -9,7 +9,7 @@
     "prebuild": "rm -rf dist",
     "start": "yarn dev",
     "dev": "parcel ./src/index.html",
-    "build": "parcel build ./src/index.html --public-url ./",
+    "build": "parcel build ./src/index.html --public-url='/YAAV'",
     "predeploy": "yarn build",
     "deploy": "gh-pages -d dist"
   },
