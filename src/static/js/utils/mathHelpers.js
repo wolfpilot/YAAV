@@ -22,3 +22,7 @@ export const formatSeconds = time => {
 
   return formattedTime;
 };
+
+export const isArrayZeroedOut = arr => {
+  return arr.every(val => val === 0);
+};
