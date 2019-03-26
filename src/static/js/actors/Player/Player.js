@@ -126,6 +126,8 @@ class Player {
   };
 
   _onPointerDown = e => {
+    if (!this._audioCtx) { return; }
+
     lockUserSelection(document.body);
 
     this._muteVolume();
