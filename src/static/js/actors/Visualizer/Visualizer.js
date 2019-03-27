@@ -40,12 +40,13 @@ class Visualizer {
     // Calculate angle
     const _rads = Math.PI / channel.data.bufferLength;
     const _angleMultiplier = channel.name === globalConfig.channels.left ? -1 : 1;
+    const _angleAlignmentOffset = channel.name === globalConfig.channels.left ? -_rads / 2 : _rads / 2;
 
     // Loop through all volume bars
     for (let i = 0; i < channel.data.bufferLength; i++) {
       const _frequency = channel.data.frequencyData[i];
       const _length = _frequency / 2;
-      const _angle = (_angleMultiplier * _rads * i) + config.volumeBar.angleOffset;
+      const _angle = (_angleMultiplier * _rads * i) + config.volumeBar.angleOffset + _angleAlignmentOffset;
 
       // Calculate coordinates
       const _coords = Visualizer.getVolumeBarCoords(_centre, _angle, _length);
