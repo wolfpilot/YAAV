@@ -10,6 +10,13 @@ Thumbs.db
 node_modules
 package-lock.json
 
+# Assets
+src/static/sounds/
+!src/static/sounds/music.mp3
+
+# Build files
+dist/
+
 # Cache
 .cache
 
