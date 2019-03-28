@@ -17,6 +17,26 @@ class Visualizer {
     return { xStart, yStart, xEnd, yEnd };
   }
 
+  _drawVolumeImpulse(centre, angle, length = 0) {
+    // @TODO: Move to config
+    const radius = 3;
+    const startAngle = 0;
+    const endAngle = Math.PI * 2;
+    const _offset = 5;
+
+    // @Note: Inside
+    // const x = centre.x + (Math.cos(angle) * (config.circle.radius - (length / 5) - _offset));
+    // const y = centre.y + (Math.sin(angle) * (config.circle.radius - (length / 5) - _offset));
+    const x = centre.x + (Math.cos(angle) * (config.circle.radius + length + _offset));
+    const y = centre.y + (Math.sin(angle) * (config.circle.radius + length + _offset));
+
+    this._canvasCtx.fillStyle = 'rgba(0, 0, 255, 0.25';
+
+    this._canvasCtx.beginPath();
+    this._canvasCtx.arc(x, y, radius, startAngle, endAngle);
+    this._canvasCtx.fill();
+  }
+
   _drawVolumeBar(channel, frequency, coords) {
     const _fill = channel === globalConfig.channels.left ?
       config.volumeBar.fillLeft(frequency) :
@@ -32,7 +52,8 @@ class Visualizer {
   }
 
   _drawChannel(channel) {
-    if (!channel.data) { return; }
+    // if (!channel.data) { return; }
+    if (!channel.data || !channel.data.bufferLength) { return; }
 
     // Cache centre coordinates
     const _centre = getCenter();
@@ -52,7 +73,11 @@ class Visualizer {
       const _coords = Visualizer.getVolumeBarCoords(_centre, _angle, _length);
 
       // Draw single bar
-      this._drawVolumeBar(channel.name, _frequency, _coords);
+      if (channel.data) {
+        this._drawVolumeBar(channel.name, _frequency, _coords);
+      }
+
+      this._drawVolumeImpulse(_centre, _angle, _length);
     }
   }
 
