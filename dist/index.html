@@ -1,1 +1,71 @@
-<html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><title>Yet Another Audio Visualizer</title><link rel="stylesheet" type="text/css" href="/YAAV/src.af2a4a6a.css"><script>!function(e){var o,n;void 0===window.onpointerdown&&(o="https://code.jquery.com/pep/0.4.3/pep.min.js",(n=e.createElement("script")).src=o,n.onerror=console.error,e.head.appendChild(n))}(document);</script></head><body> <main role="main"> <canvas id="canvas">If you can see this, your browser doesn't support JS Canvas.</canvas> <div class="player" data-player="" data-is-playing="false"> <div class="player__controls"> <button class="player__btn player__play-btn" data-play-btn=""> <span class="svg-wrapper"> <svg class="svg-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124.512 124.512"><path d="M113.956 57.006l-97.4-56.2c-4-2.3-9 .6-9 5.2v112.5c0 4.6 5 7.5 9 5.2l97.4-56.2c4-2.401 4-8.2 0-10.5z"/></svg> </span> </button> <button class="player__btn player__pause-btn" data-pause-btn=""> <span class="svg-wrapper"> <svg class="svg-pause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 519.479 519.479"><path d="M193.441 0h-75.484c-16.897 0-30.6 13.703-30.6 30.6v458.277c0 16.898 13.703 30.602 30.6 30.602h75.484c16.897 0 30.6-13.703 30.6-30.602V30.6c.001-16.897-13.702-30.6-30.6-30.6zM401.521 0h-75.484c-16.896 0-30.6 13.703-30.6 30.6v458.277c0 16.898 13.703 30.602 30.6 30.602h75.484c16.896 0 30.6-13.703 30.6-30.602V30.6c0-16.897-13.703-30.6-30.6-30.6z"/></svg> </span> </button> </div> <div class="player__track-info"> <div class="player__artist-name" data-player-artist-name="">Artist</div> <div class="player__track-name" data-player-track-name="">Track name</div> </div> <div class="player__timeline"> <div class="player__time"> <div class="player__elapsed-time" data-player-elapsed-time="">00:00</div> <div class="player__total-time" data-player-total-time="">--:--</div> </div> <div class="player__progress" data-player-progress=""> <div class="player__progress-wrapper"> <div class="player__progress-track" role="presentation"></div> <div class="player__progress-bar" role="presentation" data-player-progress-bar=""> <div class="player__progress-thumb" role="presentation"></div> </div> </div> </div> </div> </div> </main> <script src="/YAAV/src.ccfd26ab.js"></script> </body></html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Yet Another Audio Visualizer</title>
+    <link rel="stylesheet" type="text/css" href="/src.9ad09f98.css">
+    <script>(function (doc) {
+  function loadScripts(src) {
+    var script = doc.createElement('script');
+    script.src = src;
+    script.onerror = console.error;
+    doc.head.appendChild(script);
+  }
+
+  if (window.onpointerdown === undefined) {
+    loadScripts('https://code.jquery.com/pep/0.4.3/pep.min.js');
+  }
+})(document);</script>
+  <script src="/src.9ad09f98.js"></script></head>
+  <body>
+    <main role="main">
+      <canvas id="canvas">If you can see this, your browser doesn't support JS Canvas.</canvas>
+
+      <div class="player" data-player="" data-is-playing="false">
+        <div class="player__controls">
+          <button class="player__btn player__play-btn" data-play-btn="">
+            <span class="svg-wrapper">
+              <svg class="svg-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124.512 124.512">
+                <path d="M113.956 57.006l-97.4-56.2c-4-2.3-9 .6-9 5.2v112.5c0 4.6 5 7.5 9 5.2l97.4-56.2c4-2.401 4-8.2 0-10.5z"></path>
+              </svg>
+            </span>
+          </button>
+          <button class="player__btn player__pause-btn" data-pause-btn="">
+            <span class="svg-wrapper">
+              <svg class="svg-pause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 519.479 519.479">
+                <path d="M193.441 0h-75.484c-16.897 0-30.6 13.703-30.6 30.6v458.277c0 16.898 13.703 30.602 30.6 30.602h75.484c16.897 0 30.6-13.703 30.6-30.602V30.6c.001-16.897-13.702-30.6-30.6-30.6z"></path>
+                <path d="M401.521 0h-75.484c-16.896 0-30.6 13.703-30.6 30.6v458.277c0 16.898 13.703 30.602 30.6 30.602h75.484c16.896 0 30.6-13.703 30.6-30.602V30.6c0-16.897-13.703-30.6-30.6-30.6z"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+
+        <div class="player__track-info">
+          <div class="player__artist-name" data-player-artist-name="">Artist</div>
+          <div class="player__track-name" data-player-track-name="">Track name</div>
+        </div>
+
+        <div class="player__timeline">
+          <div class="player__time">
+            <div class="player__elapsed-time" data-player-elapsed-time="">00:00</div>
+            <div class="player__total-time" data-player-total-time="">--:--</div>
+          </div>
+
+          <div class="player__progress" data-player-progress="">
+            <div class="player__progress-wrapper">
+              <div class="player__progress-track" role="presentation"></div>
+              <div class="player__progress-bar" role="presentation" data-player-progress-bar="">
+                <div class="player__progress-thumb" role="presentation"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="/src.e31bb0bc.js"></script>
+  </body>
+</html>

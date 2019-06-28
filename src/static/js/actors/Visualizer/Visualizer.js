@@ -30,7 +30,7 @@ class Visualizer {
     const x = centre.x + (Math.cos(angle) * (config.circle.radius + length + _offset));
     const y = centre.y + (Math.sin(angle) * (config.circle.radius + length + _offset));
 
-    this._canvasCtx.fillStyle = 'rgba(0, 0, 255, 0.25';
+    this._canvasCtx.fillStyle = 'rgba(0, 0, 255, 0.25)';
 
     this._canvasCtx.beginPath();
     this._canvasCtx.arc(x, y, radius, startAngle, endAngle);
