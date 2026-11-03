@@ -1,9 +1,9 @@
 export const config = {
   track: {
-    source: new URL('../../../sounds/music.mp3', import.meta.url),
-    artistName: 'Cry',
-    trackName: 'Vibe Tracks'
+    source: new URL("../../../sounds/music.mp3", import.meta.url),
+    artistName: "Cry",
+    trackName: "Vibe Tracks",
   },
   fftSize: 2048,
-  maxDecibels: 0
+  maxDecibels: 0,
 };
