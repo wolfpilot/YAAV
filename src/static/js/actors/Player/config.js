@@ -4,5 +4,5 @@ export const config = {
     artistName: 'Cry',
     trackName: 'Vibe Tracks'
   },
-  blockLength: 256
+  fftSize: 2048
 };

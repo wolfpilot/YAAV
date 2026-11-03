@@ -29,7 +29,7 @@ class Player {
   };
 
   static getChannelData(analyser) {
-    const bufferLength = analyser.frequencyBinCount; // Frequency bar count
+    const bufferLength = analyser.frequencyBinCount;
     const frequencyData = new Uint8Array(bufferLength);
 
     // Order is important; first read the data, then process it.
@@ -42,8 +42,9 @@ class Player {
     if (dataIsEmpty) { return; }
 
     return {
-      bufferLength,
-      frequencyData
+      frequencyData,
+      fftSize: analyser.fftSize,
+      sampleRate: analyser.context.sampleRate
     }
   }
 
@@ -163,8 +164,8 @@ class Player {
   _setupAudioAnalyser() {
     this._analyserL = this._audioCtx.createAnalyser();
     this._analyserR = this._audioCtx.createAnalyser();
-    this._analyserL.fftSize = config.blockLength;
-    this._analyserR.fftSize = config.blockLength;
+    this._analyserL.fftSize = config.fftSize;
+    this._analyserR.fftSize = config.fftSize;
 
     const _splitter = this._audioCtx.createChannelSplitter(2);
     const _merger = this._audioCtx.createChannelMerger(2);
