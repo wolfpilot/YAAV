@@ -7,10 +7,10 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "start": "yarn dev",
+    "start": "pnpm dev",
     "dev": "parcel ./src/index.html",
     "build": "parcel build ./src/index.html --public-url='/YAAV'",
-    "predeploy": "yarn build",
+    "predeploy": "pnpm build",
     "deploy": "gh-pages -d dist"
   },
   "keywords": [
