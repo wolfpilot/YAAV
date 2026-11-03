@@ -1,4 +1,7 @@
 allowBuilds:
-  core-js: false
-  deasync: true
-  parcel-bundler: false
+  '@parcel/watcher': false
+  '@swc/core': false
+  lmdb: false
+  msgpackr-extract: false
+minimumReleaseAgeExclude:
+  - rimraf@6.1.4
