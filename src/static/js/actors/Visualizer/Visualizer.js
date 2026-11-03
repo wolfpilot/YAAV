@@ -2,7 +2,9 @@
 import { config } from "./config";
 import { config as globalConfig } from "../../config";
 import { getCenter } from "../../utils/uiHelpers";
-import { getLogarithmicBands, getStereoBandAngle } from "../../utils/spectrumHelpers";
+import { getStereoBandAngle } from "../../utils/spectrumHelpers";
+import { getDistinctFrequencyBands } from "../../utils/frequencyBands";
+import { bassSpectrum, getAvailableBassBins } from "../../utils/bassSpectrum";
 
 class Visualizer {
   constructor(canvasCtx) {
@@ -37,14 +39,29 @@ class Visualizer {
 
     const _centre = getCenter();
     const _side = channel.name === globalConfig.channels.left ? -1 : 1;
-    const _bands = getLogarithmicBands(
+    const bassBandCount = Math.min(
+      bassSpectrum.bandCount,
+      getAvailableBassBins(channel.data.sampleRate, channel.data.bassFftSize)
+    );
+    const bassBands = getDistinctFrequencyBands(
+      channel.data.bassFrequencyData,
+      channel.data.sampleRate,
+      channel.data.bassFftSize,
+      bassBandCount,
+      bassSpectrum.minFrequency,
+      bassSpectrum.maxFrequency,
+      "linear"
+    );
+    const upperBands = getDistinctFrequencyBands(
       channel.data.frequencyData,
       channel.data.sampleRate,
       channel.data.fftSize,
-      config.volumeBar.bandCount,
-      config.volumeBar.minFrequency,
-      config.volumeBar.maxFrequency
+      config.volumeBar.bandCount - bassBandCount,
+      bassSpectrum.maxFrequency,
+      config.volumeBar.maxFrequency,
+      "logarithmic"
     );
+    const _bands = [...bassBands, ...upperBands];
 
     for (let i = 0; i < _bands.length; i++) {
       const _magnitude = _bands[i];
