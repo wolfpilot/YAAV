@@ -8,6 +8,7 @@
     "prebuild": "rimraf dist",
     "start": "pnpm dev",
     "dev": "parcel ./src/index.html",
+    "typecheck": "tsc --noEmit",
     "build": "parcel build ./src/index.html --public-url /YAAV/",
     "predeploy": "pnpm build",
     "deploy": "gh-pages -d dist"
@@ -22,6 +23,7 @@
   "devDependencies": {
     "gh-pages": "^6.3.0",
     "parcel": "^2.16.4",
-    "rimraf": "6.1.4"
+    "rimraf": "6.1.4",
+    "typescript": "^7.0.2"
   }
 }
