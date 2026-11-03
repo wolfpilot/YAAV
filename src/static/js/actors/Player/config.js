@@ -4,5 +4,6 @@ export const config = {
     artistName: 'Cry',
     trackName: 'Vibe Tracks'
   },
-  fftSize: 2048
+  fftSize: 2048,
+  maxDecibels: 0
 };

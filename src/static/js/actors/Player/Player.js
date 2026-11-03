@@ -166,6 +166,8 @@ class Player {
     this._analyserR = this._audioCtx.createAnalyser();
     this._analyserL.fftSize = config.fftSize;
     this._analyserR.fftSize = config.fftSize;
+    this._analyserL.maxDecibels = config.maxDecibels;
+    this._analyserR.maxDecibels = config.maxDecibels;
 
     const _splitter = this._audioCtx.createChannelSplitter(2);
     const _merger = this._audioCtx.createChannelMerger(2);
