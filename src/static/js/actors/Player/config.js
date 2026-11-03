@@ -1,6 +1,6 @@
 export const config = {
   track: {
-    source: require('../../../sounds/music.mp3'),
+    source: new URL('../../../sounds/music.mp3', import.meta.url),
     artistName: 'Cry',
     trackName: 'Vibe Tracks'
   },

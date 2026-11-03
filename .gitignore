@@ -8,7 +8,6 @@ Thumbs.db
 
 # NPM
 node_modules
-package-lock.json
 
 # Assets
 src/static/sounds/
@@ -19,13 +18,15 @@ dist/
 
 # Cache
 .cache
+.parcel-cache
+.parcel-cache-dev
 
 # Logs
 logs
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
+pnpm-debug.log*
 
 # Other
 .env
