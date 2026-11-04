@@ -6,4 +6,4 @@ export const config = {
   },
   fftSize: 2048,
   maxDecibels: 0,
-};
+}

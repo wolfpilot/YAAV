@@ -1,5 +1,5 @@
 // Utils
-import { linear} from "./easings";
+import { linear } from "./easings"
 
 /**
  * Ease from one value to another in a specified time
@@ -9,38 +9,40 @@ import { linear} from "./easings";
  * @param {Function} options.callback - Function to be executed at the end of the animation
  * @param {Function} options.ease - Custom easing function
  */
-export const ease = options => {
-  const { from, to, duration, callback, ease = linear } = options;
+export const ease = (options) => {
+  const { from, to, duration, callback, ease = linear } = options
 
-  let startTime;
+  let startTime
 
-  const dx = to - from;
+  const dx = to - from
 
-  return new Promise(resolve => {
-    const _tick = time => {
+  return new Promise((resolve) => {
+    const _tick = (time) => {
       // In a RAF loop, the initial timestamp will never be 0.
       // To be more accurate, this should be set to the value returned by the first iteration.
       if (!startTime) {
-        startTime = time;
+        startTime = time
       }
 
-      const dt = time - startTime;
-      const p = dt / duration;
+      const dt = time - startTime
+      const p = dt / duration
 
       if (p >= 1) {
-        if (!callback) { return; }
+        if (!callback) {
+          return
+        }
 
-        callback(to);
-        resolve();
+        callback(to)
+        resolve()
 
-        return;
+        return
       }
 
-      callback(from + dx * ease(p));
+      callback(from + dx * ease(p))
 
-      requestAnimationFrame(_tick);
-    };
+      requestAnimationFrame(_tick)
+    }
 
-    requestAnimationFrame(_tick);
-  });
-};
+    requestAnimationFrame(_tick)
+  })
+}

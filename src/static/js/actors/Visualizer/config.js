@@ -12,4 +12,4 @@ export const config = {
     fillLeft: (frequency) => `rgb(255, ${frequency}, 0)`,
     fillRight: (frequency) => `rgb(0, ${frequency}, 255)`,
   },
-};
+}

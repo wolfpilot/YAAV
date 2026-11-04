@@ -1,55 +1,58 @@
 // Utils
-import { config } from "./config";
-import { config as globalConfig } from "../../config";
-import { formatSeconds, isArrayZeroedOut } from "../../utils/mathHelpers";
-import { getKeyCode } from "../../utils/inputHelpers";
-import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers";
-import { fadeIn, fadeOut } from "../../utils/audioHelpers";
-import { getBassFftSize } from "../../utils/bassSpectrum";
+import { config } from "./config"
+import { config as globalConfig } from "../../config"
+import { formatSeconds, isArrayZeroedOut } from "../../utils/mathHelpers"
+import { getKeyCode } from "../../utils/inputHelpers"
+import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers"
+import { fadeIn, fadeOut } from "../../utils/audioHelpers"
+import { getBassFftSize } from "../../utils/bassSpectrum"
 
 // Modules
-import Visualizer from '../Visualizer/Visualizer';
+import Visualizer from "../Visualizer/Visualizer"
 
 const initialState = {
   hasUserInteracted: false,
   isPlaying: false,
   isVolumeFading: false,
-  isBinDataEmpty: true
-};
+  isBinDataEmpty: true,
+}
 
 class Player {
   constructor(canvasCtx) {
-    this._visualizer = new Visualizer(canvasCtx);
+    this._visualizer = new Visualizer(canvasCtx)
 
-    this._onPointerMove = this._onPointerMove.bind(this);
-    this._onPointerUp = this._onPointerUp.bind(this);
+    this._onPointerMove = this._onPointerMove.bind(this)
+    this._onPointerUp = this._onPointerUp.bind(this)
   }
 
   state = {
-    ...initialState
-  };
+    ...initialState,
+  }
 
   static getChannelData(analyser, bassAnalyser) {
-    const bufferLength = analyser.frequencyBinCount;
-    const frequencyData = new Uint8Array(bufferLength);
-    const bassFrequencyData = new Uint8Array(bassAnalyser.frequencyBinCount);
+    const bufferLength = analyser.frequencyBinCount
+    const frequencyData = new Uint8Array(bufferLength)
+    const bassFrequencyData = new Uint8Array(bassAnalyser.frequencyBinCount)
 
     // Order is important; first read the data, then process it.
     // .getByteFrequencyData() doesn't return anything, it simply updates the original object.
-    analyser.getByteFrequencyData(frequencyData);
-    bassAnalyser.getByteFrequencyData(bassFrequencyData);
+    analyser.getByteFrequencyData(frequencyData)
+    bassAnalyser.getByteFrequencyData(bassFrequencyData)
 
     // A completely zeroed-out bin data array means total silence
-    const dataIsEmpty = isArrayZeroedOut(frequencyData) && isArrayZeroedOut(bassFrequencyData);
+    const dataIsEmpty =
+      isArrayZeroedOut(frequencyData) && isArrayZeroedOut(bassFrequencyData)
 
-    if (dataIsEmpty) { return; }
+    if (dataIsEmpty) {
+      return
+    }
 
     return {
       frequencyData,
       fftSize: analyser.fftSize,
       bassFrequencyData,
       bassFftSize: bassAnalyser.fftSize,
-      sampleRate: analyser.context.sampleRate
+      sampleRate: analyser.context.sampleRate,
     }
   }
 
@@ -57,159 +60,182 @@ class Player {
     // Unfortunately, after pausing there is a small delay until the bin data array empties out
     // which means that calling .pause() doesn't necessarily reflect the real state of the audio.
     // This is mostly a performance optimisation so that we don't draw empty sample frames.
-    if (!this.state.isPlaying && this.state.isBinDataEmpty) { return; }
+    if (!this.state.isPlaying && this.state.isBinDataEmpty) {
+      return
+    }
 
-    const channelLeftData = Player.getChannelData(this._analyserL, this._bassAnalyserL);
-    const channelRightData = Player.getChannelData(this._analyserR, this._bassAnalyserR);
+    const channelLeftData = Player.getChannelData(
+      this._analyserL,
+      this._bassAnalyserL
+    )
+    const channelRightData = Player.getChannelData(
+      this._analyserR,
+      this._bassAnalyserR
+    )
 
     // Because we're processing each channel separately, some tracks may (at times)
     // only return data for one channel. Therefore, the channels are to be drawn separately.
     if (!channelLeftData && !channelRightData) {
-      this.state.isBinDataEmpty = true;
+      this.state.isBinDataEmpty = true
 
-      return;
+      return
     }
 
-    this.state.isBinDataEmpty = false;
+    this.state.isBinDataEmpty = false
 
     return {
       channels: [
         {
           name: globalConfig.channels.left,
-          data: channelLeftData
+          data: channelLeftData,
         },
         {
           name: globalConfig.channels.right,
-          data: channelRightData
-        }
-      ]
-    };
+          data: channelRightData,
+        },
+      ],
+    }
   }
 
   draw() {
-    const data = this._getAudioData();
+    const data = this._getAudioData()
 
-    this._visualizer.draw(data);
+    this._visualizer.draw(data)
   }
 
   _resetVolume() {
-    this._audio.volume = 1;
-    this._audio.muted = false;
+    this._audio.volume = 1
+    this._audio.muted = false
   }
 
   _muteVolume() {
-    this._audio.volume = 0;
-    this._audio.muted = true;
+    this._audio.volume = 0
+    this._audio.muted = true
   }
 
   /**
    * @param {Object} e - The mouse event
    */
-  _seek = e => {
-    const _bounds = this._elements.progress.getBoundingClientRect();
-    const _min = _bounds.x;
-    const _max = _bounds.x + _bounds.width;
+  _seek = (e) => {
+    const _bounds = this._elements.progress.getBoundingClientRect()
+    const _min = _bounds.x
+    const _max = _bounds.x + _bounds.width
 
     // Out of bounds
-    if (e.pageX < _min || e.pageX > _max) { return; }
+    if (e.pageX < _min || e.pageX > _max) {
+      return
+    }
 
-    const _val = e.clientX - _bounds.x;
+    const _val = e.clientX - _bounds.x
 
-    this._audio.currentTime = this._audio.duration * (_val / _bounds.width);
-  };
+    this._audio.currentTime = this._audio.duration * (_val / _bounds.width)
+  }
 
   _onPointerUp = () => {
-    unlockUserSelection(document.body);
+    unlockUserSelection(document.body)
 
-    this._resetVolume();
+    this._resetVolume()
 
-    document.removeEventListener('pointerup', this._onPointerUp);
-    document.removeEventListener('pointermove', this._onPointerMove);
-  };
+    document.removeEventListener("pointerup", this._onPointerUp)
+    document.removeEventListener("pointermove", this._onPointerMove)
+  }
 
-  _onPointerMove = e => {
-    this._seek(e);
-  };
+  _onPointerMove = (e) => {
+    this._seek(e)
+  }
 
-  _onPointerDown = e => {
-    if (!this._audioCtx) { return; }
+  _onPointerDown = (e) => {
+    if (!this._audioCtx) {
+      return
+    }
 
-    lockUserSelection(document.body);
+    lockUserSelection(document.body)
 
-    this._muteVolume();
-    this._seek(e);
+    this._muteVolume()
+    this._seek(e)
 
-    document.addEventListener('pointermove', this._onPointerMove);
-    document.addEventListener('pointerup', this._onPointerUp);
-  };
+    document.addEventListener("pointermove", this._onPointerMove)
+    document.addEventListener("pointerup", this._onPointerUp)
+  }
 
   _onKeyDown(e) {
-    const _keyCode = getKeyCode(e);
+    const _keyCode = getKeyCode(e)
 
-    if (!_keyCode) { return; }
+    if (!_keyCode) {
+      return
+    }
 
     // Detect spacebar press
     if (_keyCode === 32) {
       // Prevent triggering other events when any UI buttons (ex: play, pause)
       // are focused and the user presses spacebar
-      e.preventDefault();
+      e.preventDefault()
 
-      this._togglePlayback();
+      this._togglePlayback()
     }
   }
 
   _updateProgress = () => {
-    const _percent = (this._audio.currentTime / this._audio.duration) * 100;
+    const _percent = (this._audio.currentTime / this._audio.duration) * 100
 
-    this._elements.progressBar.style.maxWidth = `${_percent}%`;
-    this._elements.elapsedTime.textContent = formatSeconds(this._audio.currentTime);
-    this._elements.totalTime.textContent = formatSeconds(this._audio.duration);
-  };
+    this._elements.progressBar.style.maxWidth = `${_percent}%`
+    this._elements.elapsedTime.textContent = formatSeconds(
+      this._audio.currentTime
+    )
+    this._elements.totalTime.textContent = formatSeconds(this._audio.duration)
+  }
 
   _setupAudioAnalyser() {
-    this._analyserL = this._audioCtx.createAnalyser();
-    this._analyserR = this._audioCtx.createAnalyser();
-    this._bassAnalyserL = this._audioCtx.createAnalyser();
-    this._bassAnalyserR = this._audioCtx.createAnalyser();
-    this._analyserL.fftSize = config.fftSize;
-    this._analyserR.fftSize = config.fftSize;
-    const bassFftSize = getBassFftSize(this._audioCtx.sampleRate);
-    this._bassAnalyserL.fftSize = bassFftSize;
-    this._bassAnalyserR.fftSize = bassFftSize;
-    this._analyserL.maxDecibels = config.maxDecibels;
-    this._analyserR.maxDecibels = config.maxDecibels;
-    this._bassAnalyserL.maxDecibels = config.maxDecibels;
-    this._bassAnalyserR.maxDecibels = config.maxDecibels;
+    // Set up overall analyzer
+    this._analyserL = this._audioCtx.createAnalyser()
+    this._analyserR = this._audioCtx.createAnalyser()
 
-    const _splitter = this._audioCtx.createChannelSplitter(2);
-    const _merger = this._audioCtx.createChannelMerger(2);
+    this._analyserL.fftSize = config.fftSize
+    this._analyserR.fftSize = config.fftSize
+    this._analyserL.maxDecibels = config.maxDecibels
+    this._analyserR.maxDecibels = config.maxDecibels
+
+    // Set up bass analyzer
+    this._bassAnalyserL = this._audioCtx.createAnalyser()
+    this._bassAnalyserR = this._audioCtx.createAnalyser()
+
+    const bassFftSize = getBassFftSize(this._audioCtx.sampleRate)
+    this._bassAnalyserL.fftSize = bassFftSize
+    this._bassAnalyserR.fftSize = bassFftSize
+    this._bassAnalyserL.maxDecibels = config.maxDecibels
+    this._bassAnalyserR.maxDecibels = config.maxDecibels
 
     // Connect to source
-    const _source = this._audioCtx.createMediaElementSource(this._audio);
+    const _source = this._audioCtx.createMediaElementSource(this._audio)
 
     // Connect source to splitter
-    _source.connect(_splitter, 0, 0);
+    const _splitter = this._audioCtx.createChannelSplitter(2)
 
-    // Analyse each channel at two resolutions without adding another audio path.
-    _splitter.connect(this._bassAnalyserL, 0);
-    _splitter.connect(this._bassAnalyserR, 1);
-    this._bassAnalyserL.connect(this._analyserL);
-    this._bassAnalyserR.connect(this._analyserR);
+    _source.connect(_splitter, 0, 0)
+
+    // Analyse each channel at two resolutions without adding another audio path
+    _splitter.connect(this._bassAnalyserL, 0)
+    _splitter.connect(this._bassAnalyserR, 1)
+
+    this._bassAnalyserL.connect(this._analyserL)
+    this._bassAnalyserR.connect(this._analyserR)
 
     // Connect back to the merger
-    this._analyserL.connect(_merger, 0, 0);
-    this._analyserR.connect(_merger, 0, 1);
+    const _merger = this._audioCtx.createChannelMerger(2)
+
+    this._analyserL.connect(_merger, 0, 0)
+    this._analyserR.connect(_merger, 0, 1)
 
     // Connect both channels back to the audio source
-    _merger.connect(this._audioCtx.destination, 0, 0);
+    _merger.connect(this._audioCtx.destination, 0, 0)
   }
 
   _loadTrack(track) {
-    this._audio.src = track.source;
-    this._audio.load();
+    this._audio.src = track.source
+    this._audio.load()
 
-    this._elements.artistName.textContent = track.artistName;
-    this._elements.trackName.textContent = track.trackName;
+    this._elements.artistName.textContent = track.artistName
+    this._elements.trackName.textContent = track.trackName
   }
 
   /**
@@ -217,50 +243,53 @@ class Player {
    * @NOTE: and unlocking it requires a user-gesture event.
    */
   _unlockAudioContext() {
-    if (this._audioCtx.state === 'suspended') {
-      this._audioCtx.resume();
+    if (this._audioCtx.state === "suspended") {
+      this._audioCtx.resume()
     }
   }
 
   _initAudio() {
     // The AudioContext needs to be created after a user interaction has taken place
-    this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    this._audioCtx = new (window.AudioContext || window.webkitAudioContext)()
 
-    this.state.hasUserInteracted = true;
+    this.state.hasUserInteracted = true
 
-    this._unlockAudioContext();
-    this._loadTrack(config.track);
+    this._unlockAudioContext()
+    this._loadTrack(config.track)
 
-    this._audio.play()
+    this._audio
+      .play()
       .then(() => {
-        this.state.isPlaying = true;
-        this.state.isBinDataEmpty = false;
-        this._elements.player.setAttribute('data-is-playing', 'true');
+        this.state.isPlaying = true
+        this.state.isBinDataEmpty = false
+        this._elements.player.setAttribute("data-is-playing", "true")
 
-        this._setupAudioAnalyser();
+        this._setupAudioAnalyser()
       })
-      .catch(error => {
+      .catch((error) => {
         // The play() Promise has been rejected, waiting for user input
-        console.log(error);
-      });
+        console.log(error)
+      })
   }
 
   _togglePlayback() {
-    this.state.isPlaying ? this._pauseAudio() : this._playAudio();
+    this.state.isPlaying ? this._pauseAudio() : this._playAudio()
   }
 
   async _pauseAudio() {
-    if (this.state.isVolumeFading) { return; }
+    if (this.state.isVolumeFading) {
+      return
+    }
 
-    this.state.isVolumeFading = true;
-    this._elements.player.setAttribute('data-is-playing', 'false');
+    this.state.isVolumeFading = true
+    this._elements.player.setAttribute("data-is-playing", "false")
 
-    await fadeOut(this._audio);
+    await fadeOut(this._audio)
 
-    this.state.isPlaying = false;
-    this.state.isVolumeFading = false;
+    this.state.isPlaying = false
+    this.state.isVolumeFading = false
 
-    this._audio.pause();
+    this._audio.pause()
   }
 
   /**
@@ -269,62 +298,66 @@ class Player {
    */
   async _playAudio() {
     if (this.state.hasUserInteracted) {
-      if (this.state.isVolumeFading) { return; }
+      if (this.state.isVolumeFading) {
+        return
+      }
 
-      this.state.isPlaying = true;
-      this.state.isVolumeFading = true;
-      this.state.isBinDataEmpty = false;
-      this._elements.player.setAttribute('data-is-playing', 'true');
+      this.state.isPlaying = true
+      this.state.isVolumeFading = true
+      this.state.isBinDataEmpty = false
+      this._elements.player.setAttribute("data-is-playing", "true")
 
-      this._audio.play();
+      this._audio.play()
 
-      await fadeIn(this._audio);
+      await fadeIn(this._audio)
 
-      this.state.isVolumeFading = false;
+      this.state.isVolumeFading = false
 
-      return;
+      return
     }
 
-    this._initAudio();
+    this._initAudio()
   }
 
   _addEventListeners() {
-    const _playBtn = document.querySelector('[data-play-btn]');
-    const _pauseBtn = document.querySelector('[data-pause-btn]');
+    const _playBtn = document.querySelector("[data-play-btn]")
+    const _pauseBtn = document.querySelector("[data-pause-btn]")
 
-    _playBtn.addEventListener('click', () => this._playAudio());
-    _pauseBtn.addEventListener('click', () => this._pauseAudio());
-    window.addEventListener('keydown', e => this._onKeyDown(e));
-    this._elements.progress.addEventListener('pointerdown', e => this._onPointerDown(e));
-    this._audio.addEventListener('timeupdate', () => this._updateProgress());
+    _playBtn.addEventListener("click", () => this._playAudio())
+    _pauseBtn.addEventListener("click", () => this._pauseAudio())
+    window.addEventListener("keydown", (e) => this._onKeyDown(e))
+    this._elements.progress.addEventListener("pointerdown", (e) =>
+      this._onPointerDown(e)
+    )
+    this._audio.addEventListener("timeupdate", () => this._updateProgress())
   }
 
   _cacheSelectors() {
     this._elements = {
-      player: document.querySelector('[data-player]'),
-      progress: document.querySelector('[data-player-progress]'),
-      progressBar: document.querySelector('[data-player-progress-bar]'),
-      artistName: document.querySelector('[data-player-artist-name]'),
-      trackName: document.querySelector('[data-player-track-name]'),
-      elapsedTime: document.querySelector('[data-player-elapsed-time]'),
-      totalTime: document.querySelector('[data-player-total-time]')
-    };
+      player: document.querySelector("[data-player]"),
+      progress: document.querySelector("[data-player-progress]"),
+      progressBar: document.querySelector("[data-player-progress-bar]"),
+      artistName: document.querySelector("[data-player-artist-name]"),
+      trackName: document.querySelector("[data-player-track-name]"),
+      elapsedTime: document.querySelector("[data-player-elapsed-time]"),
+      totalTime: document.querySelector("[data-player-total-time]"),
+    }
   }
 
   _setupWebAudio() {
-    this._audio = document.createElement('audio');
+    this._audio = document.createElement("audio")
 
-    document.body.appendChild(this._audio);
+    document.body.appendChild(this._audio)
   }
 
   /**
    * @public
    */
   init() {
-    this._setupWebAudio();
-    this._cacheSelectors();
-    this._addEventListeners();
+    this._setupWebAudio()
+    this._cacheSelectors()
+    this._addEventListeners()
   }
 }
 
-export default Player;
+export default Player
