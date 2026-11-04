@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+[data-prevent-selection] {
+  user-select: none;
+}
+
 html,
 body {
   overflow: hidden;
@@ -17,17 +21,6 @@ body {
   position: relative;
 }
 
-button {
-  padding: 0;
-  outline: none;
-  background: none;
-  cursor: pointer;
-}
-
-[data-prevent-selection] {
-  user-select: none;
-}
-
 canvas {
   position: absolute;
   height: 100%;
@@ -36,10 +29,6 @@ canvas {
   right: 0;
   bottom: 0;
   left: 0;
-}
-
-.btn {
-  position: relative;
 }
 
 .player {
@@ -60,14 +49,31 @@ canvas {
 }
 
 .player__btn {
+  position: relative;
   display: none;
+  align-items: center;
+  justify-content: center;
+  width: 300px;
+  height: 300px;
+  padding: 0;
+  outline: none;
+  background: none;
   border: none;
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:hover {
+    svg {
+      fill: #858eeb;
+    }
+  }
 }
 
 .player__btn svg {
   height: 50px;
   width: auto;
   fill: blue;
+  transition: fill 0.1s cubic-bezier(0.65, 0.05, 0.36, 1);
 }
 
 .player[data-is-playing="true"] .player__pause-btn {

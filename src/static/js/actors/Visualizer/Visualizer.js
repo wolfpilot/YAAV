@@ -7,8 +7,9 @@ import { getDistinctFrequencyBands } from "../../utils/frequencyBands"
 import { bassSpectrum, getAvailableBassBins } from "../../utils/bassSpectrum"
 
 class Visualizer {
-  constructor(canvasCtx) {
+  constructor(canvasCtx, settings) {
     this._canvasCtx = canvasCtx
+    this._settings = settings
   }
 
   static getVolumeBarCoords(centre, angle, length) {
@@ -35,13 +36,18 @@ class Visualizer {
     this._canvasCtx.stroke()
   }
 
-  _drawChannel(channel) {
+  _drawChannel(channel, isBothChannels) {
     if (!channel.data) {
       return
     }
 
     const _centre = getCenter()
     const _side = channel.name === globalConfig.channels.left ? -1 : 1
+
+    const totalBandCount = isBothChannels
+      ? config.volumeBar.bandCountBothChannels
+      : config.volumeBar.bandCountSingleChannel
+
     const bassBandCount = Math.min(
       bassSpectrum.bandCount,
       getAvailableBassBins(channel.data.sampleRate, channel.data.bassFftSize)
@@ -59,27 +65,33 @@ class Visualizer {
       channel.data.frequencyData,
       channel.data.sampleRate,
       channel.data.fftSize,
-      config.volumeBar.bandCount - bassBandCount,
+      totalBandCount - bassBandCount,
       bassSpectrum.maxFrequency,
       config.volumeBar.maxFrequency,
       "logarithmic"
     )
+
     const _bands = [...bassBands, ...upperBands]
 
     for (let i = 0; i < _bands.length; i++) {
       const _magnitude = _bands[i]
+
       if (_magnitude === 0) {
         continue
       }
 
       const _length = _magnitude / 2
-      const _angle = getStereoBandAngle(
-        i,
-        _bands.length,
-        _side,
-        config.volumeBar.angleOffset
-      )
+      const _angle = isBothChannels
+        ? config.volumeBar.angleOffset +
+          (_side * (i + 0.5) * Math.PI * 2) / _bands.length
+        : getStereoBandAngle(
+            i,
+            _bands.length,
+            _side,
+            config.volumeBar.angleOffset
+          )
       const _coords = Visualizer.getVolumeBarCoords(_centre, _angle, _length)
+
       this._drawVolumeBar(channel.name, _magnitude, _coords)
     }
   }
@@ -120,7 +132,13 @@ class Visualizer {
       return
     }
 
-    data.channels.forEach((channel) => this._drawChannel(channel))
+    const selectedChannels = this._settings.channels
+    const isBothChannels = selectedChannels !== globalConfig.channels.both
+    const channels = isBothChannels
+      ? data.channels.filter((channel) => channel.name === selectedChannels)
+      : data.channels
+
+    channels.forEach((channel) => this._drawChannel(channel, isBothChannels))
   }
 }
 

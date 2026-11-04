@@ -6,7 +6,8 @@ export const config = {
   },
   volumeBar: {
     angleOffset: -1.5 * Math.PI, // Start drawing arc from bottom center
-    bandCount: 128,
+    bandCountSingleChannel: 128,
+    bandCountBothChannels: 256,
     maxFrequency: 20000,
     lineWidth: 3,
     fillLeft: (frequency) => `rgb(255, ${frequency}, 0)`,

@@ -18,8 +18,8 @@ const initialState = {
 }
 
 class Player {
-  constructor(canvasCtx) {
-    this._visualizer = new Visualizer(canvasCtx)
+  constructor(canvasCtx, settings) {
+    this._visualizer = new Visualizer(canvasCtx, settings)
 
     this._onPointerMove = this._onPointerMove.bind(this)
     this._onPointerUp = this._onPointerUp.bind(this)
