@@ -42,6 +42,7 @@ class Visualizer {
 
     const _centre = getCenter()
     const _side = channel.name === globalConfig.channels.left ? -1 : 1
+
     const bassBandCount = Math.min(
       bassSpectrum.bandCount,
       getAvailableBassBins(channel.data.sampleRate, channel.data.bassFftSize)
@@ -64,10 +65,12 @@ class Visualizer {
       config.volumeBar.maxFrequency,
       "logarithmic"
     )
+
     const _bands = [...bassBands, ...upperBands]
 
     for (let i = 0; i < _bands.length; i++) {
       const _magnitude = _bands[i]
+
       if (_magnitude === 0) {
         continue
       }
@@ -80,6 +83,7 @@ class Visualizer {
         config.volumeBar.angleOffset
       )
       const _coords = Visualizer.getVolumeBarCoords(_centre, _angle, _length)
+
       this._drawVolumeBar(channel.name, _magnitude, _coords)
     }
   }

@@ -1,6 +1,7 @@
 // Modules
 import Player from "./actors/Player/Player"
 import Canvas from "./actors/Canvas/Canvas"
+import GUI from "./managers/GUI/GUI"
 
 // Setup
 const initialState = {
@@ -14,7 +15,9 @@ class App {
   }
 
   _draw() {
-    this._actors.forEach((actor) => actor.draw())
+    // Order is important, canvas needs to be first to draw
+    this._canvas.draw()
+    this._player.draw()
   }
 
   _onResize = () => {
@@ -36,13 +39,14 @@ class App {
     const canvasEl = document.getElementById("canvas")
     const canvasCtx = canvasEl.getContext("2d")
 
+    this._gui = new GUI()
     this._canvas = new Canvas(canvasEl, canvasCtx)
     this._player = new Player(canvasCtx)
 
-    // Order is important, canvas needs to be first to draw
-    this._actors = [this._canvas, this._player]
+    this._gui.init()
+    this._canvas.init()
+    this._player.init()
 
-    this._actors.forEach((actor) => actor.init())
     window.addEventListener("resize", this._onResize)
 
     this._tick()
