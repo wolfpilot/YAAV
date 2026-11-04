@@ -36,13 +36,17 @@ class Visualizer {
     this._canvasCtx.stroke()
   }
 
-  _drawChannel(channel, fullRing) {
+  _drawChannel(channel, isBothChannels) {
     if (!channel.data) {
       return
     }
 
     const _centre = getCenter()
     const _side = channel.name === globalConfig.channels.left ? -1 : 1
+
+    const totalBandCount = isBothChannels
+      ? config.volumeBar.bandCountBothChannels
+      : config.volumeBar.bandCountSingleChannel
 
     const bassBandCount = Math.min(
       bassSpectrum.bandCount,
@@ -61,7 +65,7 @@ class Visualizer {
       channel.data.frequencyData,
       channel.data.sampleRate,
       channel.data.fftSize,
-      config.volumeBar.bandCount - bassBandCount,
+      totalBandCount - bassBandCount,
       bassSpectrum.maxFrequency,
       config.volumeBar.maxFrequency,
       "logarithmic"
@@ -77,7 +81,7 @@ class Visualizer {
       }
 
       const _length = _magnitude / 2
-      const _angle = fullRing
+      const _angle = isBothChannels
         ? config.volumeBar.angleOffset +
           (_side * (i + 0.5) * Math.PI * 2) / _bands.length
         : getStereoBandAngle(
@@ -129,12 +133,12 @@ class Visualizer {
     }
 
     const selectedChannels = this._settings.channels
-    const fullRing = selectedChannels !== globalConfig.channels.both
-    const channels = fullRing
+    const isBothChannels = selectedChannels !== globalConfig.channels.both
+    const channels = isBothChannels
       ? data.channels.filter((channel) => channel.name === selectedChannels)
       : data.channels
 
-    channels.forEach((channel) => this._drawChannel(channel, fullRing))
+    channels.forEach((channel) => this._drawChannel(channel, isBothChannels))
   }
 }
 
