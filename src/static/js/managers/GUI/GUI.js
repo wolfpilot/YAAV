@@ -1,16 +1,9 @@
 import { Pane } from "tweakpane"
-import { config } from "./config"
-
-const PARAMS = {
-  channels: config.channels.both,
-  variant: config.variant.bars,
-}
+import { config } from "../../config"
 
 class GUI {
-  constructor() {}
-
-  get selectedChannels() {
-    return PARAMS.channels
+  constructor(settings) {
+    this._settings = settings
   }
 
   /**
@@ -23,7 +16,7 @@ class GUI {
       title: "Audio",
     })
 
-    audioPane.addBinding(PARAMS, "channels", {
+    audioPane.addBinding(this._settings, "channels", {
       options: {
         "L + R": config.channels.both,
         L: config.channels.left,
@@ -35,7 +28,7 @@ class GUI {
       title: "Visualization",
     })
 
-    visualizationPane.addBinding(PARAMS, "variant", {
+    visualizationPane.addBinding(this._settings, "variant", {
       options: {
         bars: config.variant.bars,
       },

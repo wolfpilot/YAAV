@@ -1,6 +1,6 @@
 // Utils
 import { config } from "./config"
-import { config as globalConfig } from "../../managers/GUI/config"
+import { config as globalConfig } from "../../config"
 import { formatSeconds, isArrayZeroedOut } from "../../utils/mathHelpers"
 import { getKeyCode } from "../../utils/inputHelpers"
 import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers"
@@ -18,8 +18,8 @@ const initialState = {
 }
 
 class Player {
-  constructor(canvasCtx) {
-    this._visualizer = new Visualizer(canvasCtx)
+  constructor(canvasCtx, settings) {
+    this._visualizer = new Visualizer(canvasCtx, settings)
 
     this._onPointerMove = this._onPointerMove.bind(this)
     this._onPointerUp = this._onPointerUp.bind(this)
@@ -97,10 +97,10 @@ class Player {
     }
   }
 
-  draw(selectedChannels) {
+  draw() {
     const data = this._getAudioData()
 
-    this._visualizer.draw(data, selectedChannels)
+    this._visualizer.draw(data)
   }
 
   _resetVolume() {

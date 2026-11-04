@@ -1,14 +1,15 @@
 // Utils
 import { config } from "./config"
-import { config as globalConfig } from "../../managers/GUI/config"
+import { config as globalConfig } from "../../config"
 import { getCenter } from "../../utils/uiHelpers"
 import { getStereoBandAngle } from "../../utils/spectrumHelpers"
 import { getDistinctFrequencyBands } from "../../utils/frequencyBands"
 import { bassSpectrum, getAvailableBassBins } from "../../utils/bassSpectrum"
 
 class Visualizer {
-  constructor(canvasCtx) {
+  constructor(canvasCtx, settings) {
     this._canvasCtx = canvasCtx
+    this._settings = settings
   }
 
   static getVolumeBarCoords(centre, angle, length) {
@@ -120,13 +121,14 @@ class Visualizer {
   /**
    * @public
    */
-  draw(data, selectedChannels) {
+  draw(data) {
     this._drawUI()
 
     if (!data || !data.channels) {
       return
     }
 
+    const selectedChannels = this._settings.channels
     const fullRing = selectedChannels !== globalConfig.channels.both
     const channels = fullRing
       ? data.channels.filter((channel) => channel.name === selectedChannels)
