@@ -1,6 +1,6 @@
 // Utils
 import { config } from "./config"
-import { config as globalConfig } from "../../config"
+import { config as globalConfig } from "../../managers/GUI/config"
 import { getCenter } from "../../utils/uiHelpers"
 import { getStereoBandAngle } from "../../utils/spectrumHelpers"
 import { getDistinctFrequencyBands } from "../../utils/frequencyBands"
@@ -35,7 +35,7 @@ class Visualizer {
     this._canvasCtx.stroke()
   }
 
-  _drawChannel(channel) {
+  _drawChannel(channel, fullRing) {
     if (!channel.data) {
       return
     }
@@ -76,12 +76,15 @@ class Visualizer {
       }
 
       const _length = _magnitude / 2
-      const _angle = getStereoBandAngle(
-        i,
-        _bands.length,
-        _side,
-        config.volumeBar.angleOffset
-      )
+      const _angle = fullRing
+        ? config.volumeBar.angleOffset +
+          (_side * (i + 0.5) * Math.PI * 2) / _bands.length
+        : getStereoBandAngle(
+            i,
+            _bands.length,
+            _side,
+            config.volumeBar.angleOffset
+          )
       const _coords = Visualizer.getVolumeBarCoords(_centre, _angle, _length)
 
       this._drawVolumeBar(channel.name, _magnitude, _coords)
@@ -117,14 +120,19 @@ class Visualizer {
   /**
    * @public
    */
-  draw(data) {
+  draw(data, selectedChannels) {
     this._drawUI()
 
     if (!data || !data.channels) {
       return
     }
 
-    data.channels.forEach((channel) => this._drawChannel(channel))
+    const fullRing = selectedChannels !== globalConfig.channels.both
+    const channels = fullRing
+      ? data.channels.filter((channel) => channel.name === selectedChannels)
+      : data.channels
+
+    channels.forEach((channel) => this._drawChannel(channel, fullRing))
   }
 }
 

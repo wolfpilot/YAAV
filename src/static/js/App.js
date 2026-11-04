@@ -17,7 +17,7 @@ class App {
   _draw() {
     // Order is important, canvas needs to be first to draw
     this._canvas.draw()
-    this._player.draw()
+    this._player.draw(this._gui.selectedChannels)
   }
 
   _onResize = () => {

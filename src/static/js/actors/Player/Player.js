@@ -1,6 +1,6 @@
 // Utils
 import { config } from "./config"
-import { config as globalConfig } from "../../config"
+import { config as globalConfig } from "../../managers/GUI/config"
 import { formatSeconds, isArrayZeroedOut } from "../../utils/mathHelpers"
 import { getKeyCode } from "../../utils/inputHelpers"
 import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers"
@@ -97,10 +97,10 @@ class Player {
     }
   }
 
-  draw() {
+  draw(selectedChannels) {
     const data = this._getAudioData()
 
-    this._visualizer.draw(data)
+    this._visualizer.draw(data, selectedChannels)
   }
 
   _resetVolume() {

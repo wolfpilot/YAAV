@@ -9,6 +9,10 @@ const PARAMS = {
 class GUI {
   constructor() {}
 
+  get selectedChannels() {
+    return PARAMS.channels
+  }
+
   /**
    * @public
    */
