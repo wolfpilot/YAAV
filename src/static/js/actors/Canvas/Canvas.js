@@ -1,38 +1,57 @@
 // Setup
 const defaults = {
-  fill: 'rgb(0, 0, 0)'
-};
+  fill: "rgb(0, 0, 0)",
+}
 
 class Visualizer {
   constructor(canvasEl, canvasCtx) {
-    this._canvasEl = canvasEl;
-    this._canvasCtx = canvasCtx;
+    this._canvasEl = canvasEl
+    this._canvasCtx = canvasCtx
+    this._width = 0
+    this._height = 0
+    this._pixelRatio = 0
   }
 
   state = {
-    ...defaults
-  };
+    ...defaults,
+  }
 
   /**
    * @public
    */
   draw() {
-    this._canvasCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    this._canvasCtx.fillStyle = defaults.fill;
-    this._canvasCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    this._canvasCtx.clearRect(0, 0, this._width, this._height)
+    this._canvasCtx.fillStyle = defaults.fill
+    this._canvasCtx.fillRect(0, 0, this._width, this._height)
   }
 
-  _resizeCanvas() {
-    this._canvasEl.width = window.innerWidth;
-    this._canvasEl.height = window.innerHeight;
+  resize() {
+    const width = window.innerWidth
+    const height = window.innerHeight
+    const pixelRatio = window.devicePixelRatio || 1
+
+    if (
+      width === this._width &&
+      height === this._height &&
+      pixelRatio === this._pixelRatio
+    ) {
+      return
+    }
+
+    this._width = width
+    this._height = height
+    this._pixelRatio = pixelRatio
+    this._canvasEl.width = Math.round(width * pixelRatio)
+    this._canvasEl.height = Math.round(height * pixelRatio)
+    this._canvasCtx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
   }
 
   /**
    * @public
    */
   init() {
-    this._resizeCanvas();
+    this.resize()
   }
 }
 
-export default Visualizer;
+export default Visualizer

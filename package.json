@@ -6,8 +6,9 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
+    "predev": "rimraf .parcel-cache dist",
     "start": "pnpm dev",
-    "dev": "parcel ./src/index.html",
+    "dev": "parcel --no-cache -p 3000 ./src/index.html",
     "typecheck": "tsc --noEmit",
     "build": "parcel build ./src/index.html --public-url /YAAV/",
     "predeploy": "pnpm build",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "gh-pages": "^6.3.0",
     "parcel": "^2.16.4",
+    "prettier": "^3.9.10",
     "rimraf": "6.1.4",
     "typescript": "^7.0.2"
   }
