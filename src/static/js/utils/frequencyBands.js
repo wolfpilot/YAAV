@@ -1,3 +1,8 @@
+/**
+ * Get the strongest magnitude in each linear or logarithmic frequency band.
+ *
+ * Each band uses distinct FFT bins; the count shrinks if there are too few bins.
+ */
 export const getDistinctFrequencyBands = (
   frequencyData,
   sampleRate,
