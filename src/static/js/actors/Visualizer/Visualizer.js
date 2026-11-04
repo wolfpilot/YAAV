@@ -2,6 +2,9 @@
 import { config } from "./config";
 import { config as globalConfig } from "../../config";
 import { getCenter } from "../../utils/uiHelpers";
+import { getStereoBandAngle } from "../../utils/spectrumHelpers";
+import { getDistinctFrequencyBands } from "../../utils/frequencyBands";
+import { bassSpectrum, getAvailableBassBins } from "../../utils/bassSpectrum";
 
 class Visualizer {
   constructor(canvasCtx) {
@@ -34,25 +37,40 @@ class Visualizer {
   _drawChannel(channel) {
     if (!channel.data) { return; }
 
-    // Cache centre coordinates
     const _centre = getCenter();
+    const _side = channel.name === globalConfig.channels.left ? -1 : 1;
+    const bassBandCount = Math.min(
+      bassSpectrum.bandCount,
+      getAvailableBassBins(channel.data.sampleRate, channel.data.bassFftSize)
+    );
+    const bassBands = getDistinctFrequencyBands(
+      channel.data.bassFrequencyData,
+      channel.data.sampleRate,
+      channel.data.bassFftSize,
+      bassBandCount,
+      bassSpectrum.minFrequency,
+      bassSpectrum.maxFrequency,
+      "linear"
+    );
+    const upperBands = getDistinctFrequencyBands(
+      channel.data.frequencyData,
+      channel.data.sampleRate,
+      channel.data.fftSize,
+      config.volumeBar.bandCount - bassBandCount,
+      bassSpectrum.maxFrequency,
+      config.volumeBar.maxFrequency,
+      "logarithmic"
+    );
+    const _bands = [...bassBands, ...upperBands];
 
-    // Calculate angle
-    const _rads = Math.PI / channel.data.bufferLength;
-    const _angleMultiplier = channel.name === globalConfig.channels.left ? -1 : 1;
-    const _angleAlignmentOffset = channel.name === globalConfig.channels.left ? -_rads / 2 : _rads / 2;
+    for (let i = 0; i < _bands.length; i++) {
+      const _magnitude = _bands[i];
+      if (_magnitude === 0) { continue; }
 
-    // Loop through all volume bars
-    for (let i = 0; i < channel.data.bufferLength; i++) {
-      const _frequency = channel.data.frequencyData[i];
-      const _length = _frequency / 2;
-      const _angle = (_angleMultiplier * _rads * i) + config.volumeBar.angleOffset + _angleAlignmentOffset;
-
-      // Calculate coordinates
+      const _length = _magnitude / 2;
+      const _angle = getStereoBandAngle(i, _bands.length, _side, config.volumeBar.angleOffset);
       const _coords = Visualizer.getVolumeBarCoords(_centre, _angle, _length);
-
-      // Draw single bar
-      this._drawVolumeBar(channel.name, _frequency, _coords);
+      this._drawVolumeBar(channel.name, _magnitude, _coords);
     }
   }
 

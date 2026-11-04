@@ -5,6 +5,7 @@ import { formatSeconds, isArrayZeroedOut } from "../../utils/mathHelpers";
 import { getKeyCode } from "../../utils/inputHelpers";
 import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers";
 import { fadeIn, fadeOut } from "../../utils/audioHelpers";
+import { getBassFftSize } from "../../utils/bassSpectrum";
 
 // Modules
 import Visualizer from '../Visualizer/Visualizer';
@@ -28,22 +29,27 @@ class Player {
     ...initialState
   };
 
-  static getChannelData(analyser) {
-    const bufferLength = analyser.frequencyBinCount; // Frequency bar count
+  static getChannelData(analyser, bassAnalyser) {
+    const bufferLength = analyser.frequencyBinCount;
     const frequencyData = new Uint8Array(bufferLength);
+    const bassFrequencyData = new Uint8Array(bassAnalyser.frequencyBinCount);
 
     // Order is important; first read the data, then process it.
     // .getByteFrequencyData() doesn't return anything, it simply updates the original object.
     analyser.getByteFrequencyData(frequencyData);
+    bassAnalyser.getByteFrequencyData(bassFrequencyData);
 
     // A completely zeroed-out bin data array means total silence
-    const dataIsEmpty = isArrayZeroedOut(frequencyData);
+    const dataIsEmpty = isArrayZeroedOut(frequencyData) && isArrayZeroedOut(bassFrequencyData);
 
     if (dataIsEmpty) { return; }
 
     return {
-      bufferLength,
-      frequencyData
+      frequencyData,
+      fftSize: analyser.fftSize,
+      bassFrequencyData,
+      bassFftSize: bassAnalyser.fftSize,
+      sampleRate: analyser.context.sampleRate
     }
   }
 
@@ -53,8 +59,8 @@ class Player {
     // This is mostly a performance optimisation so that we don't draw empty sample frames.
     if (!this.state.isPlaying && this.state.isBinDataEmpty) { return; }
 
-    const channelLeftData = Player.getChannelData(this._analyserL);
-    const channelRightData = Player.getChannelData(this._analyserR);
+    const channelLeftData = Player.getChannelData(this._analyserL, this._bassAnalyserL);
+    const channelRightData = Player.getChannelData(this._analyserR, this._bassAnalyserR);
 
     // Because we're processing each channel separately, some tracks may (at times)
     // only return data for one channel. Therefore, the channels are to be drawn separately.
@@ -163,8 +169,17 @@ class Player {
   _setupAudioAnalyser() {
     this._analyserL = this._audioCtx.createAnalyser();
     this._analyserR = this._audioCtx.createAnalyser();
-    this._analyserL.fftSize = config.blockLength;
-    this._analyserR.fftSize = config.blockLength;
+    this._bassAnalyserL = this._audioCtx.createAnalyser();
+    this._bassAnalyserR = this._audioCtx.createAnalyser();
+    this._analyserL.fftSize = config.fftSize;
+    this._analyserR.fftSize = config.fftSize;
+    const bassFftSize = getBassFftSize(this._audioCtx.sampleRate);
+    this._bassAnalyserL.fftSize = bassFftSize;
+    this._bassAnalyserR.fftSize = bassFftSize;
+    this._analyserL.maxDecibels = config.maxDecibels;
+    this._analyserR.maxDecibels = config.maxDecibels;
+    this._bassAnalyserL.maxDecibels = config.maxDecibels;
+    this._bassAnalyserR.maxDecibels = config.maxDecibels;
 
     const _splitter = this._audioCtx.createChannelSplitter(2);
     const _merger = this._audioCtx.createChannelMerger(2);
@@ -175,9 +190,11 @@ class Player {
     // Connect source to splitter
     _source.connect(_splitter, 0, 0);
 
-    // Connect each channel to its own analyser
-    _splitter.connect(this._analyserL, 0);
-    _splitter.connect(this._analyserR, 1);
+    // Analyse each channel at two resolutions without adding another audio path.
+    _splitter.connect(this._bassAnalyserL, 0);
+    _splitter.connect(this._bassAnalyserR, 1);
+    this._bassAnalyserL.connect(this._analyserL);
+    this._bassAnalyserR.connect(this._analyserR);
 
     // Connect back to the merger
     this._analyserL.connect(_merger, 0, 0);
