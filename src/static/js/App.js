@@ -13,12 +13,21 @@ class App {
     ...initialState,
   }
 
+  _draw() {
+    this._actors.forEach((actor) => actor.draw())
+  }
+
+  _onResize = () => {
+    this._canvas.resize()
+    this._draw()
+  }
+
   _tick() {
     if (!this.state.isRunning) {
       return
     }
 
-    this._actors.forEach((actor) => actor.draw())
+    this._draw()
 
     requestAnimationFrame((timestamp) => this._tick(timestamp))
   }
@@ -34,6 +43,7 @@ class App {
     this._actors = [this._canvas, this._player]
 
     this._actors.forEach((actor) => actor.init())
+    window.addEventListener("resize", this._onResize)
 
     this._tick()
   }
