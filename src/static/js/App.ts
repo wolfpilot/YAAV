@@ -3,6 +3,7 @@ import Player from "./actors/Player/Player"
 import Canvas from "./actors/Canvas/Canvas"
 import GUI from "./managers/GUI/GUI"
 import { config } from "./config"
+import type { VisualizationSettings } from "./types"
 
 // Setup
 const initialState = {
@@ -11,6 +12,10 @@ const initialState = {
 
 // Setup
 class App {
+  private _canvas!: Canvas
+  private _player!: Player
+  private _gui!: GUI
+
   state = {
     ...initialState,
   }
@@ -33,14 +38,21 @@ class App {
 
     this._draw()
 
-    requestAnimationFrame((timestamp) => this._tick(timestamp))
+    requestAnimationFrame(() => this._tick())
   }
 
   init() {
     const canvasEl = document.getElementById("canvas")
-    const canvasCtx = canvasEl.getContext("2d")
+    if (!(canvasEl instanceof HTMLCanvasElement)) {
+      throw new Error("Canvas element not found")
+    }
 
-    const settings = {
+    const canvasCtx = canvasEl.getContext("2d")
+    if (!canvasCtx) {
+      throw new Error("2D canvas context is unavailable")
+    }
+
+    const settings: VisualizationSettings = {
       channels: config.channels.both,
       variant: config.variant.bars,
     }

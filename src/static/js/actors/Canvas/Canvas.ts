@@ -3,8 +3,17 @@ const defaults = {
   fill: "rgb(0, 0, 0)",
 }
 
-class Visualizer {
-  constructor(canvasEl, canvasCtx) {
+class Canvas {
+  private _canvasEl: HTMLCanvasElement
+  private _canvasCtx: CanvasRenderingContext2D
+  private _width: number
+  private _height: number
+  private _pixelRatio: number
+
+  constructor(
+    canvasEl: HTMLCanvasElement,
+    canvasCtx: CanvasRenderingContext2D
+  ) {
     this._canvasEl = canvasEl
     this._canvasCtx = canvasCtx
     this._width = 0
@@ -54,4 +63,4 @@ class Visualizer {
   }
 }
 
-export default Visualizer
+export default Canvas

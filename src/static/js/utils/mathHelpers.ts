@@ -1,10 +1,9 @@
 /**
  * Format seconds to hours and minutes
  * @NOTE: Will always return at least minutes and seconds
- * @param {Number} time - The time to be formatted in seconds
- * @returns {string} - The formatted time like "1:05" or "2:34:59" or "255:05:59"
+ * @returns The formatted time like "1:05" or "2:34:59" or "255:05:59"
  */
-export const formatSeconds = (time) => {
+export const formatSeconds = (time: number): string => {
   const hours = Math.floor(time / 3600)
   const minutes = Math.floor((time % 3600) / 60)
   const seconds = Math.floor(time % 60)
@@ -21,6 +20,6 @@ export const formatSeconds = (time) => {
   return formattedTime
 }
 
-export const isArrayZeroedOut = (arr) => {
+export const isArrayZeroedOut = (arr: Uint8Array): boolean => {
   return arr.every((val) => val === 0)
 }

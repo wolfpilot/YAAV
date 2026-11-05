@@ -6,6 +6,9 @@ import { getKeyCode } from "../../utils/inputHelpers"
 import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers"
 import { fadeIn, fadeOut } from "../../utils/audioHelpers"
 import { getBassFftSize } from "../../utils/bassSpectrum"
+import type { VisualizationSettings } from "../../types"
+import type { PlayerElements, Track } from "./types"
+import type { ChannelSpectrumData, SpectrumFrame } from "../Visualizer/types"
 
 // Modules
 import Visualizer from "../Visualizer/Visualizer"
@@ -18,7 +21,19 @@ const initialState = {
 }
 
 class Player {
-  constructor(canvasCtx, settings) {
+  private _visualizer: Visualizer
+  private _audio!: HTMLAudioElement
+  private _audioCtx?: AudioContext
+  private _analyserL!: AnalyserNode
+  private _analyserR!: AnalyserNode
+  private _bassAnalyserL!: AnalyserNode
+  private _bassAnalyserR!: AnalyserNode
+  private _elements!: PlayerElements
+
+  constructor(
+    canvasCtx: CanvasRenderingContext2D,
+    settings: VisualizationSettings
+  ) {
     this._visualizer = new Visualizer(canvasCtx, settings)
 
     this._onPointerMove = this._onPointerMove.bind(this)
@@ -29,7 +44,10 @@ class Player {
     ...initialState,
   }
 
-  static getChannelData(analyser, bassAnalyser) {
+  static getChannelData(
+    analyser: AnalyserNode,
+    bassAnalyser: AnalyserNode
+  ): ChannelSpectrumData | undefined {
     const bufferLength = analyser.frequencyBinCount
     const frequencyData = new Uint8Array(bufferLength)
     const bassFrequencyData = new Uint8Array(bassAnalyser.frequencyBinCount)
@@ -56,7 +74,7 @@ class Player {
     }
   }
 
-  _getAudioData() {
+  _getAudioData(): SpectrumFrame | undefined {
     // Unfortunately, after pausing there is a small delay until the bin data array empties out
     // which means that calling .pause() doesn't necessarily reflect the real state of the audio.
     // This is mostly a performance optimisation so that we don't draw empty sample frames.
@@ -114,9 +132,9 @@ class Player {
   }
 
   /**
-   * @param {Object} e - The mouse event
+   * @param e - The pointer event
    */
-  _seek = (e) => {
+  _seek = (e: PointerEvent): void => {
     const _bounds = this._elements.progress.getBoundingClientRect()
     const _min = _bounds.x
     const _max = _bounds.x + _bounds.width
@@ -140,11 +158,11 @@ class Player {
     document.removeEventListener("pointermove", this._onPointerMove)
   }
 
-  _onPointerMove = (e) => {
+  _onPointerMove = (e: PointerEvent): void => {
     this._seek(e)
   }
 
-  _onPointerDown = (e) => {
+  _onPointerDown = (e: PointerEvent): void => {
     if (!this._audioCtx) {
       return
     }
@@ -158,7 +176,7 @@ class Player {
     document.addEventListener("pointerup", this._onPointerUp)
   }
 
-  _onKeyDown(e) {
+  _onKeyDown(e: KeyboardEvent) {
     const _keyCode = getKeyCode(e)
 
     if (!_keyCode) {
@@ -186,6 +204,10 @@ class Player {
   }
 
   _setupAudioAnalyser() {
+    if (!this._audioCtx) {
+      throw new Error("Audio context is unavailable")
+    }
+
     // Set up overall analyzer
     this._analyserL = this._audioCtx.createAnalyser()
     this._analyserR = this._audioCtx.createAnalyser()
@@ -230,8 +252,8 @@ class Player {
     _merger.connect(this._audioCtx.destination, 0, 0)
   }
 
-  _loadTrack(track) {
-    this._audio.src = track.source
+  _loadTrack(track: Track) {
+    this._audio.src = track.source.href
     this._audio.load()
 
     this._elements.artistName.textContent = track.artistName
@@ -243,6 +265,10 @@ class Player {
    * @NOTE: and unlocking it requires a user-gesture event.
    */
   _unlockAudioContext() {
+    if (!this._audioCtx) {
+      return
+    }
+
     if (this._audioCtx.state === "suspended") {
       this._audioCtx.resume()
     }
@@ -250,7 +276,15 @@ class Player {
 
   _initAudio() {
     // The AudioContext needs to be created after a user interaction has taken place
-    this._audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    const audioWindow = window as Window & {
+      webkitAudioContext?: typeof AudioContext
+    }
+    const AudioContextConstructor =
+      window.AudioContext || audioWindow.webkitAudioContext
+    if (!AudioContextConstructor) {
+      throw new Error("Web Audio is unavailable")
+    }
+    this._audioCtx = new AudioContextConstructor()
 
     this.state.hasUserInteracted = true
 
@@ -320,8 +354,8 @@ class Player {
   }
 
   _addEventListeners() {
-    const _playBtn = document.querySelector("[data-play-btn]")
-    const _pauseBtn = document.querySelector("[data-pause-btn]")
+    const _playBtn = this._getElement("[data-play-btn]")
+    const _pauseBtn = this._getElement("[data-pause-btn]")
 
     _playBtn.addEventListener("click", () => this._playAudio())
     _pauseBtn.addEventListener("click", () => this._pauseAudio())
@@ -334,14 +368,22 @@ class Player {
 
   _cacheSelectors() {
     this._elements = {
-      player: document.querySelector("[data-player]"),
-      progress: document.querySelector("[data-player-progress]"),
-      progressBar: document.querySelector("[data-player-progress-bar]"),
-      artistName: document.querySelector("[data-player-artist-name]"),
-      trackName: document.querySelector("[data-player-track-name]"),
-      elapsedTime: document.querySelector("[data-player-elapsed-time]"),
-      totalTime: document.querySelector("[data-player-total-time]"),
+      player: this._getElement("[data-player]"),
+      progress: this._getElement("[data-player-progress]"),
+      progressBar: this._getElement("[data-player-progress-bar]"),
+      artistName: this._getElement("[data-player-artist-name]"),
+      trackName: this._getElement("[data-player-track-name]"),
+      elapsedTime: this._getElement("[data-player-elapsed-time]"),
+      totalTime: this._getElement("[data-player-total-time]"),
     }
+  }
+
+  _getElement(selector: string): HTMLElement {
+    const element = document.querySelector<HTMLElement>(selector)
+    if (!element) {
+      throw new Error(`Player element not found: ${selector}`)
+    }
+    return element
   }
 
   _setupWebAudio() {
