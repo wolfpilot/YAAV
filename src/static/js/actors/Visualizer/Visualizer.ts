@@ -59,7 +59,7 @@ class Visualizer {
     }
 
     const _centre = getCenter()
-    const _side = channel.name === globalConfig.channels.left ? -1 : 1
+    const _side = channel.name === globalConfig.channels.left ? 1 : -1
 
     const totalBandCount = isBothChannels
       ? config.volumeBar.bandCountBothChannels
