@@ -10,7 +10,7 @@ export const config = {
     bandCountBothChannels: 256,
     maxFrequency: 20000,
     lineWidth: 3,
-    fillLeft: (frequency) => `rgb(255, ${frequency}, 0)`,
-    fillRight: (frequency) => `rgb(0, ${frequency}, 255)`,
+    fillLeft: (frequency: number) => `rgb(255, ${frequency}, 0)`,
+    fillRight: (frequency: number) => `rgb(0, ${frequency}, 255)`,
   },
 }

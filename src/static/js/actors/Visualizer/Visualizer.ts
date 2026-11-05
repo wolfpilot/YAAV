@@ -5,14 +5,31 @@ import { getCenter } from "../../utils/uiHelpers"
 import { getStereoBandAngle } from "../../utils/spectrumHelpers"
 import { getDistinctFrequencyBands } from "../../utils/frequencyBands"
 import { bassSpectrum, getAvailableBassBins } from "../../utils/bassSpectrum"
+import type { Channel, VisualizationSettings } from "../../types"
+import type {
+  ChannelSpectrum,
+  Point,
+  SpectrumFrame,
+  VolumeBarCoords,
+} from "./types"
 
 class Visualizer {
-  constructor(canvasCtx, settings) {
+  private _canvasCtx: CanvasRenderingContext2D
+  private _settings: VisualizationSettings
+
+  constructor(
+    canvasCtx: CanvasRenderingContext2D,
+    settings: VisualizationSettings
+  ) {
     this._canvasCtx = canvasCtx
     this._settings = settings
   }
 
-  static getVolumeBarCoords(centre, angle, length) {
+  static getVolumeBarCoords(
+    centre: Point,
+    angle: number,
+    length: number
+  ): VolumeBarCoords {
     const xStart = centre.x + Math.cos(angle) * config.circle.radius
     const yStart = centre.y + Math.sin(angle) * config.circle.radius
     const xEnd = centre.x + Math.cos(angle) * (config.circle.radius + length)
@@ -21,7 +38,7 @@ class Visualizer {
     return { xStart, yStart, xEnd, yEnd }
   }
 
-  _drawVolumeBar(channel, frequency, coords) {
+  _drawVolumeBar(channel: Channel, frequency: number, coords: VolumeBarCoords) {
     const _fill =
       channel === globalConfig.channels.left
         ? config.volumeBar.fillLeft(frequency)
@@ -36,7 +53,7 @@ class Visualizer {
     this._canvasCtx.stroke()
   }
 
-  _drawChannel(channel, isBothChannels) {
+  _drawChannel(channel: ChannelSpectrum, isBothChannels: boolean) {
     if (!channel.data) {
       return
     }
@@ -125,7 +142,7 @@ class Visualizer {
   /**
    * @public
    */
-  draw(data) {
+  draw(data?: SpectrumFrame) {
     this._drawUI()
 
     if (!data || !data.channels) {

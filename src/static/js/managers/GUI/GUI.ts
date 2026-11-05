@@ -1,8 +1,11 @@
 import { Pane } from "tweakpane"
 import { config } from "../../config"
+import type { VisualizationSettings } from "../../types"
 
 class GUI {
-  constructor(settings) {
+  private _settings: VisualizationSettings
+
+  constructor(settings: VisualizationSettings) {
     this._settings = settings
   }
 

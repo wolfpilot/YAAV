@@ -1,17 +1,19 @@
+import type { FrequencyScale } from "./types"
+
 /**
  * Get the strongest magnitude in each linear or logarithmic frequency band.
  *
  * Each band uses distinct FFT bins; the count shrinks if there are too few bins.
  */
 export const getDistinctFrequencyBands = (
-  frequencyData,
-  sampleRate,
-  fftSize,
-  bandCount,
-  minFrequency,
-  maxFrequency,
-  scale
-) => {
+  frequencyData: Uint8Array,
+  sampleRate: number,
+  fftSize: number,
+  bandCount: number,
+  minFrequency: number,
+  maxFrequency: number,
+  scale: FrequencyScale
+): Uint8Array => {
   const binWidth = sampleRate / fftSize
   const upperFrequency = Math.min(maxFrequency, sampleRate / 2)
 

@@ -9,4 +9,4 @@ export const config = {
   variant: {
     bars: "bars",
   },
-}
+} as const
