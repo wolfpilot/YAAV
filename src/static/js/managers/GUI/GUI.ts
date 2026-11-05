@@ -34,6 +34,7 @@ class GUI {
     visualizationPane.addBinding(this._settings, "variant", {
       options: {
         bars: config.variant.bars,
+        electric: config.variant.electric,
       },
     })
   }

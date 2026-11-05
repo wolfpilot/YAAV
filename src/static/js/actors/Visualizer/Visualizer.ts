@@ -53,7 +53,67 @@ class Visualizer {
     this._canvasCtx.stroke()
   }
 
-  _drawChannel(channel: ChannelSpectrum, isBothChannels: boolean) {
+  _drawElectricChannel(channel: ChannelSpectrum, isBothChannels: boolean) {
+    const _centre = getCenter()
+
+    if (!channel.data) return
+
+    const totalBandCount = isBothChannels
+      ? config.electric.bandCountBothChannels
+      : config.electric.bandCountSingleChannel
+    const bassBandCount = Math.min(
+      bassSpectrum.bandCount,
+      getAvailableBassBins(channel.data.sampleRate, channel.data.bassFftSize)
+    )
+    const bassBands = getDistinctFrequencyBands(
+      channel.data.bassFrequencyData,
+      channel.data.sampleRate,
+      channel.data.bassFftSize,
+      bassBandCount,
+      bassSpectrum.minFrequency,
+      bassSpectrum.maxFrequency,
+      "linear"
+    )
+    const upperBands = getDistinctFrequencyBands(
+      channel.data.frequencyData,
+      channel.data.sampleRate,
+      channel.data.fftSize,
+      totalBandCount - bassBandCount,
+      bassSpectrum.maxFrequency,
+      config.electric.maxFrequency,
+      "logarithmic"
+    )
+
+    const _bands = [...bassBands, ...upperBands]
+
+    if (_bands.length === 0) return
+
+    this._canvasCtx.lineWidth = config.electric.lineWidth
+    this._canvasCtx.strokeStyle = config.electric.fill
+    this._canvasCtx.beginPath()
+    for (let i = 0; i < _bands.length; i++) {
+      const _magnitude = _bands[i]
+      const _length = _magnitude / 2
+
+      const _angle =
+        config.electric.angleOffset + ((i + 0.5) * Math.PI * 2) / _bands.length
+
+      const radius =
+        config.circle.radius + _length + config.electric.centreOffset
+      const x = _centre.x + Math.cos(_angle) * radius
+      const y = _centre.y + Math.sin(_angle) * radius
+
+      if (i === 0) {
+        this._canvasCtx.moveTo(x, y)
+      } else {
+        this._canvasCtx.lineTo(x, y)
+      }
+    }
+    this._canvasCtx.closePath()
+    this._canvasCtx.stroke()
+  }
+
+  _drawBarsChannel(channel: ChannelSpectrum, isBothChannels: boolean) {
     if (!channel.data) {
       return
     }
@@ -139,6 +199,32 @@ class Visualizer {
     this._canvasCtx.stroke()
   }
 
+  _drawElectric(data: SpectrumFrame) {
+    const selectedChannels = this._settings.channels
+
+    const isBothChannels = selectedChannels !== globalConfig.channels.both
+    const channels = isBothChannels
+      ? data.channels.filter((channel) => channel.name === selectedChannels)
+      : data.channels
+
+    channels.forEach((channel) =>
+      this._drawElectricChannel(channel, isBothChannels)
+    )
+  }
+
+  _drawBars(data: SpectrumFrame) {
+    const selectedChannels = this._settings.channels
+
+    const isBothChannels = selectedChannels !== globalConfig.channels.both
+    const channels = isBothChannels
+      ? data.channels.filter((channel) => channel.name === selectedChannels)
+      : data.channels
+
+    channels.forEach((channel) =>
+      this._drawBarsChannel(channel, isBothChannels)
+    )
+  }
+
   /**
    * @public
    */
@@ -149,13 +235,18 @@ class Visualizer {
       return
     }
 
-    const selectedChannels = this._settings.channels
-    const isBothChannels = selectedChannels !== globalConfig.channels.both
-    const channels = isBothChannels
-      ? data.channels.filter((channel) => channel.name === selectedChannels)
-      : data.channels
+    const variant = this._settings.variant
 
-    channels.forEach((channel) => this._drawChannel(channel, isBothChannels))
+    switch (variant) {
+      case "bars":
+        this._drawBars(data)
+        break
+      case "electric":
+        this._drawElectric(data)
+        break
+      default:
+        console.log("NOPE")
+    }
   }
 }
 
