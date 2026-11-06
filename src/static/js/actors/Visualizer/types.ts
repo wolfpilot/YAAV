@@ -1,17 +1,5 @@
 import type { Channel } from "../../types"
 
-export interface Point {
-  x: number
-  y: number
-}
-
-export interface VolumeBarCoords {
-  xStart: number
-  yStart: number
-  xEnd: number
-  yEnd: number
-}
-
 export interface ChannelSpectrumData {
   frequencyData: Uint8Array
   fftSize: number
@@ -27,4 +15,13 @@ export interface ChannelSpectrum {
 
 export interface SpectrumFrame {
   channels: ChannelSpectrum[]
+}
+
+export interface ChannelsData {
+  channels: ChannelSpectrum[]
+  isSolo: boolean
+}
+
+export interface Renderer {
+  draw({ channels, isSolo }: ChannelsData): void
 }

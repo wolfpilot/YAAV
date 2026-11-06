@@ -134,7 +134,7 @@ class Player {
   /**
    * @param e - The pointer event
    */
-  _seek = (e: PointerEvent): void => {
+  _seek = (e: PointerEvent) => {
     const _bounds = this._elements.progress.getBoundingClientRect()
     const _min = _bounds.x
     const _max = _bounds.x + _bounds.width
@@ -158,11 +158,11 @@ class Player {
     document.removeEventListener("pointermove", this._onPointerMove)
   }
 
-  _onPointerMove = (e: PointerEvent): void => {
+  _onPointerMove = (e: PointerEvent) => {
     this._seek(e)
   }
 
-  _onPointerDown = (e: PointerEvent): void => {
+  _onPointerDown = (e: PointerEvent) => {
     if (!this._audioCtx) {
       return
     }
