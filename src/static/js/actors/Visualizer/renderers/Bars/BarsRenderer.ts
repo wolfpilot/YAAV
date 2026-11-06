@@ -46,7 +46,9 @@ class BarsRenderer implements Renderer {
   }
 
   private _drawChannel(channel: ChannelSpectrum, isSolo: boolean) {
-    if (!channel.data) return
+    if (!channel.data) {
+      return
+    }
 
     const centre = getCenter()
     const side = channel.name === globalConfig.channels.left ? 1 : -1
@@ -59,12 +61,12 @@ class BarsRenderer implements Renderer {
       barsConfig.maxFrequency
     )
 
-    if (bands.length === 0) return
-
     for (let i = 0; i < bands.length; i++) {
       const magnitude = bands[i]
 
-      if (magnitude === 0) continue
+      if (magnitude === 0) {
+        continue
+      }
 
       const length = magnitude / 2
       const angle = isSolo

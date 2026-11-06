@@ -43,7 +43,10 @@ class Visualizer {
     }
   }
 
-  private _getChannels(data: SpectrumFrame): ChannelsData {
+  private _getChannels(
+    data: SpectrumFrame,
+    elapsedSeconds: number
+  ): ChannelsData {
     const selectedChannels = this._settings.channels
 
     const isSolo = selectedChannels !== globalConfig.channels.both
@@ -54,6 +57,7 @@ class Visualizer {
     return {
       channels,
       isSolo,
+      elapsedSeconds,
     }
   }
 
@@ -83,13 +87,13 @@ class Visualizer {
     this._canvasCtx.stroke()
   }
 
-  draw(data?: SpectrumFrame) {
+  draw(data: SpectrumFrame | undefined, elapsedSeconds: number) {
     this._drawUI()
+    this._syncRenderer()
 
     if (!data) return
 
-    this._syncRenderer()
-    this._renderer.draw(this._getChannels(data))
+    this._renderer.draw(this._getChannels(data, elapsedSeconds))
   }
 }
 

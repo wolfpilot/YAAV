@@ -7,7 +7,11 @@ import type { ChannelsData, ChannelSpectrum, Renderer } from "../../types"
 class ElectricRenderer implements Renderer {
   constructor(private readonly canvasCtx: CanvasRenderingContext2D) {}
 
-  private _drawChannel(channel: ChannelSpectrum, isSolo: boolean) {
+  private _drawChannel(
+    channel: ChannelSpectrum,
+    isSolo: boolean,
+    rotationAngle: number
+  ) {
     if (!channel.data) return
 
     const centre = getCenter()
@@ -31,7 +35,9 @@ class ElectricRenderer implements Renderer {
       const magnitude = bands[i]
       const length = magnitude / 2
       const angle =
-        electricConfig.angleOffset + ((i + 0.5) * Math.PI * 2) / bands.length
+        electricConfig.angleOffset +
+        rotationAngle +
+        ((i + 0.5) * Math.PI * 2) / bands.length
       const radius =
         visualizerConfig.circle.radius + length + electricConfig.centreOffset
 
@@ -49,8 +55,14 @@ class ElectricRenderer implements Renderer {
     this.canvasCtx.stroke()
   }
 
-  draw({ channels, isSolo }: ChannelsData) {
-    channels.forEach((channel) => this._drawChannel(channel, isSolo))
+  draw({ channels, isSolo, elapsedSeconds }: ChannelsData) {
+    const rotationAngle =
+      ((elapsedSeconds % electricConfig.rotationPeriodSeconds) * Math.PI * 2) /
+      electricConfig.rotationPeriodSeconds
+
+    channels.forEach((channel) =>
+      this._drawChannel(channel, isSolo, rotationAngle)
+    )
   }
 }
 

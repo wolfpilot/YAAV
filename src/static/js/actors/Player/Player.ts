@@ -29,12 +29,16 @@ class Player {
   private _bassAnalyserL!: AnalyserNode
   private _bassAnalyserR!: AnalyserNode
   private _elements!: PlayerElements
+  private _elapsedSeconds: number
+  private _lastPlayingSampleTime?: number
 
   constructor(
     canvasCtx: CanvasRenderingContext2D,
     settings: VisualizationSettings
   ) {
     this._visualizer = new Visualizer(canvasCtx, settings)
+
+    this._elapsedSeconds = 0
 
     this._onPointerMove = this._onPointerMove.bind(this)
     this._onPointerUp = this._onPointerUp.bind(this)
@@ -115,10 +119,27 @@ class Player {
     }
   }
 
+  private _updateElapsedTime() {
+    const now = performance.now()
+
+    const isPlaying =
+      !this._audio.seeking && !this._audio.paused && !this._audio.ended
+
+    if (isPlaying && this._lastPlayingSampleTime !== undefined) {
+      const newElapsedTime = (now - this._lastPlayingSampleTime) / 1000
+
+      this._elapsedSeconds += newElapsedTime
+    }
+
+    this._lastPlayingSampleTime = isPlaying ? now : undefined
+  }
+
   draw() {
+    this._updateElapsedTime()
+
     const data = this._getAudioData()
 
-    this._visualizer.draw(data)
+    this._visualizer.draw(data, this._elapsedSeconds)
   }
 
   _resetVolume() {

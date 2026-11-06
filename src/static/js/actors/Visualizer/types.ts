@@ -20,8 +20,9 @@ export interface SpectrumFrame {
 export interface ChannelsData {
   channels: ChannelSpectrum[]
   isSolo: boolean
+  elapsedSeconds: number
 }
 
 export interface Renderer {
-  draw({ channels, isSolo }: ChannelsData): void
+  draw(data: ChannelsData): void
 }
