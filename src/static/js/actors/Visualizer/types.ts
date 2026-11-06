@@ -1,18 +1,6 @@
-import type { Channel } from "../../types"
+import type { ChannelName } from "../../types"
 
-export interface Point {
-  x: number
-  y: number
-}
-
-export interface VolumeBarCoords {
-  xStart: number
-  yStart: number
-  xEnd: number
-  yEnd: number
-}
-
-export interface ChannelSpectrumData {
+export interface ChannelData {
   frequencyData: Uint8Array
   fftSize: number
   bassFrequencyData: Uint8Array
@@ -20,11 +8,26 @@ export interface ChannelSpectrumData {
   sampleRate: number
 }
 
-export interface ChannelSpectrum {
-  name: Channel
-  data: ChannelSpectrumData | undefined
+export interface Channel {
+  name: ChannelName
+  data?: ChannelData
 }
 
 export interface SpectrumFrame {
-  channels: ChannelSpectrum[]
+  channels: Channel[]
+}
+
+export interface VisualizerDrawOptions {
+  spectrum?: SpectrumFrame
+  elapsedMs: number
+}
+
+export interface RendererDrawOptions {
+  channels: Channel[]
+  isSolo: boolean
+  elapsedMs: number
+}
+
+export interface Renderer {
+  draw(options: RendererDrawOptions): void
 }

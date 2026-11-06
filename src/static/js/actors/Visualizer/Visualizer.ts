@@ -1,21 +1,28 @@
-// Utils
 import { config } from "./config"
 import { config as globalConfig } from "../../config"
 import { getCenter } from "../../utils/uiHelpers"
-import { getStereoBandAngle } from "../../utils/spectrumHelpers"
-import { getDistinctFrequencyBands } from "../../utils/frequencyBands"
-import { bassSpectrum, getAvailableBassBins } from "../../utils/bassSpectrum"
-import type { Channel, VisualizationSettings } from "../../types"
+import BarsRenderer from "./renderers/Bars/BarsRenderer"
+import ElectricRenderer from "./renderers/Electric/ElectricRenderer"
+import type { VisualizationSettings, VisualizationVariant } from "../../types"
 import type {
-  ChannelSpectrum,
-  Point,
   SpectrumFrame,
-  VolumeBarCoords,
+  Renderer,
+  RendererDrawOptions,
+  VisualizerDrawOptions,
 } from "./types"
 
+type RendererConstructor = new (canvasCtx: CanvasRenderingContext2D) => Renderer
+
+const renderers: Record<VisualizationVariant, RendererConstructor> = {
+  [globalConfig.variant.bars]: BarsRenderer,
+  [globalConfig.variant.electric]: ElectricRenderer,
+}
+
 class Visualizer {
-  private _canvasCtx: CanvasRenderingContext2D
-  private _settings: VisualizationSettings
+  private readonly _canvasCtx: CanvasRenderingContext2D
+  private readonly _settings: VisualizationSettings
+  private _variant: VisualizationVariant
+  private _renderer: Renderer
 
   constructor(
     canvasCtx: CanvasRenderingContext2D,
@@ -23,115 +30,61 @@ class Visualizer {
   ) {
     this._canvasCtx = canvasCtx
     this._settings = settings
+    this._variant = settings.variant
+    this._renderer = this._createRenderer(this._variant)
   }
 
-  static getVolumeBarCoords(
-    centre: Point,
-    angle: number,
-    length: number
-  ): VolumeBarCoords {
-    const xStart = centre.x + Math.cos(angle) * config.circle.radius
-    const yStart = centre.y + Math.sin(angle) * config.circle.radius
-    const xEnd = centre.x + Math.cos(angle) * (config.circle.radius + length)
-    const yEnd = centre.y + Math.sin(angle) * (config.circle.radius + length)
+  private _createRenderer(variant: VisualizationVariant): Renderer {
+    const VariantRenderer = renderers[variant]
 
-    return { xStart, yStart, xEnd, yEnd }
+    return new VariantRenderer(this._canvasCtx)
   }
 
-  _drawVolumeBar(channel: Channel, frequency: number, coords: VolumeBarCoords) {
-    const _fill =
-      channel === globalConfig.channels.left
-        ? config.volumeBar.fillLeft(frequency)
-        : config.volumeBar.fillRight(frequency)
+  private _syncRenderer() {
+    if (this._variant !== this._settings.variant) {
+      this._variant = this._settings.variant
 
-    this._canvasCtx.lineWidth = config.volumeBar.lineWidth
-    this._canvasCtx.strokeStyle = _fill
-
-    this._canvasCtx.beginPath()
-    this._canvasCtx.moveTo(coords.xStart, coords.yStart)
-    this._canvasCtx.lineTo(coords.xEnd, coords.yEnd)
-    this._canvasCtx.stroke()
-  }
-
-  _drawChannel(channel: ChannelSpectrum, isBothChannels: boolean) {
-    if (!channel.data) {
-      return
-    }
-
-    const _centre = getCenter()
-    const _side = channel.name === globalConfig.channels.left ? 1 : -1
-
-    const totalBandCount = isBothChannels
-      ? config.volumeBar.bandCountBothChannels
-      : config.volumeBar.bandCountSingleChannel
-
-    const bassBandCount = Math.min(
-      bassSpectrum.bandCount,
-      getAvailableBassBins(channel.data.sampleRate, channel.data.bassFftSize)
-    )
-    const bassBands = getDistinctFrequencyBands(
-      channel.data.bassFrequencyData,
-      channel.data.sampleRate,
-      channel.data.bassFftSize,
-      bassBandCount,
-      bassSpectrum.minFrequency,
-      bassSpectrum.maxFrequency,
-      "linear"
-    )
-    const upperBands = getDistinctFrequencyBands(
-      channel.data.frequencyData,
-      channel.data.sampleRate,
-      channel.data.fftSize,
-      totalBandCount - bassBandCount,
-      bassSpectrum.maxFrequency,
-      config.volumeBar.maxFrequency,
-      "logarithmic"
-    )
-
-    const _bands = [...bassBands, ...upperBands]
-
-    for (let i = 0; i < _bands.length; i++) {
-      const _magnitude = _bands[i]
-
-      if (_magnitude === 0) {
-        continue
-      }
-
-      const _length = _magnitude / 2
-      const _angle = isBothChannels
-        ? config.volumeBar.angleOffset +
-          (_side * (i + 0.5) * Math.PI * 2) / _bands.length
-        : getStereoBandAngle(
-            i,
-            _bands.length,
-            _side,
-            config.volumeBar.angleOffset
-          )
-      const _coords = Visualizer.getVolumeBarCoords(_centre, _angle, _length)
-
-      this._drawVolumeBar(channel.name, _magnitude, _coords)
+      this._renderer = this._createRenderer(this._variant)
     }
   }
 
-  _drawUI() {
-    const _centre = getCenter()
+  private _createRendererDrawOptions(
+    spectrum: SpectrumFrame,
+    elapsedMs: number
+  ): RendererDrawOptions {
+    const selectedChannels = this._settings.channels
+
+    const isSolo = selectedChannels !== globalConfig.channels.both
+    const channels = isSolo
+      ? spectrum.channels.filter((channel) => channel.name === selectedChannels)
+      : spectrum.channels
+
+    return {
+      channels,
+      isSolo,
+      elapsedMs,
+    }
+  }
+
+  private _drawUI() {
+    const centre = getCenter()
     // @TODO: Add dynamic multiple coloured arc generator
-    const _gradient = this._canvasCtx.createLinearGradient(
+    const gradient = this._canvasCtx.createLinearGradient(
       0,
       window.innerHeight,
       0,
       0
     )
-    _gradient.addColorStop(0, config.circle.stroke[0])
-    _gradient.addColorStop(1, config.circle.stroke[1])
+    gradient.addColorStop(0, config.circle.stroke[0])
+    gradient.addColorStop(1, config.circle.stroke[1])
 
     this._canvasCtx.lineWidth = config.circle.lineWidth
-    this._canvasCtx.strokeStyle = _gradient
+    this._canvasCtx.strokeStyle = gradient
 
     this._canvasCtx.beginPath()
     this._canvasCtx.arc(
-      _centre.x,
-      _centre.y,
+      centre.x,
+      centre.y,
       config.circle.radius,
       0,
       Math.PI * 2
@@ -139,23 +92,13 @@ class Visualizer {
     this._canvasCtx.stroke()
   }
 
-  /**
-   * @public
-   */
-  draw(data?: SpectrumFrame) {
+  draw({ spectrum, elapsedMs }: VisualizerDrawOptions) {
     this._drawUI()
+    this._syncRenderer()
 
-    if (!data || !data.channels) {
-      return
-    }
+    if (!spectrum) return
 
-    const selectedChannels = this._settings.channels
-    const isBothChannels = selectedChannels !== globalConfig.channels.both
-    const channels = isBothChannels
-      ? data.channels.filter((channel) => channel.name === selectedChannels)
-      : data.channels
-
-    channels.forEach((channel) => this._drawChannel(channel, isBothChannels))
+    this._renderer.draw(this._createRendererDrawOptions(spectrum, elapsedMs))
   }
 }
 

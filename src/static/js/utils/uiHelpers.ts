@@ -1,10 +1,10 @@
 const DATA_LOCK_SELECTION_ATTR = "data-prevent-selection"
 
-export const lockUserSelection = (elem: HTMLElement): void => {
+export const lockUserSelection = (elem: HTMLElement) => {
   elem.setAttribute(DATA_LOCK_SELECTION_ATTR, "")
 }
 
-export const unlockUserSelection = (elem: HTMLElement): void => {
+export const unlockUserSelection = (elem: HTMLElement) => {
   elem.removeAttribute(DATA_LOCK_SELECTION_ATTR)
 }
 
