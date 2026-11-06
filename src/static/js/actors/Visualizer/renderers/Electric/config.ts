@@ -1,4 +1,4 @@
-export const electricConfig = {
+export const config = {
   minFrequency: 40,
   maxFrequency: 12000,
   bandCountSingleChannel: 64,

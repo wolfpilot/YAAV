@@ -1,33 +1,37 @@
 import { getCenter } from "../../../../utils/uiHelpers"
 import { config as visualizerConfig } from "../../config"
 import { getChannelBands } from "../getChannelBands"
-import { electricConfig } from "./config"
-import type { ChannelsData, ChannelSpectrum, Renderer } from "../../types"
+import { config } from "./config"
+import type { RendererDrawOptions, Channel, Renderer } from "../../types"
 
 class ElectricRenderer implements Renderer {
   constructor(private readonly canvasCtx: CanvasRenderingContext2D) {}
 
-  private _drawChannel(
-    channel: ChannelSpectrum,
-    isSolo: boolean,
+  private _drawChannel({
+    channel,
+    isSolo,
+    rotationAngle,
+  }: {
+    channel: Channel
+    isSolo: boolean
     rotationAngle: number
-  ) {
+  }) {
     if (!channel.data) return
 
     const centre = getCenter()
     const totalBandCount = isSolo
-      ? electricConfig.bandCountBothChannels
-      : electricConfig.bandCountSingleChannel
+      ? config.bandCountBothChannels
+      : config.bandCountSingleChannel
     const bands = getChannelBands(
       channel.data,
       totalBandCount,
-      electricConfig.maxFrequency
+      config.maxFrequency
     )
 
     if (bands.length === 0) return
 
-    this.canvasCtx.lineWidth = electricConfig.lineWidth
-    this.canvasCtx.strokeStyle = electricConfig.fill
+    this.canvasCtx.lineWidth = config.lineWidth
+    this.canvasCtx.strokeStyle = config.fill
 
     this.canvasCtx.beginPath()
 
@@ -35,11 +39,11 @@ class ElectricRenderer implements Renderer {
       const magnitude = bands[i]
       const length = magnitude / 2
       const angle =
-        electricConfig.angleOffset +
+        config.angleOffset +
         rotationAngle +
         ((i + 0.5) * Math.PI * 2) / bands.length
       const radius =
-        visualizerConfig.circle.radius + length + electricConfig.centreOffset
+        visualizerConfig.circle.radius + length + config.centreOffset
 
       const x = centre.x + Math.cos(angle) * radius
       const y = centre.y + Math.sin(angle) * radius
@@ -55,13 +59,22 @@ class ElectricRenderer implements Renderer {
     this.canvasCtx.stroke()
   }
 
-  draw({ channels, isSolo, elapsedSeconds }: ChannelsData) {
-    const rotationAngle =
-      ((elapsedSeconds % electricConfig.rotationPeriodSeconds) * Math.PI * 2) /
-      electricConfig.rotationPeriodSeconds
+  private _calculateRotation(elapsedMs: number) {
+    const elapsedS = elapsedMs / 1000
+
+    const rotationFactor = elapsedS % config.rotationPeriodSeconds
+    const rotationDegree = rotationFactor * Math.PI * 2
+
+    const rotationAngle = rotationDegree / config.rotationPeriodSeconds
+
+    return rotationAngle
+  }
+
+  draw({ channels, isSolo, elapsedMs }: RendererDrawOptions) {
+    const rotationAngle = this._calculateRotation(elapsedMs)
 
     channels.forEach((channel) =>
-      this._drawChannel(channel, isSolo, rotationAngle)
+      this._drawChannel({ channel, isSolo, rotationAngle })
     )
   }
 }

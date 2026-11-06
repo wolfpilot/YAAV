@@ -1,9 +1,9 @@
 import { bassSpectrum, getAvailableBassBins } from "../../../utils/bassSpectrum"
 import { getDistinctFrequencyBands } from "../../../utils/frequencyBands"
-import type { ChannelSpectrumData } from "../types"
+import type { ChannelData } from "../types"
 
 export const getChannelBands = (
-  data: ChannelSpectrumData,
+  data: ChannelData,
   totalBandCount: number,
   maxFrequency: number
 ): number[] => {

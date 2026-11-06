@@ -4,7 +4,12 @@ import { getCenter } from "../../utils/uiHelpers"
 import BarsRenderer from "./renderers/Bars/BarsRenderer"
 import ElectricRenderer from "./renderers/Electric/ElectricRenderer"
 import type { VisualizationSettings, VisualizationVariant } from "../../types"
-import type { SpectrumFrame, Renderer, ChannelsData } from "./types"
+import type {
+  SpectrumFrame,
+  Renderer,
+  RendererDrawOptions,
+  VisualizerDrawOptions,
+} from "./types"
 
 type RendererConstructor = new (canvasCtx: CanvasRenderingContext2D) => Renderer
 
@@ -43,21 +48,21 @@ class Visualizer {
     }
   }
 
-  private _getChannels(
-    data: SpectrumFrame,
-    elapsedSeconds: number
-  ): ChannelsData {
+  private _createRendererDrawOptions(
+    spectrum: SpectrumFrame,
+    elapsedMs: number
+  ): RendererDrawOptions {
     const selectedChannels = this._settings.channels
 
     const isSolo = selectedChannels !== globalConfig.channels.both
     const channels = isSolo
-      ? data.channels.filter((channel) => channel.name === selectedChannels)
-      : data.channels
+      ? spectrum.channels.filter((channel) => channel.name === selectedChannels)
+      : spectrum.channels
 
     return {
       channels,
       isSolo,
-      elapsedSeconds,
+      elapsedMs,
     }
   }
 
@@ -87,13 +92,13 @@ class Visualizer {
     this._canvasCtx.stroke()
   }
 
-  draw(data: SpectrumFrame | undefined, elapsedSeconds: number) {
+  draw({ spectrum, elapsedMs }: VisualizerDrawOptions) {
     this._drawUI()
     this._syncRenderer()
 
-    if (!data) return
+    if (!spectrum) return
 
-    this._renderer.draw(this._getChannels(data, elapsedSeconds))
+    this._renderer.draw(this._createRendererDrawOptions(spectrum, elapsedMs))
   }
 }
 
