@@ -1,4 +1,4 @@
-export const barsConfig = {
+export const config = {
   angleOffset: -1.5 * Math.PI, // Start drawing arc from bottom center
   bandCountSingleChannel: 128,
   bandCountBothChannels: 256,
