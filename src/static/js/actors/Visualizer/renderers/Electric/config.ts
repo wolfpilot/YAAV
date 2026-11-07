@@ -5,7 +5,7 @@ export const config = {
   bandCountBothChannels: 128,
   angleOffset: -1.5 * Math.PI,
   rotationPeriodSeconds: 60,
-  centreOffset: 10,
+  centreOffset: 5,
   ringsAmount: 10,
   ringSpacing: 3,
   lineWidthMin: 0.5,

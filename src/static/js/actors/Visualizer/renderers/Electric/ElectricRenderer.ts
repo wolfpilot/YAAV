@@ -43,7 +43,7 @@ class ElectricRenderer implements Renderer {
       this.canvasCtx.beginPath()
 
       for (let j = 0; j < bands.length; j++) {
-        const magnitude = easeInOutCubic(i) * bands[j] * 0.005
+        const magnitude = easeInOutCubic(2.5 + i) * bands[j] * 0.0025
         const length = magnitude / 2
         const angle =
           config.angleOffset +
