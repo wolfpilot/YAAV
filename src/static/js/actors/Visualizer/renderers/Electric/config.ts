@@ -6,6 +6,8 @@ export const config = {
   angleOffset: -1.5 * Math.PI,
   rotationPeriodSeconds: 60,
   centreOffset: 10,
-  lineWidth: 3,
-  fill: `rgb(225, 225, 225)`,
+  ringsAmount: 10,
+  ringSpacing: 3,
+  lineWidthDynamic: (val: number) => val * 30,
+  fillDynamic: (opacity: number) => `rgba(75, 25, 225, ${opacity})`,
 }

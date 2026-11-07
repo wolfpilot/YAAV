@@ -3,6 +3,7 @@ import { config as visualizerConfig } from "../../config"
 import { getChannelBands } from "../getChannelBands"
 import { config } from "./config"
 import type { RendererDrawOptions, Channel, Renderer } from "../../types"
+import { easeInOutCubic } from "../../../../utils/easings"
 
 class ElectricRenderer implements Renderer {
   constructor(private readonly canvasCtx: CanvasRenderingContext2D) {}
@@ -30,33 +31,43 @@ class ElectricRenderer implements Renderer {
 
     if (bands.length === 0) return
 
-    this.canvasCtx.lineWidth = config.lineWidth
-    this.canvasCtx.strokeStyle = config.fill
+    for (let i = 0; i < config.ringsAmount; i++) {
+      const progress = i / (config.ringsAmount - 1)
 
-    this.canvasCtx.beginPath()
+      const sqProgres = Math.pow(progress, 2)
+      const inverseSqProgress = Math.pow(1 - progress, 2)
 
-    for (let i = 0; i < bands.length; i++) {
-      const magnitude = bands[i]
-      const length = magnitude / 2
-      const angle =
-        config.angleOffset +
-        rotationAngle +
-        ((i + 0.5) * Math.PI * 2) / bands.length
-      const radius =
-        visualizerConfig.circle.radius + length + config.centreOffset
+      this.canvasCtx.lineWidth = config.lineWidthDynamic(sqProgres)
+      this.canvasCtx.strokeStyle = config.fillDynamic(inverseSqProgress)
 
-      const x = centre.x + Math.cos(angle) * radius
-      const y = centre.y + Math.sin(angle) * radius
+      this.canvasCtx.beginPath()
 
-      i === 0
-        ? // Move to first vector
-          this.canvasCtx.moveTo(x, y)
-        : // Otherwise connect
-          this.canvasCtx.lineTo(x, y)
+      for (let j = 0; j < bands.length; j++) {
+        const magnitude = easeInOutCubic(i) * bands[j] * 0.005
+        const length = magnitude / 2
+        const angle =
+          config.angleOffset +
+          rotationAngle +
+          ((j + 0.5) * Math.PI * 2) / bands.length
+        const radius =
+          visualizerConfig.circle.radius +
+          length +
+          config.centreOffset +
+          i * config.ringSpacing
+
+        const x = centre.x + Math.cos(angle) * radius
+        const y = centre.y + Math.sin(angle) * radius
+
+        j === 0
+          ? // Move to first vector
+            this.canvasCtx.moveTo(x, y)
+          : // Otherwise connect
+            this.canvasCtx.lineTo(x, y)
+      }
+
+      this.canvasCtx.closePath()
+      this.canvasCtx.stroke()
     }
-
-    this.canvasCtx.closePath()
-    this.canvasCtx.stroke()
   }
 
   private _calculateRotation(elapsedMs: number) {
