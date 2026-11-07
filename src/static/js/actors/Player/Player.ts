@@ -8,7 +8,7 @@ import { fadeIn, fadeOut } from "../../utils/audioHelpers"
 import { getBassFftSize } from "../../utils/bassSpectrum"
 import type { VisualizationSettings } from "../../types"
 import type { PlayerElements, Track } from "./types"
-import type { ChannelSpectrumData, SpectrumFrame } from "../Visualizer/types"
+import type { ChannelData, SpectrumFrame } from "../Visualizer/types"
 
 // Modules
 import Visualizer from "../Visualizer/Visualizer"
@@ -29,12 +29,16 @@ class Player {
   private _bassAnalyserL!: AnalyserNode
   private _bassAnalyserR!: AnalyserNode
   private _elements!: PlayerElements
+  private _elapsedMs: number
+  private _lastPlayingSampleTime?: number
 
   constructor(
     canvasCtx: CanvasRenderingContext2D,
     settings: VisualizationSettings
   ) {
     this._visualizer = new Visualizer(canvasCtx, settings)
+
+    this._elapsedMs = 0
 
     this._onPointerMove = this._onPointerMove.bind(this)
     this._onPointerUp = this._onPointerUp.bind(this)
@@ -47,7 +51,7 @@ class Player {
   static getChannelData(
     analyser: AnalyserNode,
     bassAnalyser: AnalyserNode
-  ): ChannelSpectrumData | undefined {
+  ): ChannelData | undefined {
     const bufferLength = analyser.frequencyBinCount
     const frequencyData = new Uint8Array(bufferLength)
     const bassFrequencyData = new Uint8Array(bassAnalyser.frequencyBinCount)
@@ -115,10 +119,30 @@ class Player {
     }
   }
 
-  draw() {
-    const data = this._getAudioData()
+  private _updateElapsedPlayingTime() {
+    const now = performance.now()
 
-    this._visualizer.draw(data)
+    const isPlaying =
+      !this._audio.seeking && !this._audio.paused && !this._audio.ended
+
+    if (isPlaying && this._lastPlayingSampleTime !== undefined) {
+      const newElapsedTime = now - this._lastPlayingSampleTime
+
+      this._elapsedMs += newElapsedTime
+    }
+
+    this._lastPlayingSampleTime = isPlaying ? now : undefined
+  }
+
+  draw() {
+    this._updateElapsedPlayingTime()
+
+    const spectrum = this._getAudioData()
+
+    this._visualizer.draw({
+      spectrum,
+      elapsedMs: this._elapsedMs,
+    })
   }
 
   _resetVolume() {
@@ -134,7 +158,7 @@ class Player {
   /**
    * @param e - The pointer event
    */
-  _seek = (e: PointerEvent): void => {
+  _seek = (e: PointerEvent) => {
     const _bounds = this._elements.progress.getBoundingClientRect()
     const _min = _bounds.x
     const _max = _bounds.x + _bounds.width
@@ -158,11 +182,11 @@ class Player {
     document.removeEventListener("pointermove", this._onPointerMove)
   }
 
-  _onPointerMove = (e: PointerEvent): void => {
+  _onPointerMove = (e: PointerEvent) => {
     this._seek(e)
   }
 
-  _onPointerDown = (e: PointerEvent): void => {
+  _onPointerDown = (e: PointerEvent) => {
     if (!this._audioCtx) {
       return
     }

@@ -8,5 +8,6 @@ export const config = {
   // visualization
   variant: {
     bars: "bars",
+    electric: "electric",
   },
 } as const
