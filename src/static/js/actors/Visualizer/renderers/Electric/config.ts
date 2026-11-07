@@ -8,6 +8,9 @@ export const config = {
   centreOffset: 10,
   ringsAmount: 10,
   ringSpacing: 3,
-  lineWidthDynamic: (val: number) => val * 30,
+  lineWidthMin: 0.5,
+  lineWidthMax: 30,
+  lineWidthDynamic: (percent: number) =>
+    config.lineWidthMin + percent * config.lineWidthMax,
   fillDynamic: (opacity: number) => `rgba(75, 25, 225, ${opacity})`,
 }
