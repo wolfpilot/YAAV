@@ -3,12 +3,12 @@ import { config as globalConfig } from "../../config"
 import { getCenter } from "../../utils/uiHelpers"
 import BarsRenderer from "./renderers/Bars/BarsRenderer"
 import ElectricRenderer from "./renderers/Electric/ElectricRenderer"
-import type { VisualizationSettings, VisualizationVariant } from "../../types"
+import type { GUISettings, VisualizationVariant } from "../../types"
 import type { Renderer, VisualizerDrawOptions } from "./types"
 
 type RendererFactory = (
   canvasCtx: CanvasRenderingContext2D,
-  settings: VisualizationSettings
+  settings: GUISettings
 ) => Renderer
 
 const renderers: Record<VisualizationVariant, RendererFactory> = {
@@ -20,17 +20,14 @@ const renderers: Record<VisualizationVariant, RendererFactory> = {
 
 class Visualizer {
   private readonly _canvasCtx: CanvasRenderingContext2D
-  private readonly _settings: VisualizationSettings
+  private readonly _settings: GUISettings
   private _variant: VisualizationVariant
   private _renderer: Renderer
 
-  constructor(
-    canvasCtx: CanvasRenderingContext2D,
-    settings: VisualizationSettings
-  ) {
+  constructor(canvasCtx: CanvasRenderingContext2D, settings: GUISettings) {
     this._canvasCtx = canvasCtx
     this._settings = settings
-    this._variant = settings.variant
+    this._variant = settings.visualization.variant
     this._renderer = this._createRenderer(this._variant)
   }
 
@@ -41,8 +38,8 @@ class Visualizer {
   }
 
   private _syncRenderer() {
-    if (this._variant !== this._settings.variant) {
-      this._variant = this._settings.variant
+    if (this._variant !== this._settings.visualization.variant) {
+      this._variant = this._settings.visualization.variant
 
       this._renderer = this._createRenderer(this._variant)
     }

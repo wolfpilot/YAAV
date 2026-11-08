@@ -6,6 +6,10 @@ export type ChannelSelection =
 export type VisualizationVariant =
   (typeof config.variant)[keyof typeof config.variant]
 
+export interface VisualizationSettings {
+  variant: VisualizationVariant
+}
+
 export interface BarsSettings {
   channels: ChannelSelection
 }
@@ -14,8 +18,8 @@ export interface ElectricSettings {
   ringsAmount: number
 }
 
-export interface VisualizationSettings {
+export interface GUISettings {
+  visualization: VisualizationSettings
   bars: BarsSettings
   electric: ElectricSettings
-  variant: VisualizationVariant
 }

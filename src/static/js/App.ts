@@ -4,7 +4,7 @@ import Canvas from "./actors/Canvas/Canvas"
 import GUI from "./managers/GUI/GUI"
 import { config } from "./config"
 import { config as electricConfig } from "./actors/Visualizer/renderers/Electric/config"
-import type { VisualizationSettings } from "./types"
+import type { GUISettings } from "./types"
 
 // Setup
 const initialState = {
@@ -53,14 +53,16 @@ class App {
       throw new Error("2D canvas context is unavailable")
     }
 
-    const settings: VisualizationSettings = {
+    const settings: GUISettings = {
+      visualization: {
+        variant: config.variant.bars,
+      },
       bars: {
         channels: config.channels.both,
       },
       electric: {
         ringsAmount: electricConfig.ringsAmount,
       },
-      variant: config.variant.bars,
     }
 
     this._gui = new GUI(settings)
