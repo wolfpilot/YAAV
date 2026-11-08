@@ -3,7 +3,9 @@ import Player from "./actors/Player/Player"
 import Canvas from "./actors/Canvas/Canvas"
 import GUI from "./managers/GUI/GUI"
 import { config } from "./config"
-import type { VisualizationSettings } from "./types"
+import { config as barsConfig } from "./actors/Visualizer/renderers/Bars/config"
+import { config as electricConfig } from "./actors/Visualizer/renderers/Electric/config"
+import type { GUISettings } from "./types"
 
 // Setup
 const initialState = {
@@ -52,9 +54,23 @@ class App {
       throw new Error("2D canvas context is unavailable")
     }
 
-    const settings: VisualizationSettings = {
-      channels: config.channels.both,
-      variant: config.variant.bars,
+    const settings: GUISettings = {
+      visualization: {
+        variant: config.variant.bars,
+      },
+      bars: {
+        channels: config.channels.both,
+        bandCountSingleChannel: barsConfig.bandCountSingleChannel,
+        bandCountBothChannels: barsConfig.bandCountBothChannels,
+        lineWidth: barsConfig.lineWidth,
+      },
+      electric: {
+        bandCount: electricConfig.bandCount,
+        ringsAmount: electricConfig.ringsAmount,
+        rotationPeriodSeconds: electricConfig.rotationPeriodSeconds,
+        lineWidthMin: electricConfig.lineWidthMin,
+        lineWidthMax: electricConfig.lineWidthMax,
+      },
     }
 
     this._gui = new GUI(settings)

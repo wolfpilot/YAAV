@@ -6,7 +6,7 @@ import { getKeyCode } from "../../utils/inputHelpers"
 import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers"
 import { fadeIn, fadeOut } from "../../utils/audioHelpers"
 import { getBassFftSize } from "../../utils/bassSpectrum"
-import type { VisualizationSettings } from "../../types"
+import type { GUISettings } from "../../types"
 import type { PlayerElements, Track } from "./types"
 import type { ChannelData, SpectrumFrame } from "../Visualizer/types"
 
@@ -34,7 +34,7 @@ class Player {
 
   constructor(
     canvasCtx: CanvasRenderingContext2D,
-    settings: VisualizationSettings
+    settings: GUISettings
   ) {
     this._visualizer = new Visualizer(canvasCtx, settings)
 

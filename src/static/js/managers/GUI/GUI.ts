@@ -1,11 +1,15 @@
 import { Pane } from "tweakpane"
-import { config } from "../../config"
-import type { VisualizationSettings } from "../../types"
+import type { GUISettings } from "../../types"
+import {
+  addBarsFolder,
+  addElectricFolder,
+  addVisualizationFolder,
+} from "./folders"
 
 class GUI {
-  private _settings: VisualizationSettings
+  private _settings: GUISettings
 
-  constructor(settings: VisualizationSettings) {
+  constructor(settings: GUISettings) {
     this._settings = settings
   }
 
@@ -15,28 +19,9 @@ class GUI {
   init() {
     const pane = new Pane()
 
-    const audioPane = pane.addFolder({
-      title: "Audio",
-    })
-
-    audioPane.addBinding(this._settings, "channels", {
-      options: {
-        "L + R": config.channels.both,
-        L: config.channels.left,
-        R: config.channels.right,
-      },
-    })
-
-    const visualizationPane = pane.addFolder({
-      title: "Visualization",
-    })
-
-    visualizationPane.addBinding(this._settings, "variant", {
-      options: {
-        bars: config.variant.bars,
-        electric: config.variant.electric,
-      },
-    })
+    addVisualizationFolder(pane, this._settings.visualization)
+    addBarsFolder(pane, this._settings.bars)
+    addElectricFolder(pane, this._settings.electric)
   }
 }
 

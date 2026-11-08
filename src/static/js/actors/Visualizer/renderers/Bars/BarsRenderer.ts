@@ -4,12 +4,15 @@ import { getCenter } from "../../../../utils/uiHelpers"
 import { config as visualizerConfig } from "../../config"
 import { getChannelBands } from "../getChannelBands"
 import { config } from "./config"
-import type { ChannelName } from "../../../../types"
+import type { BarsSettings, ChannelName } from "../../../../types"
 import type { RendererDrawOptions, Channel, Renderer } from "../../types"
 import type { Point, VolumeBarCoords } from "./types"
 
 class BarsRenderer implements Renderer {
-  constructor(private readonly canvasCtx: CanvasRenderingContext2D) {}
+  constructor(
+    private readonly canvasCtx: CanvasRenderingContext2D,
+    private readonly settings: BarsSettings
+  ) {}
 
   private static getVolumeBarCoords({
     centre,
@@ -44,7 +47,7 @@ class BarsRenderer implements Renderer {
         ? config.fillLeft(frequency)
         : config.fillRight(frequency)
 
-    this.canvasCtx.lineWidth = config.lineWidth
+    this.canvasCtx.lineWidth = this.settings.lineWidth
     this.canvasCtx.strokeStyle = fill
 
     this.canvasCtx.beginPath()
@@ -67,8 +70,8 @@ class BarsRenderer implements Renderer {
     const centre = getCenter()
     const side = channel.name === globalConfig.channels.left ? 1 : -1
     const totalBandCount = isSolo
-      ? config.bandCountBothChannels
-      : config.bandCountSingleChannel
+      ? this.settings.bandCountSingleChannel
+      : this.settings.bandCountBothChannels
     const bands = getChannelBands(
       channel.data,
       totalBandCount,
@@ -96,8 +99,14 @@ class BarsRenderer implements Renderer {
     }
   }
 
-  draw({ channels, isSolo }: RendererDrawOptions) {
-    channels.forEach((channel) => this._drawChannel({ channel, isSolo }))
+  draw({ channels }: RendererDrawOptions) {
+    const selectedChannels = this.settings.channels
+    const isSolo = selectedChannels !== globalConfig.channels.both
+    const visibleChannels = isSolo
+      ? channels.filter((channel) => channel.name === selectedChannels)
+      : channels
+
+    visibleChannels.forEach((channel) => this._drawChannel({ channel, isSolo }))
   }
 }
 

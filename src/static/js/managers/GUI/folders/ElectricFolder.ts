@@ -1,0 +1,39 @@
+import type { ElectricSettings } from "../../../types"
+import { Pane } from "tweakpane"
+
+export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
+  const folder = pane.addFolder({
+    title: "Electric",
+    expanded: false,
+  })
+
+  folder.addBinding(settings, "bandCount", {
+    min: 32,
+    max: 128,
+    step: 16,
+  })
+
+  folder.addBinding(settings, "ringsAmount", {
+    min: 1,
+    max: 10,
+    step: 1,
+  })
+
+  folder.addBinding(settings, "rotationPeriodSeconds", {
+    min: 20,
+    max: 120,
+    step: 1,
+  })
+
+  folder.addBinding(settings, "lineWidthMin", {
+    min: 0.5,
+    max: 5,
+    step: 0.5,
+  })
+
+  folder.addBinding(settings, "lineWidthMax", {
+    min: 5,
+    max: 30,
+    step: 0.5,
+  })
+}

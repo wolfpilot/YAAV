@@ -7,6 +7,26 @@ export type VisualizationVariant =
   (typeof config.variant)[keyof typeof config.variant]
 
 export interface VisualizationSettings {
-  channels: ChannelSelection
   variant: VisualizationVariant
+}
+
+export interface BarsSettings {
+  channels: ChannelSelection
+  bandCountSingleChannel: number
+  bandCountBothChannels: number
+  lineWidth: number
+}
+
+export interface ElectricSettings {
+  bandCount: number
+  ringsAmount: number
+  rotationPeriodSeconds: number
+  lineWidthMin: number
+  lineWidthMax: number
+}
+
+export interface GUISettings {
+  visualization: VisualizationSettings
+  bars: BarsSettings
+  electric: ElectricSettings
 }
