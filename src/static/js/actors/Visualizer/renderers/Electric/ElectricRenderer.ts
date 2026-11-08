@@ -29,7 +29,11 @@ class ElectricRenderer implements Renderer {
       const sqProgres = Math.pow(progress, 2)
       const inverseSqProgress = Math.pow(1 - progress, 2)
 
-      this.canvasCtx.lineWidth = config.lineWidthDynamic(sqProgres)
+      this.canvasCtx.lineWidth = config.lineWidthDynamic(
+        this.settings.lineWidthMin,
+        this.settings.lineWidthMax,
+        sqProgres
+      )
       this.canvasCtx.strokeStyle = config.fillDynamic(inverseSqProgress)
 
       this.canvasCtx.beginPath()
@@ -65,10 +69,10 @@ class ElectricRenderer implements Renderer {
   private _calculateRotation(elapsedMs: number) {
     const elapsedS = elapsedMs / 1000
 
-    const rotationFactor = elapsedS % config.rotationPeriodSeconds
+    const rotationFactor = elapsedS % this.settings.rotationPeriodSeconds
     const rotationDegree = rotationFactor * Math.PI * 2
 
-    const rotationAngle = rotationDegree / config.rotationPeriodSeconds
+    const rotationAngle = rotationDegree / this.settings.rotationPeriodSeconds
 
     return rotationAngle
   }
@@ -80,7 +84,7 @@ class ElectricRenderer implements Renderer {
           ? [
               getChannelBands(
                 data,
-                config.bandCountBothChannels,
+                this.settings.bandCount,
                 config.maxFrequency
               ),
             ]

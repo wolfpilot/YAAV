@@ -12,10 +12,17 @@ export interface VisualizationSettings {
 
 export interface BarsSettings {
   channels: ChannelSelection
+  bandCountSingleChannel: number
+  bandCountBothChannels: number
+  lineWidth: number
 }
 
 export interface ElectricSettings {
+  bandCount: number
   ringsAmount: number
+  rotationPeriodSeconds: number
+  lineWidthMin: number
+  lineWidthMax: number
 }
 
 export interface GUISettings {

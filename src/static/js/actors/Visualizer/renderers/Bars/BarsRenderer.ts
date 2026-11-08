@@ -47,7 +47,7 @@ class BarsRenderer implements Renderer {
         ? config.fillLeft(frequency)
         : config.fillRight(frequency)
 
-    this.canvasCtx.lineWidth = config.lineWidth
+    this.canvasCtx.lineWidth = this.settings.lineWidth
     this.canvasCtx.strokeStyle = fill
 
     this.canvasCtx.beginPath()
@@ -70,8 +70,8 @@ class BarsRenderer implements Renderer {
     const centre = getCenter()
     const side = channel.name === globalConfig.channels.left ? 1 : -1
     const totalBandCount = isSolo
-      ? config.bandCountBothChannels
-      : config.bandCountSingleChannel
+      ? this.settings.bandCountSingleChannel
+      : this.settings.bandCountBothChannels
     const bands = getChannelBands(
       channel.data,
       totalBandCount,

@@ -3,6 +3,7 @@ import Player from "./actors/Player/Player"
 import Canvas from "./actors/Canvas/Canvas"
 import GUI from "./managers/GUI/GUI"
 import { config } from "./config"
+import { config as barsConfig } from "./actors/Visualizer/renderers/Bars/config"
 import { config as electricConfig } from "./actors/Visualizer/renderers/Electric/config"
 import type { GUISettings } from "./types"
 
@@ -59,9 +60,16 @@ class App {
       },
       bars: {
         channels: config.channels.both,
+        bandCountSingleChannel: barsConfig.bandCountSingleChannel,
+        bandCountBothChannels: barsConfig.bandCountBothChannels,
+        lineWidth: barsConfig.lineWidth,
       },
       electric: {
+        bandCount: electricConfig.bandCount,
         ringsAmount: electricConfig.ringsAmount,
+        rotationPeriodSeconds: electricConfig.rotationPeriodSeconds,
+        lineWidthMin: electricConfig.lineWidthMin,
+        lineWidthMax: electricConfig.lineWidthMax,
       },
     }
 
