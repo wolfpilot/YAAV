@@ -112,6 +112,7 @@ canvas {
   height: 10px;
   padding-top: 10px;
   padding-bottom: 10px;
+  cursor: pointer;
 }
 
 .player__progress-wrapper {

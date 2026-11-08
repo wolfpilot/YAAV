@@ -2,61 +2,58 @@ import { getCenter } from "../../../../utils/uiHelpers"
 import { config as visualizerConfig } from "../../config"
 import { getChannelBands } from "../getChannelBands"
 import { config } from "./config"
-import type { RendererDrawOptions, Channel, Renderer } from "../../types"
+import type { RendererDrawOptions, Renderer } from "../../types"
+import { easeInOutCubic } from "../../../../utils/easings"
 
 class ElectricRenderer implements Renderer {
   constructor(private readonly canvasCtx: CanvasRenderingContext2D) {}
 
-  private _drawChannel({
-    channel,
-    isSolo,
+  private _drawBands({
+    bands,
     rotationAngle,
   }: {
-    channel: Channel
-    isSolo: boolean
+    bands: number[]
     rotationAngle: number
   }) {
-    if (!channel.data) return
-
     const centre = getCenter()
-    const totalBandCount = isSolo
-      ? config.bandCountBothChannels
-      : config.bandCountSingleChannel
-    const bands = getChannelBands(
-      channel.data,
-      totalBandCount,
-      config.maxFrequency
-    )
 
-    if (bands.length === 0) return
+    for (let i = 0; i < config.ringsAmount; i++) {
+      const progress = i / (config.ringsAmount - 1)
 
-    this.canvasCtx.lineWidth = config.lineWidth
-    this.canvasCtx.strokeStyle = config.fill
+      const sqProgres = Math.pow(progress, 2)
+      const inverseSqProgress = Math.pow(1 - progress, 2)
 
-    this.canvasCtx.beginPath()
+      this.canvasCtx.lineWidth = config.lineWidthDynamic(sqProgres)
+      this.canvasCtx.strokeStyle = config.fillDynamic(inverseSqProgress)
 
-    for (let i = 0; i < bands.length; i++) {
-      const magnitude = bands[i]
-      const length = magnitude / 2
-      const angle =
-        config.angleOffset +
-        rotationAngle +
-        ((i + 0.5) * Math.PI * 2) / bands.length
-      const radius =
-        visualizerConfig.circle.radius + length + config.centreOffset
+      this.canvasCtx.beginPath()
 
-      const x = centre.x + Math.cos(angle) * radius
-      const y = centre.y + Math.sin(angle) * radius
+      for (let j = 0; j < bands.length; j++) {
+        const magnitude = easeInOutCubic(2.5 + i) * bands[j] * 0.0025
+        const length = magnitude / 2
+        const angle =
+          config.angleOffset +
+          rotationAngle +
+          ((j + 0.5) * Math.PI * 2) / bands.length
+        const radius =
+          visualizerConfig.circle.radius +
+          length +
+          config.centreOffset +
+          i * config.ringSpacing
 
-      i === 0
-        ? // Move to first vector
-          this.canvasCtx.moveTo(x, y)
-        : // Otherwise connect
-          this.canvasCtx.lineTo(x, y)
+        const x = centre.x + Math.cos(angle) * radius
+        const y = centre.y + Math.sin(angle) * radius
+
+        j === 0
+          ? // Move to first vector
+            this.canvasCtx.moveTo(x, y)
+          : // Otherwise connect
+            this.canvasCtx.lineTo(x, y)
+      }
+
+      this.canvasCtx.closePath()
+      this.canvasCtx.stroke()
     }
-
-    this.canvasCtx.closePath()
-    this.canvasCtx.stroke()
   }
 
   private _calculateRotation(elapsedMs: number) {
@@ -70,12 +67,31 @@ class ElectricRenderer implements Renderer {
     return rotationAngle
   }
 
-  draw({ channels, isSolo, elapsedMs }: RendererDrawOptions) {
+  draw({ channels, elapsedMs }: RendererDrawOptions) {
+    const channelBands = channels
+      .flatMap(({ data }) =>
+        data
+          ? [
+              getChannelBands(
+                data,
+                config.bandCountBothChannels,
+                config.maxFrequency
+              ),
+            ]
+          : []
+      )
+      .filter((bands) => bands.length > 0)
+
+    if (channelBands.length === 0) return
+
+    const bands = channelBands[0].map(
+      (_, index) =>
+        channelBands.reduce((sum, channel) => sum + channel[index], 0) /
+        channelBands.length
+    )
     const rotationAngle = this._calculateRotation(elapsedMs)
 
-    channels.forEach((channel) =>
-      this._drawChannel({ channel, isSolo, rotationAngle })
-    )
+    this._drawBands({ bands, rotationAngle })
   }
 }
 
