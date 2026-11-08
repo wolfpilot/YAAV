@@ -2,34 +2,20 @@ import { getCenter } from "../../../../utils/uiHelpers"
 import { config as visualizerConfig } from "../../config"
 import { getChannelBands } from "../getChannelBands"
 import { config } from "./config"
-import type { RendererDrawOptions, Channel, Renderer } from "../../types"
+import type { RendererDrawOptions, Renderer } from "../../types"
 import { easeInOutCubic } from "../../../../utils/easings"
 
 class ElectricRenderer implements Renderer {
   constructor(private readonly canvasCtx: CanvasRenderingContext2D) {}
 
-  private _drawChannel({
-    channel,
-    isSolo,
+  private _drawBands({
+    bands,
     rotationAngle,
   }: {
-    channel: Channel
-    isSolo: boolean
+    bands: number[]
     rotationAngle: number
   }) {
-    if (!channel.data) return
-
     const centre = getCenter()
-    const totalBandCount = isSolo
-      ? config.bandCountBothChannels
-      : config.bandCountSingleChannel
-    const bands = getChannelBands(
-      channel.data,
-      totalBandCount,
-      config.maxFrequency
-    )
-
-    if (bands.length === 0) return
 
     for (let i = 0; i < config.ringsAmount; i++) {
       const progress = i / (config.ringsAmount - 1)
@@ -81,12 +67,31 @@ class ElectricRenderer implements Renderer {
     return rotationAngle
   }
 
-  draw({ channels, isSolo, elapsedMs }: RendererDrawOptions) {
+  draw({ channels, elapsedMs }: RendererDrawOptions) {
+    const channelBands = channels
+      .flatMap(({ data }) =>
+        data
+          ? [
+              getChannelBands(
+                data,
+                config.bandCountBothChannels,
+                config.maxFrequency
+              ),
+            ]
+          : []
+      )
+      .filter((bands) => bands.length > 0)
+
+    if (channelBands.length === 0) return
+
+    const bands = channelBands[0].map(
+      (_, index) =>
+        channelBands.reduce((sum, channel) => sum + channel[index], 0) /
+        channelBands.length
+    )
     const rotationAngle = this._calculateRotation(elapsedMs)
 
-    channels.forEach((channel) =>
-      this._drawChannel({ channel, isSolo, rotationAngle })
-    )
+    this._drawBands({ bands, rotationAngle })
   }
 }
 
