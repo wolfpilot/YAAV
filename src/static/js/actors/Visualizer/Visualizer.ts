@@ -1,47 +1,30 @@
 import { config } from "./config"
-import { config as globalConfig } from "../../config"
 import { getCenter } from "../../utils/uiHelpers"
-import BarsRenderer from "./renderers/Bars/BarsRenderer"
-import ElectricRenderer from "./renderers/Electric/ElectricRenderer"
 import type { GUISettings, VisualizationVariant } from "../../types"
 import type { Renderer, VisualizerDrawOptions } from "./types"
-
-type RendererFactory = (
-  canvasCtx: CanvasRenderingContext2D,
-  settings: GUISettings
-) => Renderer
-
-const renderers: Record<VisualizationVariant, RendererFactory> = {
-  [globalConfig.variant.bars]: (canvasCtx, settings) =>
-    new BarsRenderer(canvasCtx, settings.bars),
-  [globalConfig.variant.electric]: (canvasCtx, settings) =>
-    new ElectricRenderer(canvasCtx, settings.electric),
-}
+import { createRenderer } from "./utils/rendererFactory"
 
 class Visualizer {
   private readonly _canvasCtx: CanvasRenderingContext2D
   private readonly _settings: GUISettings
-  private _variant: VisualizationVariant
-  private _renderer: Renderer
+  private _activeVariant: VisualizationVariant
+  private _activeRenderer: Renderer
 
   constructor(canvasCtx: CanvasRenderingContext2D, settings: GUISettings) {
     this._canvasCtx = canvasCtx
     this._settings = settings
-    this._variant = settings.visualization.variant
-    this._renderer = this._createRenderer(this._variant)
+    this._activeVariant = settings.visualization.variant
+    this._activeRenderer = this._createRenderer(this._activeVariant)
   }
 
   private _createRenderer(variant: VisualizationVariant): Renderer {
-    const createRenderer = renderers[variant]
-
-    return createRenderer(this._canvasCtx, this._settings)
+    return createRenderer(variant, this._canvasCtx, this._settings)
   }
 
   private _syncRenderer() {
-    if (this._variant !== this._settings.visualization.variant) {
-      this._variant = this._settings.visualization.variant
-
-      this._renderer = this._createRenderer(this._variant)
+    if (this._activeVariant !== this._settings.visualization.variant) {
+      this._activeVariant = this._settings.visualization.variant
+      this._activeRenderer = this._createRenderer(this._activeVariant)
     }
   }
 
@@ -77,7 +60,7 @@ class Visualizer {
 
     if (!spectrum) return
 
-    this._renderer.draw({ channels: spectrum.channels, elapsedMs })
+    this._activeRenderer.draw({ channels: spectrum.channels, elapsedMs })
   }
 }
 
