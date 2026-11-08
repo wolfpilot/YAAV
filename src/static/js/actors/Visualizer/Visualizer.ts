@@ -14,8 +14,8 @@ type RendererFactory = (
 const renderers: Record<VisualizationVariant, RendererFactory> = {
   [globalConfig.variant.bars]: (canvasCtx, settings) =>
     new BarsRenderer(canvasCtx, settings.bars),
-  [globalConfig.variant.electric]: (canvasCtx) =>
-    new ElectricRenderer(canvasCtx),
+  [globalConfig.variant.electric]: (canvasCtx, settings) =>
+    new ElectricRenderer(canvasCtx, settings.electric),
 }
 
 class Visualizer {

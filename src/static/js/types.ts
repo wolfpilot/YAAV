@@ -10,7 +10,12 @@ export interface BarsSettings {
   channels: ChannelSelection
 }
 
+export interface ElectricSettings {
+  ringsAmount: number
+}
+
 export interface VisualizationSettings {
   bars: BarsSettings
+  electric: ElectricSettings
   variant: VisualizationVariant
 }

@@ -3,6 +3,7 @@ import Player from "./actors/Player/Player"
 import Canvas from "./actors/Canvas/Canvas"
 import GUI from "./managers/GUI/GUI"
 import { config } from "./config"
+import { config as electricConfig } from "./actors/Visualizer/renderers/Electric/config"
 import type { VisualizationSettings } from "./types"
 
 // Setup
@@ -55,6 +56,9 @@ class App {
     const settings: VisualizationSettings = {
       bars: {
         channels: config.channels.both,
+      },
+      electric: {
+        ringsAmount: electricConfig.ringsAmount,
       },
       variant: config.variant.bars,
     }

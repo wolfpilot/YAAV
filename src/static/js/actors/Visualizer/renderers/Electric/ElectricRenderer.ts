@@ -2,11 +2,15 @@ import { getCenter } from "../../../../utils/uiHelpers"
 import { config as visualizerConfig } from "../../config"
 import { getChannelBands } from "../getChannelBands"
 import { config } from "./config"
+import type { ElectricSettings } from "../../../../types"
 import type { RendererDrawOptions, Renderer } from "../../types"
 import { easeInOutCubic } from "../../../../utils/easings"
 
 class ElectricRenderer implements Renderer {
-  constructor(private readonly canvasCtx: CanvasRenderingContext2D) {}
+  constructor(
+    private readonly canvasCtx: CanvasRenderingContext2D,
+    private readonly settings: ElectricSettings
+  ) {}
 
   private _drawBands({
     bands,
@@ -17,8 +21,10 @@ class ElectricRenderer implements Renderer {
   }) {
     const centre = getCenter()
 
-    for (let i = 0; i < config.ringsAmount; i++) {
-      const progress = i / (config.ringsAmount - 1)
+    const ringsAmount = this.settings.ringsAmount
+
+    for (let i = 0; i < ringsAmount; i++) {
+      const progress = ringsAmount === 1 ? 0 : i / (ringsAmount - 1)
 
       const sqProgres = Math.pow(progress, 2)
       const inverseSqProgress = Math.pow(1 - progress, 2)
