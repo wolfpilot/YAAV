@@ -5,7 +5,7 @@ export const config = {
   maxFrequency: 20000,
   smoothingWindowSize: 5,
   lineWidth: 3,
-  fillLeft: (frequency: number) => `rgb(255, ${frequency}, 0)`,
-  fillRight: (frequency: number) => `rgb(0, ${frequency}, 255)`,
-  glowBlur: 10,
+  colorLeft: { r: 255, g: 0, b: 0, a: 1 },
+  colorRight: { r: 0, g: 0, b: 255, a: 1 },
+  glowBLur: 10,
 }

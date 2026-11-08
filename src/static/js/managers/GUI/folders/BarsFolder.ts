@@ -34,6 +34,18 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     step: 0.5,
   })
 
+  folder.addBinding(settings, "colorChannelL", {
+    color: {
+      alpha: true,
+    },
+  })
+
+  folder.addBinding(settings, "colorChannelR", {
+    color: {
+      alpha: true,
+    },
+  })
+
   folder.addBinding(settings, "glowBlur", {
     min: 0.5,
     max: 20,

@@ -4,8 +4,9 @@ import { getCenter } from "../../../../utils/uiHelpers"
 import { movingAverage } from "../../../../utils/smoothing"
 import { config as visualizerConfig } from "../../config"
 import { getChannelBands } from "../getChannelBands"
+import { getMagnitudeColor, rgbToHsl } from "./color"
 import { config } from "./config"
-import type { BarsSettings, ChannelName } from "../../../../types"
+import type { BarsSettings } from "../../../../types"
 import type { RendererDrawOptions, Channel, Renderer } from "../../types"
 import type { Point, VolumeBarCoords } from "./types"
 
@@ -35,19 +36,12 @@ class BarsRenderer implements Renderer {
   }
 
   private _drawVolumeBar({
-    channelName,
-    frequency,
+    fill,
     coords,
   }: {
-    channelName: ChannelName
-    frequency: number
+    fill: string
     coords: VolumeBarCoords
   }) {
-    const fill =
-      channelName === globalConfig.channels.left
-        ? config.fillLeft(frequency)
-        : config.fillRight(frequency)
-
     this.canvasCtx.lineWidth = this.settings.lineWidth
     this.canvasCtx.strokeStyle = fill
     this.canvasCtx.shadowColor = fill
@@ -71,6 +65,10 @@ class BarsRenderer implements Renderer {
 
     const centre = getCenter()
     const side = channel.name === globalConfig.channels.left ? 1 : -1
+    const baseColor = rgbToHsl(
+      side === 1 ? this.settings.colorChannelL : this.settings.colorChannelR
+    )
+    const hueShiftDegrees = side === 1 ? 60 : -60
     const totalBandCount = isSolo
       ? this.settings.bandCountSingleChannel
       : this.settings.bandCountBothChannels
@@ -93,8 +91,11 @@ class BarsRenderer implements Renderer {
       const coords = BarsRenderer.getVolumeBarCoords({ centre, angle, length })
 
       this._drawVolumeBar({
-        channelName: channel.name,
-        frequency: magnitude,
+        fill: getMagnitudeColor({
+          color: baseColor,
+          magnitude,
+          hueShiftDegrees,
+        }),
         coords,
       })
     }

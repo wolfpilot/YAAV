@@ -10,12 +10,21 @@ export interface VisualizationSettings {
   variant: VisualizationVariant
 }
 
+export interface RgbaColor {
+  r: number
+  g: number
+  b: number
+  a: number
+}
+
 export interface BarsSettings {
   channels: ChannelSelection
   bandCountSingleChannel: number
   bandCountBothChannels: number
   lineWidth: number
   glowBlur: number
+  colorChannelL: RgbaColor
+  colorChannelR: RgbaColor
 }
 
 export interface ElectricSettings {
