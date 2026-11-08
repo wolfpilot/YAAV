@@ -100,6 +100,9 @@ class BarsRenderer implements Renderer {
   }
 
   draw({ channels }: RendererDrawOptions) {
+    this.canvasCtx.save()
+    this.canvasCtx.lineCap = "round"
+
     const selectedChannels = this.settings.channels
     const isSolo = selectedChannels !== globalConfig.channels.both
     const visibleChannels = isSolo
@@ -107,6 +110,8 @@ class BarsRenderer implements Renderer {
       : channels
 
     visibleChannels.forEach((channel) => this._drawChannel({ channel, isSolo }))
+
+    this.canvasCtx.restore()
   }
 }
 
