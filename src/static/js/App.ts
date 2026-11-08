@@ -63,6 +63,7 @@ class App {
         bandCountSingleChannel: barsConfig.bandCountSingleChannel,
         bandCountBothChannels: barsConfig.bandCountBothChannels,
         lineWidth: barsConfig.lineWidth,
+        glowBlur: barsConfig.glowBlur,
       },
       electric: {
         bandCount: electricConfig.bandCount,

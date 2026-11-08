@@ -15,6 +15,7 @@ export interface BarsSettings {
   bandCountSingleChannel: number
   bandCountBothChannels: number
   lineWidth: number
+  glowBlur: number
 }
 
 export interface ElectricSettings {

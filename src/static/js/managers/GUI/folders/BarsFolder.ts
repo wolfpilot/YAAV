@@ -33,4 +33,10 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     max: 10,
     step: 0.5,
   })
+
+  folder.addBinding(settings, "glowBlur", {
+    min: 0.5,
+    max: 20,
+    step: 0.5,
+  })
 }

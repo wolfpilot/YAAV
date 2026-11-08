@@ -7,4 +7,5 @@ export const config = {
   lineWidth: 3,
   fillLeft: (frequency: number) => `rgb(255, ${frequency}, 0)`,
   fillRight: (frequency: number) => `rgb(0, ${frequency}, 255)`,
+  glowBlur: 10,
 }

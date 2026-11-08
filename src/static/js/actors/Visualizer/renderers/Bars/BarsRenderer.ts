@@ -50,6 +50,7 @@ class BarsRenderer implements Renderer {
 
     this.canvasCtx.lineWidth = this.settings.lineWidth
     this.canvasCtx.strokeStyle = fill
+    this.canvasCtx.shadowColor = fill
 
     this.canvasCtx.beginPath()
     this.canvasCtx.moveTo(coords.xStart, coords.yStart)
@@ -102,6 +103,7 @@ class BarsRenderer implements Renderer {
   draw({ channels }: RendererDrawOptions) {
     this.canvasCtx.save()
     this.canvasCtx.lineCap = "round"
+    this.canvasCtx.shadowBlur = this.settings.glowBlur
 
     const selectedChannels = this.settings.channels
     const isSolo = selectedChannels !== globalConfig.channels.both
