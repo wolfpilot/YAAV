@@ -2,7 +2,10 @@ import type { ElectricSettings } from "../../../types"
 import { Pane } from "tweakpane"
 
 export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
-  const folder = pane.addFolder({ title: "Electric" })
+  const folder = pane.addFolder({
+    title: "Electric",
+    expanded: false,
+  })
 
   folder.addBinding(settings, "bandCount", {
     min: 32,

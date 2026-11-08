@@ -3,7 +3,10 @@ import type { BarsSettings } from "../../../types"
 import { Pane } from "tweakpane"
 
 export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
-  const folder = pane.addFolder({ title: "Bars" })
+  const folder = pane.addFolder({
+    title: "Bars",
+    expanded: false,
+  })
 
   folder.addBinding(settings, "channels", {
     options: {
