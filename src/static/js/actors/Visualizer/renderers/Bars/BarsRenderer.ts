@@ -1,6 +1,7 @@
 import { config as globalConfig } from "../../../../config"
 import { getStereoBandAngle } from "../../../../utils/spectrumHelpers"
 import { getCenter } from "../../../../utils/uiHelpers"
+import { movingAverage } from "../../../../utils/smoothing"
 import { config as visualizerConfig } from "../../config"
 import { getChannelBands } from "../getChannelBands"
 import { config } from "./config"
@@ -72,10 +73,9 @@ class BarsRenderer implements Renderer {
     const totalBandCount = isSolo
       ? this.settings.bandCountSingleChannel
       : this.settings.bandCountBothChannels
-    const bands = getChannelBands(
-      channel.data,
-      totalBandCount,
-      config.maxFrequency
+    const bands = movingAverage(
+      getChannelBands(channel.data, totalBandCount, config.maxFrequency),
+      config.smoothingWindowSize
     )
 
     for (let i = 0; i < bands.length; i++) {
