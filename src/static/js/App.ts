@@ -53,7 +53,9 @@ class App {
     }
 
     const settings: VisualizationSettings = {
-      channels: config.channels.both,
+      bars: {
+        channels: config.channels.both,
+      },
       variant: config.variant.bars,
     }
 

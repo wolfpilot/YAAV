@@ -6,7 +6,11 @@ export type ChannelSelection =
 export type VisualizationVariant =
   (typeof config.variant)[keyof typeof config.variant]
 
-export interface VisualizationSettings {
+export interface BarsSettings {
   channels: ChannelSelection
+}
+
+export interface VisualizationSettings {
+  bars: BarsSettings
   variant: VisualizationVariant
 }

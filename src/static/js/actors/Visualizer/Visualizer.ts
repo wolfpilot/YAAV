@@ -4,18 +4,18 @@ import { getCenter } from "../../utils/uiHelpers"
 import BarsRenderer from "./renderers/Bars/BarsRenderer"
 import ElectricRenderer from "./renderers/Electric/ElectricRenderer"
 import type { VisualizationSettings, VisualizationVariant } from "../../types"
-import type {
-  SpectrumFrame,
-  Renderer,
-  RendererDrawOptions,
-  VisualizerDrawOptions,
-} from "./types"
+import type { Renderer, VisualizerDrawOptions } from "./types"
 
-type RendererConstructor = new (canvasCtx: CanvasRenderingContext2D) => Renderer
+type RendererFactory = (
+  canvasCtx: CanvasRenderingContext2D,
+  settings: VisualizationSettings
+) => Renderer
 
-const renderers: Record<VisualizationVariant, RendererConstructor> = {
-  [globalConfig.variant.bars]: BarsRenderer,
-  [globalConfig.variant.electric]: ElectricRenderer,
+const renderers: Record<VisualizationVariant, RendererFactory> = {
+  [globalConfig.variant.bars]: (canvasCtx, settings) =>
+    new BarsRenderer(canvasCtx, settings.bars),
+  [globalConfig.variant.electric]: (canvasCtx) =>
+    new ElectricRenderer(canvasCtx),
 }
 
 class Visualizer {
@@ -35,9 +35,9 @@ class Visualizer {
   }
 
   private _createRenderer(variant: VisualizationVariant): Renderer {
-    const VariantRenderer = renderers[variant]
+    const createRenderer = renderers[variant]
 
-    return new VariantRenderer(this._canvasCtx)
+    return createRenderer(this._canvasCtx, this._settings)
   }
 
   private _syncRenderer() {
@@ -45,24 +45,6 @@ class Visualizer {
       this._variant = this._settings.variant
 
       this._renderer = this._createRenderer(this._variant)
-    }
-  }
-
-  private _createRendererDrawOptions(
-    spectrum: SpectrumFrame,
-    elapsedMs: number
-  ): RendererDrawOptions {
-    const selectedChannels = this._settings.channels
-
-    const isSolo = selectedChannels !== globalConfig.channels.both
-    const channels = isSolo
-      ? spectrum.channels.filter((channel) => channel.name === selectedChannels)
-      : spectrum.channels
-
-    return {
-      channels,
-      isSolo,
-      elapsedMs,
     }
   }
 
@@ -98,7 +80,7 @@ class Visualizer {
 
     if (!spectrum) return
 
-    this._renderer.draw(this._createRendererDrawOptions(spectrum, elapsedMs))
+    this._renderer.draw({ channels: spectrum.channels, elapsedMs })
   }
 }
 

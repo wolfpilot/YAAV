@@ -24,7 +24,6 @@ export interface VisualizerDrawOptions {
 
 export interface RendererDrawOptions {
   channels: Channel[]
-  isSolo: boolean
   elapsedMs: number
 }
 

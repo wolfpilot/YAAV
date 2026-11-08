@@ -19,7 +19,7 @@ class GUI {
       title: "Audio",
     })
 
-    audioPane.addBinding(this._settings, "channels", {
+    audioPane.addBinding(this._settings.bars, "channels", {
       options: {
         "L + R": config.channels.both,
         L: config.channels.left,
