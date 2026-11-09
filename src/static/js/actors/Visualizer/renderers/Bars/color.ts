@@ -1,6 +1,6 @@
 import type { RgbaColor } from "../../../../types"
 
-interface HslaColor {
+export interface HslaColor {
   h: number
   s: number
   l: number

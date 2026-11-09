@@ -8,7 +8,12 @@ import { getMagnitudeColor, rgbToHsl } from "./color"
 import { config } from "./config"
 import type { BarsSettings } from "../../../../types"
 import type { RendererDrawOptions, Channel, Renderer } from "../../types"
-import type { Point, VolumeBarCoords } from "./types"
+import type {
+  ChannelDrawContext,
+  Point,
+  RingConfig,
+  VolumeBarCoords,
+} from "./types"
 
 class BarsRenderer implements Renderer {
   constructor(
@@ -54,6 +59,110 @@ class BarsRenderer implements Renderer {
     this.canvasCtx.stroke()
   }
 
+  private static getRingRadius(ringIndex: number): number {
+    return (
+      visualizerConfig.circle.radius +
+      config.centreOffset +
+      ringIndex * config.ringGap
+    )
+  }
+
+  private static getBandAngle({
+    bandIndex,
+    bandCount,
+    side,
+    isSolo,
+  }: {
+    bandIndex: number
+    bandCount: number
+    side: number
+    isSolo: boolean
+  }): number {
+    if (isSolo) {
+      return (
+        config.angleOffset +
+        (side * (bandIndex + 0.5) * Math.PI * 2) / bandCount
+      )
+    }
+
+    return getStereoBandAngle(bandIndex, bandCount, side, config.angleOffset)
+  }
+
+  private _getBandsPerRing(isSolo: boolean): number {
+    return isSolo
+      ? this.settings.ringBandCountSingleChannel
+      : this.settings.ringBandCountBothChannels
+  }
+
+  private _drawBand({
+    magnitude,
+    bandIndex,
+    bandCount,
+    radius,
+    lineWidth,
+    channelContext,
+  }: {
+    magnitude: number
+    bandIndex: number
+    bandCount: number
+    radius: number
+    lineWidth: number
+    channelContext: ChannelDrawContext
+  }) {
+    const { centre, side, isSolo, baseColor } = channelContext
+
+    const angle = BarsRenderer.getBandAngle({
+      bandIndex,
+      bandCount,
+      side,
+      isSolo,
+    })
+    const coords = BarsRenderer.getVolumeBarCoords({
+      centre,
+      angle,
+      radius,
+      length: magnitude / 10,
+    })
+    const fill = getMagnitudeColor({
+      color: baseColor,
+      magnitude,
+      hueShiftDegrees: this.settings.hueShiftDegrees,
+    })
+
+    this._drawVolumeBar({ fill, coords, lineWidth })
+  }
+
+  private _drawRing({
+    ring,
+    ringIndex,
+    bands,
+    channelContext,
+  }: {
+    ring: RingConfig
+    ringIndex: number
+    bands: number[]
+    channelContext: ChannelDrawContext
+  }) {
+    const radius = BarsRenderer.getRingRadius(ringIndex)
+
+    this.canvasCtx.globalAlpha = ring.opacity
+
+    bands.forEach((magnitude, bandIndex) => {
+      if (magnitude === 0) {
+        return
+      }
+
+      this._drawBand({
+        magnitude,
+        bandIndex,
+        bandCount: bands.length,
+        radius,
+        lineWidth: ring.lineWidth,
+        channelContext,
+      })
+    })
+  }
+
   private _drawChannel({
     channel,
     isSolo,
@@ -65,58 +174,29 @@ class BarsRenderer implements Renderer {
       return
     }
 
-    const centre = getCenter()
     const side = channel.name === globalConfig.channels.left ? 1 : -1
-    const baseColor = rgbToHsl(
-      side === 1 ? this.settings.colorChannelL : this.settings.colorChannelR
-    )
-    const bandsPerRing = isSolo
-      ? this.settings.ringBandCountSingleChannel
-      : this.settings.ringBandCountBothChannels
+    const channelContext: ChannelDrawContext = {
+      centre: getCenter(),
+      side,
+      isSolo,
+      baseColor: rgbToHsl(
+        side === 1 ? this.settings.colorChannelL : this.settings.colorChannelR
+      ),
+    }
     const bandGroups = getChannelBandGroups({
       data: channel.data,
-      bandsPerRing,
+      bandsPerRing: this._getBandsPerRing(isSolo),
       midsMaxFrequency: config.midsMaxFrequency,
       maxFrequency: config.maxFrequency,
     })
 
-    config.rings.forEach(({ band, lineWidth, opacity }, ringIndex) => {
-      const bands = movingAverage(bandGroups[band], config.smoothingWindowSize)
-      const radius =
-        visualizerConfig.circle.radius +
-        config.centreOffset +
-        ringIndex * config.ringGap
-
-      this.canvasCtx.globalAlpha = opacity
-
-      for (let i = 0; i < bands.length; i++) {
-        const magnitude = bands[i]
-
-        if (magnitude === 0) {
-          continue
-        }
-
-        const length = magnitude / 10
-        const angle = isSolo
-          ? config.angleOffset + (side * (i + 0.5) * Math.PI * 2) / bands.length
-          : getStereoBandAngle(i, bands.length, side, config.angleOffset)
-        const coords = BarsRenderer.getVolumeBarCoords({
-          centre,
-          angle,
-          radius,
-          length,
-        })
-
-        this._drawVolumeBar({
-          fill: getMagnitudeColor({
-            color: baseColor,
-            magnitude,
-            hueShiftDegrees: this.settings.hueShiftDegrees,
-          }),
-          coords,
-          lineWidth,
-        })
-      }
+    config.rings.forEach((ring, ringIndex) => {
+      this._drawRing({
+        ring,
+        ringIndex,
+        bands: movingAverage(bandGroups[ring.band], config.smoothingWindowSize),
+        channelContext,
+      })
     })
   }
 
