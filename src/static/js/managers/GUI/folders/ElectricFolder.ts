@@ -27,6 +27,13 @@ export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
     step: 1,
   })
 
+  // Colors
+  folder.addBinding(settings, "color", {
+    color: {
+      alpha: true,
+    },
+  })
+
   // Sizes
   folder.addBinding(settings, "lineWidthMin", {
     min: 0.5,

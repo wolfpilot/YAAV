@@ -34,7 +34,10 @@ class ElectricRenderer implements Renderer {
         this.settings.lineWidthMax,
         sqProgres
       )
-      this.canvasCtx.strokeStyle = config.fillDynamic(inverseSqProgress)
+      this.canvasCtx.strokeStyle = config.fillDynamic(
+        this.settings.color,
+        inverseSqProgress
+      )
 
       this.canvasCtx.beginPath()
 
