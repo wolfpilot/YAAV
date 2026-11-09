@@ -14,8 +14,10 @@ export const config = {
     { band: "mids", lineWidth: 3.75, opacity: 0.75 },
     { band: "highs", lineWidth: 2.5, opacity: 0.5 },
   ] as const,
-  colorLeft: { r: 25, g: 0, b: 225, a: 1 },
-  colorRight: { r: 25, g: 0, b: 225, a: 1 },
+  colorLeft: { r: 25, g: 125, b: 225, a: 1 },
+  colorRight: { r: 25, g: 125, b: 225, a: 1 },
   glowBlur: 10,
-  hueShiftDegrees: -60,
+  hueShiftDegrees: 225,
+  saturationRange: { min: 75, max: 100 },
+  lightnessRange: { min: 10, max: 90 },
 }

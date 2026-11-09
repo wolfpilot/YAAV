@@ -1,3 +1,5 @@
+import { MinMaxRange } from "./types"
+
 /**
  * Format seconds to hours and minutes
  * @NOTE: Will always return at least minutes and seconds
@@ -23,3 +25,8 @@ export const formatSeconds = (time: number): string => {
 export const isArrayZeroedOut = (arr: Uint8Array): boolean => {
   return arr.every((val) => val === 0)
 }
+
+export const interpolate = (
+  { min, max }: MinMaxRange,
+  progress: number
+): number => min + (max - min) * progress
