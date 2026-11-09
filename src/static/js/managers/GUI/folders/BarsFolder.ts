@@ -45,4 +45,10 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     max: 20,
     step: 0.5,
   })
+
+  folder.addBinding(settings, "hueShiftDegrees", {
+    min: -360,
+    max: 360,
+    step: 0.5,
+  })
 }

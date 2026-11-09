@@ -70,7 +70,6 @@ class BarsRenderer implements Renderer {
     const baseColor = rgbToHsl(
       side === 1 ? this.settings.colorChannelL : this.settings.colorChannelR
     )
-    const hueShiftDegrees = side === 1 ? 60 : -60
     const bandsPerRing = isSolo
       ? this.settings.ringBandCountSingleChannel
       : this.settings.ringBandCountBothChannels
@@ -112,7 +111,7 @@ class BarsRenderer implements Renderer {
           fill: getMagnitudeColor({
             color: baseColor,
             magnitude,
-            hueShiftDegrees,
+            hueShiftDegrees: this.settings.hueShiftDegrees,
           }),
           coords,
           lineWidth,

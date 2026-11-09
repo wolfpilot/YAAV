@@ -17,4 +17,5 @@ export const config = {
   colorLeft: { r: 25, g: 0, b: 225, a: 1 },
   colorRight: { r: 25, g: 0, b: 225, a: 1 },
   glowBlur: 10,
+  hueShiftDegrees: -60,
 }

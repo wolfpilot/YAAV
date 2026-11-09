@@ -22,6 +22,7 @@ export interface BarsSettings {
   ringBandCountSingleChannel: number
   ringBandCountBothChannels: number
   glowBlur: number
+  hueShiftDegrees: number
   colorChannelL: RgbaColor
   colorChannelR: RgbaColor
 }
