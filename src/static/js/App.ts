@@ -62,7 +62,6 @@ class App {
         channels: config.channels.both,
         bandCountSingleChannel: barsConfig.bandCountSingleChannel,
         bandCountBothChannels: barsConfig.bandCountBothChannels,
-        lineWidth: barsConfig.lineWidth,
         glowBlur: barsConfig.glowBLur,
         colorChannelL: { ...barsConfig.colorLeft },
         colorChannelR: { ...barsConfig.colorRight },

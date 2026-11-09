@@ -6,7 +6,6 @@ export const config = {
   midsMaxFrequency: 4000,
   smoothingWindowSize: 5,
   centreOffset: 10,
-  lineWidth: 5,
   ringGap: 40,
   // Ordered from the innermost to the outermost ring
   rings: [

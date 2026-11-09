@@ -21,7 +21,6 @@ export interface BarsSettings {
   channels: ChannelSelection
   bandCountSingleChannel: number
   bandCountBothChannels: number
-  lineWidth: number
   glowBlur: number
   colorChannelL: RgbaColor
   colorChannelR: RgbaColor

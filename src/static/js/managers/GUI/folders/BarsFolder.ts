@@ -28,12 +28,6 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     step: 16,
   })
 
-  folder.addBinding(settings, "lineWidth", {
-    min: 0.5,
-    max: 10,
-    step: 0.5,
-  })
-
   folder.addBinding(settings, "colorChannelL", {
     color: {
       alpha: true,
