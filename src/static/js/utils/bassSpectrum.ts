@@ -25,14 +25,17 @@ export const getAvailableBassBins = (
 }
 
 /**
- * Get the smallest supported FFT size with at least 32 bass bins.
+ * Get the smallest supported FFT size with at least the requested bass bins.
  *
  * Returns Web Audio's maximum when that resolution is unavailable.
  */
-export const getBassFftSize = (sampleRate: number): number => {
+export const getBassFftSize = (
+  sampleRate: number,
+  bandCount: number = bassSpectrum.bandCount
+): number => {
   // prettier-ignore
   for (let fftSize = BASS_FFT_BLOCK_SIZE; fftSize <= BASS_FFT_MAX_SIZE; fftSize *= 2) {
-    if (getAvailableBassBins(sampleRate, fftSize) < bassSpectrum.bandCount) {
+    if (getAvailableBassBins(sampleRate, fftSize) < bandCount) {
       continue;
     }
 

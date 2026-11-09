@@ -6,4 +6,9 @@ export interface EaseOptions {
   ease?: (progress: number) => number
 }
 
+export interface MinMaxRange {
+  min: number
+  max: number
+}
+
 export type FrequencyScale = "linear" | "logarithmic"

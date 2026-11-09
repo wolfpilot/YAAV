@@ -1,12 +1,19 @@
 import { config as globalConfig } from "../../../../config"
 import { getStereoBandAngle } from "../../../../utils/spectrumHelpers"
 import { getCenter } from "../../../../utils/uiHelpers"
+import { movingAverage } from "../../../../utils/smoothing"
 import { config as visualizerConfig } from "../../config"
-import { getChannelBands } from "../getChannelBands"
+import { getChannelBandGroups } from "./helpers"
+import { getMagnitudeColor, rgbToHsl } from "./color"
 import { config } from "./config"
-import type { BarsSettings, ChannelName } from "../../../../types"
+import type { BarsSettings } from "../../../../types"
 import type { RendererDrawOptions, Channel, Renderer } from "../../types"
-import type { Point, VolumeBarCoords } from "./types"
+import type {
+  ChannelDrawContext,
+  Point,
+  RingConfig,
+  VolumeBarCoords,
+} from "./types"
 
 class BarsRenderer implements Renderer {
   constructor(
@@ -17,43 +24,145 @@ class BarsRenderer implements Renderer {
   private static getVolumeBarCoords({
     centre,
     angle,
+    radius,
     length,
   }: {
     centre: Point
     angle: number
+    radius: number
     length: number
   }): VolumeBarCoords {
-    const xStart = centre.x + Math.cos(angle) * visualizerConfig.circle.radius
-    const yStart = centre.y + Math.sin(angle) * visualizerConfig.circle.radius
-    const xEnd =
-      centre.x + Math.cos(angle) * (visualizerConfig.circle.radius + length)
-    const yEnd =
-      centre.y + Math.sin(angle) * (visualizerConfig.circle.radius + length)
+    const xStart = centre.x + Math.cos(angle) * radius
+    const yStart = centre.y + Math.sin(angle) * radius
+    const xEnd = centre.x + Math.cos(angle) * (radius + length)
+    const yEnd = centre.y + Math.sin(angle) * (radius + length)
 
     return { xStart, yStart, xEnd, yEnd }
   }
 
   private _drawVolumeBar({
-    channelName,
-    frequency,
+    fill,
     coords,
+    lineWidth,
   }: {
-    channelName: ChannelName
-    frequency: number
+    fill: string
     coords: VolumeBarCoords
+    lineWidth: number
   }) {
-    const fill =
-      channelName === globalConfig.channels.left
-        ? config.fillLeft(frequency)
-        : config.fillRight(frequency)
-
-    this.canvasCtx.lineWidth = this.settings.lineWidth
+    this.canvasCtx.lineWidth = lineWidth
     this.canvasCtx.strokeStyle = fill
+    this.canvasCtx.shadowColor = fill
 
     this.canvasCtx.beginPath()
     this.canvasCtx.moveTo(coords.xStart, coords.yStart)
     this.canvasCtx.lineTo(coords.xEnd, coords.yEnd)
     this.canvasCtx.stroke()
+  }
+
+  private static getRingRadius(ringIndex: number): number {
+    return (
+      visualizerConfig.circle.radius +
+      config.centreOffset +
+      ringIndex * config.ringGap
+    )
+  }
+
+  private static getBandAngle({
+    bandIndex,
+    bandCount,
+    side,
+    isSolo,
+  }: {
+    bandIndex: number
+    bandCount: number
+    side: number
+    isSolo: boolean
+  }): number {
+    if (isSolo) {
+      return (
+        config.angleOffset +
+        (side * (bandIndex + 0.5) * Math.PI * 2) / bandCount
+      )
+    }
+
+    return getStereoBandAngle(bandIndex, bandCount, side, config.angleOffset)
+  }
+
+  private _getBandsPerRing(isSolo: boolean): number {
+    return isSolo
+      ? this.settings.ringBandCountSingleChannel
+      : this.settings.ringBandCountBothChannels
+  }
+
+  private _drawBand({
+    magnitude,
+    bandIndex,
+    bandCount,
+    radius,
+    lineWidth,
+    channelContext,
+  }: {
+    magnitude: number
+    bandIndex: number
+    bandCount: number
+    radius: number
+    lineWidth: number
+    channelContext: ChannelDrawContext
+  }) {
+    const { centre, side, isSolo, baseColor } = channelContext
+
+    const angle = BarsRenderer.getBandAngle({
+      bandIndex,
+      bandCount,
+      side,
+      isSolo,
+    })
+    const coords = BarsRenderer.getVolumeBarCoords({
+      centre,
+      angle,
+      radius,
+      length: magnitude / 10,
+    })
+    const fill = getMagnitudeColor({
+      color: baseColor,
+      magnitude,
+      hueShiftDegrees: this.settings.hueShiftDegrees,
+      saturationRange: this.settings.saturationRange,
+      lightnessRange: this.settings.lightnessRange,
+    })
+
+    this._drawVolumeBar({ fill, coords, lineWidth })
+  }
+
+  private _drawRing({
+    ring,
+    ringIndex,
+    bands,
+    channelContext,
+  }: {
+    ring: RingConfig
+    ringIndex: number
+    bands: number[]
+    channelContext: ChannelDrawContext
+  }) {
+    const radius = BarsRenderer.getRingRadius(ringIndex)
+
+    this.canvasCtx.globalAlpha = ring.opacity
+
+    bands.forEach((magnitude, bandIndex) => {
+      if (magnitude === 0) {
+        return
+      }
+
+      this._drawBand({
+        magnitude,
+        bandIndex,
+        bandCount: bands.length,
+        radius,
+        lineWidth: this.settings.lineWidths[ring.band],
+        channelContext,
+      })
+    })
   }
 
   private _drawChannel({
@@ -67,39 +176,37 @@ class BarsRenderer implements Renderer {
       return
     }
 
-    const centre = getCenter()
     const side = channel.name === globalConfig.channels.left ? 1 : -1
-    const totalBandCount = isSolo
-      ? this.settings.bandCountSingleChannel
-      : this.settings.bandCountBothChannels
-    const bands = getChannelBands(
-      channel.data,
-      totalBandCount,
-      config.maxFrequency
-    )
-
-    for (let i = 0; i < bands.length; i++) {
-      const magnitude = bands[i]
-
-      if (magnitude === 0) {
-        continue
-      }
-
-      const length = magnitude / 2
-      const angle = isSolo
-        ? config.angleOffset + (side * (i + 0.5) * Math.PI * 2) / bands.length
-        : getStereoBandAngle(i, bands.length, side, config.angleOffset)
-      const coords = BarsRenderer.getVolumeBarCoords({ centre, angle, length })
-
-      this._drawVolumeBar({
-        channelName: channel.name,
-        frequency: magnitude,
-        coords,
-      })
+    const channelContext: ChannelDrawContext = {
+      centre: getCenter(),
+      side,
+      isSolo,
+      baseColor: rgbToHsl(
+        side === 1 ? this.settings.colorChannelL : this.settings.colorChannelR
+      ),
     }
+    const bandGroups = getChannelBandGroups({
+      data: channel.data,
+      bandsPerRing: this._getBandsPerRing(isSolo),
+      midsMaxFrequency: config.midsMaxFrequency,
+      maxFrequency: config.maxFrequency,
+    })
+
+    config.rings.forEach((ring, ringIndex) => {
+      this._drawRing({
+        ring,
+        ringIndex,
+        bands: movingAverage(bandGroups[ring.band], config.smoothingWindowSize),
+        channelContext,
+      })
+    })
   }
 
   draw({ channels }: RendererDrawOptions) {
+    this.canvasCtx.save()
+    this.canvasCtx.lineCap = "round"
+    this.canvasCtx.shadowBlur = this.settings.glowBlur
+
     const selectedChannels = this.settings.channels
     const isSolo = selectedChannels !== globalConfig.channels.both
     const visibleChannels = isSolo
@@ -107,6 +214,8 @@ class BarsRenderer implements Renderer {
       : channels
 
     visibleChannels.forEach((channel) => this._drawChannel({ channel, isSolo }))
+
+    this.canvasCtx.restore()
   }
 }
 

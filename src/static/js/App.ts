@@ -60,9 +60,15 @@ class App {
       },
       bars: {
         channels: config.channels.both,
-        bandCountSingleChannel: barsConfig.bandCountSingleChannel,
-        bandCountBothChannels: barsConfig.bandCountBothChannels,
-        lineWidth: barsConfig.lineWidth,
+        ringBandCountSingleChannel: barsConfig.ringBandCountSingleChannel,
+        ringBandCountBothChannels: barsConfig.ringBandCountBothChannels,
+        glowBlur: barsConfig.glowBlur,
+        lineWidths: { ...barsConfig.lineWidths },
+        hueShiftDegrees: barsConfig.hueShiftDegrees,
+        saturationRange: { ...barsConfig.saturationRange },
+        lightnessRange: { ...barsConfig.lightnessRange },
+        colorChannelL: { ...barsConfig.colorLeft },
+        colorChannelR: { ...barsConfig.colorRight },
       },
       electric: {
         bandCount: electricConfig.bandCount,

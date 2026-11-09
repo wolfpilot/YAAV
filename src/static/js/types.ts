@@ -1,3 +1,4 @@
+import type { MinMaxRange } from "./utils/types"
 import type { config } from "./config"
 
 export type ChannelName = (typeof config.channels)["left" | "right"]
@@ -10,11 +11,24 @@ export interface VisualizationSettings {
   variant: VisualizationVariant
 }
 
+export interface RgbaColor {
+  r: number
+  g: number
+  b: number
+  a: number
+}
+
 export interface BarsSettings {
   channels: ChannelSelection
-  bandCountSingleChannel: number
-  bandCountBothChannels: number
-  lineWidth: number
+  ringBandCountSingleChannel: number
+  ringBandCountBothChannels: number
+  glowBlur: number
+  lineWidths: Record<"bass" | "mids" | "highs", number>
+  hueShiftDegrees: number
+  saturationRange: MinMaxRange
+  lightnessRange: MinMaxRange
+  colorChannelL: RgbaColor
+  colorChannelR: RgbaColor
 }
 
 export interface ElectricSettings {
