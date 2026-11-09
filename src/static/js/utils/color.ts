@@ -42,3 +42,14 @@ export const rgbToHsl = ({ r, g, b, a }: RgbaColor): HslaColor => {
     a,
   }
 }
+
+export const getHueShiftedColor = (
+  color: RgbaColor,
+  shiftDegrees: number
+): string => {
+  const { h, s, l } = rgbToHsl(color)
+
+  const hue = (((h + shiftDegrees) % 360) + 360) % 360
+
+  return `hsl(${hue}, ${s}%, ${l}%)`
+}
