@@ -1,6 +1,8 @@
+import { config as globalConfig } from "../../../config"
 import { getHueShiftedColor } from "../../../utils/color"
 import { config } from "../config"
 import type {
+  BarsSettings,
   GUISettings,
   RgbaColor,
   VisualizationVariant,
@@ -14,28 +16,55 @@ export interface UITheme {
   trackEnd: string
 }
 
+/**
+ * Generic helper for getting a single (usually channel-based) theme
+ */
+// prettier-ignore
+const getSingleColorTheme = (color: RgbaColor, hueOffset = 0): UITheme => ({
+  accent: getHueShiftedColor(color, hueOffset),
+  ringStart: getHueShiftedColor(color, hueOffset - config.ring.hueShiftDegrees),
+  ringEnd: getHueShiftedColor(color, hueOffset + config.ring.hueShiftDegrees),
+  trackStart: getHueShiftedColor(color, hueOffset - config.track.hueShiftDegrees),
+  trackEnd: getHueShiftedColor(color, hueOffset + config.track.hueShiftDegrees),
+})
+
+const getBarsTheme = ({
+  channels,
+  colorChannelL,
+  colorChannelR,
+  hueShiftDegrees,
+}: BarsSettings): UITheme => {
+  // Two channels
+  if (channels === globalConfig.channels.both) {
+    const start = getHueShiftedColor(colorChannelL, hueShiftDegrees)
+    const end = getHueShiftedColor(colorChannelR, hueShiftDegrees)
+
+    const accent = `color-mix(in srgb, ${start}, ${end})`
+
+    return {
+      accent,
+      ringStart: start,
+      ringEnd: end,
+      trackStart: start,
+      trackEnd: end,
+    }
+  }
+
+  // Single channel
+  const color =
+    channels === globalConfig.channels.left ? colorChannelL : colorChannelR
+
+  return getSingleColorTheme(color, hueShiftDegrees)
+}
+
 export const getUITheme = (
   variant: VisualizationVariant,
   settings: GUISettings
 ): UITheme => {
   switch (variant) {
     case "electric":
-      const { color } = settings.electric
-
-      return {
-        accent: getHueShiftedColor(color, 0),
-        ringStart: getHueShiftedColor(color, -config.ring.hueShiftDegrees),
-        ringEnd: getHueShiftedColor(color, config.ring.hueShiftDegrees),
-        trackStart: getHueShiftedColor(color, -config.track.hueShiftDegrees),
-        trackEnd: getHueShiftedColor(color, config.track.hueShiftDegrees),
-      }
+      return getSingleColorTheme(settings.electric.color)
     default:
-      return {
-        accent: config.accent.color,
-        ringStart: config.ring.colors[0],
-        ringEnd: config.ring.colors[1],
-        trackStart: config.track.colors[0],
-        trackEnd: config.track.colors[1],
-      }
+      return getBarsTheme(settings.bars)
   }
 }
