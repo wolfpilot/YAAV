@@ -19,8 +19,8 @@ export interface RgbaColor {
 
 export interface BarsSettings {
   channels: ChannelSelection
-  bandCountSingleChannel: number
-  bandCountBothChannels: number
+  ringBandCountSingleChannel: number
+  ringBandCountBothChannels: number
   glowBlur: number
   colorChannelL: RgbaColor
   colorChannelR: RgbaColor

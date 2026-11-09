@@ -71,15 +71,15 @@ class BarsRenderer implements Renderer {
       side === 1 ? this.settings.colorChannelL : this.settings.colorChannelR
     )
     const hueShiftDegrees = side === 1 ? 60 : -60
-    const totalBandCount = isSolo
-      ? this.settings.bandCountSingleChannel
-      : this.settings.bandCountBothChannels
-    const bandGroups = getChannelBandGroups(
-      channel.data,
-      totalBandCount,
-      config.midsMaxFrequency,
-      config.maxFrequency
-    )
+    const bandsPerRing = isSolo
+      ? this.settings.ringBandCountSingleChannel
+      : this.settings.ringBandCountBothChannels
+    const bandGroups = getChannelBandGroups({
+      data: channel.data,
+      bandsPerRing,
+      midsMaxFrequency: config.midsMaxFrequency,
+      maxFrequency: config.maxFrequency,
+    })
 
     config.rings.forEach(({ band, lineWidth, opacity }, ringIndex) => {
       const bands = movingAverage(

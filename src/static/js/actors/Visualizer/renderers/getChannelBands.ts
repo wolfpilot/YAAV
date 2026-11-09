@@ -46,45 +46,52 @@ export const getChannelBands = (
 }
 
 /**
- * Get the bass, mids and highs bands as separate groups.
+ * Get the bass, mids and highs bands as separate groups of equal length.
  *
- * Bass is the 20–250 Hz range; the remaining bands are split evenly between
- * the mids (up to midsMaxFrequency) and the highs (up to maxFrequency).
+ * Every group has the same band count so that their angles align across rings.
+ * The count shrinks to what the scarcest group can resolve, which is usually
+ * the bass range of the bass analyser.
  */
-export const getChannelBandGroups = (
-  data: ChannelData,
-  totalBandCount: number,
-  midsMaxFrequency: number,
+export const getChannelBandGroups = ({
+  data,
+  bandsPerRing,
+  midsMaxFrequency,
+  maxFrequency,
+}: {
+  data: ChannelData
+  bandsPerRing: number
+  midsMaxFrequency: number
   maxFrequency: number
-): ChannelBandGroups => {
-  const bassBandCount = getBassBandCount(data)
-  const bass = getBassBands(data, bassBandCount)
-  const upperBandCount = Math.max(0, totalBandCount - bassBandCount)
-  const midsBandCount = Math.ceil(upperBandCount / 2)
-  const highsBandCount = upperBandCount - midsBandCount
-
+}): ChannelBandGroups => {
   const getUpperBands = (
     bandCount: number,
     minFrequency: number,
     upperFrequency: number
   ) =>
-    getDistinctFrequencyBands(
-      data.frequencyData,
-      data.sampleRate,
-      data.fftSize,
-      bandCount,
-      minFrequency,
-      upperFrequency,
-      "logarithmic"
+    Array.from(
+      getDistinctFrequencyBands(
+        data.frequencyData,
+        data.sampleRate,
+        data.fftSize,
+        bandCount,
+        minFrequency,
+        upperFrequency,
+        "logarithmic"
+      )
     )
 
-  return {
-    bass: Array.from(bass),
-    mids: Array.from(
-      getUpperBands(midsBandCount, bassSpectrum.maxFrequency, midsMaxFrequency)
-    ),
-    highs: Array.from(
-      getUpperBands(highsBandCount, midsMaxFrequency, maxFrequency)
-    ),
-  }
+  const getGroups = (bandCount: number): ChannelBandGroups => ({
+    bass: Array.from(getBassBands(data, bandCount)),
+    mids: getUpperBands(bandCount, bassSpectrum.maxFrequency, midsMaxFrequency),
+    highs: getUpperBands(bandCount, midsMaxFrequency, maxFrequency),
+  })
+
+  const groups = getGroups(bandsPerRing)
+  const alignedCount = Math.min(
+    groups.bass.length,
+    groups.mids.length,
+    groups.highs.length
+  )
+
+  return alignedCount === bandsPerRing ? groups : getGroups(alignedCount)
 }

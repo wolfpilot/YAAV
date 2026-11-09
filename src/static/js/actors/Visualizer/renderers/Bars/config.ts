@@ -1,7 +1,8 @@
 export const config = {
   angleOffset: -1.5 * Math.PI, // Start drawing arc from bottom center
-  bandCountSingleChannel: 256,
-  bandCountBothChannels: 64,
+  // Bands per ring, shared by bass, mids and highs
+  ringBandCountSingleChannel: 64,
+  ringBandCountBothChannels: 32,
   maxFrequency: 20000,
   midsMaxFrequency: 4000,
   smoothingWindowSize: 5,

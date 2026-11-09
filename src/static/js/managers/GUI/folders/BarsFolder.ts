@@ -16,16 +16,16 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     },
   })
 
-  folder.addBinding(settings, "bandCountSingleChannel", {
-    min: 64,
-    max: 256,
-    step: 16,
-  })
-
-  folder.addBinding(settings, "bandCountBothChannels", {
+  folder.addBinding(settings, "ringBandCountSingleChannel", {
     min: 32,
     max: 128,
     step: 16,
+  })
+
+  folder.addBinding(settings, "ringBandCountBothChannels", {
+    min: 16,
+    max: 64,
+    step: 8,
   })
 
   folder.addBinding(settings, "colorChannelL", {
