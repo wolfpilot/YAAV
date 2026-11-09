@@ -64,6 +64,8 @@ class App {
         ringBandCountBothChannels: barsConfig.ringBandCountBothChannels,
         glowBlur: barsConfig.glowBlur,
         hueShiftDegrees: barsConfig.hueShiftDegrees,
+        saturationRange: { ...barsConfig.saturationRange },
+        lightnessRange: { ...barsConfig.lightnessRange },
         colorChannelL: { ...barsConfig.colorLeft },
         colorChannelR: { ...barsConfig.colorRight },
       },

@@ -127,8 +127,8 @@ class BarsRenderer implements Renderer {
       color: baseColor,
       magnitude,
       hueShiftDegrees: this.settings.hueShiftDegrees,
-      saturationRange: config.saturationRange,
-      lightnessRange: config.lightnessRange,
+      saturationRange: this.settings.saturationRange,
+      lightnessRange: this.settings.lightnessRange,
     })
 
     this._drawVolumeBar({ fill, coords, lineWidth })

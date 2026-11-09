@@ -51,4 +51,27 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     max: 360,
     step: 0.5,
   })
+
+  // Tweakpane's interval control needs a separate plugin, so edit the ends individually
+  const rangeOptions = { min: 0, max: 100, step: 1 }
+
+  folder.addBinding(settings.saturationRange, "min", {
+    ...rangeOptions,
+    label: "saturationMin",
+  })
+
+  folder.addBinding(settings.saturationRange, "max", {
+    ...rangeOptions,
+    label: "saturationMax",
+  })
+
+  folder.addBinding(settings.lightnessRange, "min", {
+    ...rangeOptions,
+    label: "lightnessMin",
+  })
+
+  folder.addBinding(settings.lightnessRange, "max", {
+    ...rangeOptions,
+    label: "lightnessMax",
+  })
 }

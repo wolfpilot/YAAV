@@ -1,3 +1,4 @@
+import type { MinMaxRange } from "./utils/types"
 import type { config } from "./config"
 
 export type ChannelName = (typeof config.channels)["left" | "right"]
@@ -23,6 +24,8 @@ export interface BarsSettings {
   ringBandCountBothChannels: number
   glowBlur: number
   hueShiftDegrees: number
+  saturationRange: MinMaxRange
+  lightnessRange: MinMaxRange
   colorChannelL: RgbaColor
   colorChannelR: RgbaColor
 }
