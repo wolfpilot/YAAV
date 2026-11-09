@@ -33,10 +33,7 @@ class Player {
   private _elapsedMs: number
   private _lastPlayingSampleTime?: number
 
-  constructor(
-    canvasCtx: CanvasRenderingContext2D,
-    settings: GUISettings
-  ) {
+  constructor(canvasCtx: CanvasRenderingContext2D, settings: GUISettings) {
     this._settings = settings
     this._visualizer = new Visualizer(canvasCtx, settings)
 

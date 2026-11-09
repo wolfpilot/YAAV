@@ -82,10 +82,7 @@ class BarsRenderer implements Renderer {
     })
 
     config.rings.forEach(({ band, lineWidth, opacity }, ringIndex) => {
-      const bands = movingAverage(
-        bandGroups[band],
-        config.smoothingWindowSize
-      )
+      const bands = movingAverage(bandGroups[band], config.smoothingWindowSize)
       const radius =
         visualizerConfig.circle.radius +
         config.centreOffset +
@@ -102,8 +99,7 @@ class BarsRenderer implements Renderer {
 
         const length = magnitude / 10
         const angle = isSolo
-          ? config.angleOffset +
-            (side * (i + 0.5) * Math.PI * 2) / bands.length
+          ? config.angleOffset + (side * (i + 0.5) * Math.PI * 2) / bands.length
           : getStereoBandAngle(i, bands.length, side, config.angleOffset)
         const coords = BarsRenderer.getVolumeBarCoords({
           centre,

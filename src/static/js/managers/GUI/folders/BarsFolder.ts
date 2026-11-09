@@ -17,15 +17,15 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
   })
 
   folder.addBinding(settings, "ringBandCountSingleChannel", {
-    min: 32,
+    min: 8,
     max: 128,
-    step: 16,
+    step: 8,
   })
 
   folder.addBinding(settings, "ringBandCountBothChannels", {
-    min: 16,
+    min: 4,
     max: 64,
-    step: 8,
+    step: 4,
   })
 
   folder.addBinding(settings, "colorChannelL", {
