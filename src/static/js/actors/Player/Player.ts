@@ -340,7 +340,11 @@ class Player {
     if (!AudioContextConstructor) {
       throw new Error("Web Audio is unavailable")
     }
-    this._audioCtx = new AudioContextConstructor()
+
+    // Lock down sample rate so it's consistent across different devices
+    this._audioCtx = new AudioContextConstructor({
+      sampleRate: config.audioSampleRate,
+    })
 
     this.state.hasUserInteracted = true
 
