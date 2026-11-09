@@ -25,12 +25,20 @@ class BarsRenderer implements Renderer {
     angle: number
     length: number
   }): VolumeBarCoords {
-    const xStart = centre.x + Math.cos(angle) * visualizerConfig.circle.radius
-    const yStart = centre.y + Math.sin(angle) * visualizerConfig.circle.radius
+    const xStart =
+      centre.x +
+      Math.cos(angle) * (visualizerConfig.circle.radius + config.centreOffset)
+    const yStart =
+      centre.y +
+      Math.sin(angle) * (visualizerConfig.circle.radius + config.centreOffset)
     const xEnd =
-      centre.x + Math.cos(angle) * (visualizerConfig.circle.radius + length)
+      centre.x +
+      Math.cos(angle) *
+        (visualizerConfig.circle.radius + length + config.centreOffset)
     const yEnd =
-      centre.y + Math.sin(angle) * (visualizerConfig.circle.radius + length)
+      centre.y +
+      Math.sin(angle) *
+        (visualizerConfig.circle.radius + length + config.centreOffset)
 
     return { xStart, yStart, xEnd, yEnd }
   }
@@ -84,7 +92,7 @@ class BarsRenderer implements Renderer {
         continue
       }
 
-      const length = magnitude / 2
+      const length = magnitude / 10
       const angle = isSolo
         ? config.angleOffset + (side * (i + 0.5) * Math.PI * 2) / bands.length
         : getStereoBandAngle(i, bands.length, side, config.angleOffset)
