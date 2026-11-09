@@ -159,7 +159,7 @@ class BarsRenderer implements Renderer {
         bandIndex,
         bandCount: bands.length,
         radius,
-        lineWidth: ring.lineWidth,
+        lineWidth: this.settings.lineWidths[ring.band],
         channelContext,
       })
     })

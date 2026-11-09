@@ -23,6 +23,7 @@ export interface BarsSettings {
   ringBandCountSingleChannel: number
   ringBandCountBothChannels: number
   glowBlur: number
+  lineWidths: Record<"bass" | "mids" | "highs", number>
   hueShiftDegrees: number
   saturationRange: MinMaxRange
   lightnessRange: MinMaxRange

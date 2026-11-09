@@ -10,10 +10,11 @@ export const config = {
   ringGap: 50,
   // Ordered from the innermost to the outermost ring
   rings: [
-    { band: "bass", lineWidth: 5, opacity: 1 },
-    { band: "mids", lineWidth: 3.75, opacity: 0.75 },
-    { band: "highs", lineWidth: 2.5, opacity: 0.5 },
+    { band: "bass", opacity: 1 },
+    { band: "mids", opacity: 0.75 },
+    { band: "highs", opacity: 0.5 },
   ] as const,
+  lineWidths: { bass: 5, mids: 3.75, highs: 2.5 },
   colorLeft: { r: 25, g: 125, b: 225, a: 1 },
   colorRight: { r: 25, g: 125, b: 225, a: 1 },
   glowBlur: 10,

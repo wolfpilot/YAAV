@@ -63,6 +63,7 @@ class App {
         ringBandCountSingleChannel: barsConfig.ringBandCountSingleChannel,
         ringBandCountBothChannels: barsConfig.ringBandCountBothChannels,
         glowBlur: barsConfig.glowBlur,
+        lineWidths: { ...barsConfig.lineWidths },
         hueShiftDegrees: barsConfig.hueShiftDegrees,
         saturationRange: { ...barsConfig.saturationRange },
         lightnessRange: { ...barsConfig.lightnessRange },
