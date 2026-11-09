@@ -8,6 +8,7 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     expanded: false,
   })
 
+  // Channels
   folder.addBinding(settings, "channels", {
     options: {
       "L + R": config.channels.both,
@@ -28,24 +29,7 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     step: 4,
   })
 
-  folder.addBinding(settings, "colorChannelL", {
-    color: {
-      alpha: true,
-    },
-  })
-
-  folder.addBinding(settings, "colorChannelR", {
-    color: {
-      alpha: true,
-    },
-  })
-
-  folder.addBinding(settings, "glowBlur", {
-    min: 0.5,
-    max: 20,
-    step: 0.5,
-  })
-
+  // Sizes
   folder.addBinding(settings.lineWidths, "bass", {
     label: "lineWidthBass",
     min: 0.1,
@@ -67,13 +51,26 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     step: 0.25,
   })
 
+  // Colors
+  const rangeOptions = { min: 0, max: 100, step: 1 }
+
+  folder.addBinding(settings, "colorChannelL", {
+    color: {
+      alpha: true,
+    },
+  })
+
+  folder.addBinding(settings, "colorChannelR", {
+    color: {
+      alpha: true,
+    },
+  })
+
   folder.addBinding(settings, "hueShiftDegrees", {
     min: -360,
     max: 360,
     step: 0.5,
   })
-
-  const rangeOptions = { min: 0, max: 100, step: 1 }
 
   folder.addBinding(settings.saturationRange, "min", {
     ...rangeOptions,
@@ -93,5 +90,11 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
   folder.addBinding(settings.lightnessRange, "max", {
     ...rangeOptions,
     label: "lightnessMax",
+  })
+
+  folder.addBinding(settings, "glowBlur", {
+    min: 0.5,
+    max: 20,
+    step: 0.5,
   })
 }

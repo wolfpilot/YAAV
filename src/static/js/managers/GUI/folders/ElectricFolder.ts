@@ -7,12 +7,14 @@ export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
     expanded: false,
   })
 
+  // Channels
   folder.addBinding(settings, "bandCount", {
     min: 32,
     max: 128,
     step: 16,
   })
 
+  // Dynamics
   folder.addBinding(settings, "ringsAmount", {
     min: 1,
     max: 10,
@@ -25,6 +27,7 @@ export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
     step: 1,
   })
 
+  // Sizes
   folder.addBinding(settings, "lineWidthMin", {
     min: 0.5,
     max: 5,
