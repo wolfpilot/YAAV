@@ -3,7 +3,7 @@ import { getStereoBandAngle } from "../../../../utils/spectrumHelpers"
 import { getCenter } from "../../../../utils/uiHelpers"
 import { movingAverage } from "../../../../utils/smoothing"
 import { config as visualizerConfig } from "../../config"
-import { getChannelBands } from "../getChannelBands"
+import { getChannelBandGroups } from "../getChannelBands"
 import { getMagnitudeColor, rgbToHsl } from "./color"
 import { config } from "./config"
 import type { BarsSettings } from "../../../../types"
@@ -19,26 +19,18 @@ class BarsRenderer implements Renderer {
   private static getVolumeBarCoords({
     centre,
     angle,
+    radius,
     length,
   }: {
     centre: Point
     angle: number
+    radius: number
     length: number
   }): VolumeBarCoords {
-    const xStart =
-      centre.x +
-      Math.cos(angle) * (visualizerConfig.circle.radius + config.centreOffset)
-    const yStart =
-      centre.y +
-      Math.sin(angle) * (visualizerConfig.circle.radius + config.centreOffset)
-    const xEnd =
-      centre.x +
-      Math.cos(angle) *
-        (visualizerConfig.circle.radius + length + config.centreOffset)
-    const yEnd =
-      centre.y +
-      Math.sin(angle) *
-        (visualizerConfig.circle.radius + length + config.centreOffset)
+    const xStart = centre.x + Math.cos(angle) * radius
+    const yStart = centre.y + Math.sin(angle) * radius
+    const xEnd = centre.x + Math.cos(angle) * (radius + length)
+    const yEnd = centre.y + Math.sin(angle) * (radius + length)
 
     return { xStart, yStart, xEnd, yEnd }
   }
@@ -46,11 +38,13 @@ class BarsRenderer implements Renderer {
   private _drawVolumeBar({
     fill,
     coords,
+    lineWidth,
   }: {
     fill: string
     coords: VolumeBarCoords
+    lineWidth: number
   }) {
-    this.canvasCtx.lineWidth = this.settings.lineWidth
+    this.canvasCtx.lineWidth = lineWidth
     this.canvasCtx.strokeStyle = fill
     this.canvasCtx.shadowColor = fill
 
@@ -80,33 +74,55 @@ class BarsRenderer implements Renderer {
     const totalBandCount = isSolo
       ? this.settings.bandCountSingleChannel
       : this.settings.bandCountBothChannels
-    const bands = movingAverage(
-      getChannelBands(channel.data, totalBandCount, config.maxFrequency),
-      config.smoothingWindowSize
+    const bandGroups = getChannelBandGroups(
+      channel.data,
+      totalBandCount,
+      config.midsMaxFrequency,
+      config.maxFrequency
     )
 
-    for (let i = 0; i < bands.length; i++) {
-      const magnitude = bands[i]
+    config.rings.forEach(({ band, lineWidth, opacity }, ringIndex) => {
+      const bands = movingAverage(
+        bandGroups[band],
+        config.smoothingWindowSize
+      )
+      const radius =
+        visualizerConfig.circle.radius +
+        config.centreOffset +
+        ringIndex * config.ringGap
 
-      if (magnitude === 0) {
-        continue
+      this.canvasCtx.globalAlpha = opacity
+
+      for (let i = 0; i < bands.length; i++) {
+        const magnitude = bands[i]
+
+        if (magnitude === 0) {
+          continue
+        }
+
+        const length = magnitude / 10
+        const angle = isSolo
+          ? config.angleOffset +
+            (side * (i + 0.5) * Math.PI * 2) / bands.length
+          : getStereoBandAngle(i, bands.length, side, config.angleOffset)
+        const coords = BarsRenderer.getVolumeBarCoords({
+          centre,
+          angle,
+          radius,
+          length,
+        })
+
+        this._drawVolumeBar({
+          fill: getMagnitudeColor({
+            color: baseColor,
+            magnitude,
+            hueShiftDegrees,
+          }),
+          coords,
+          lineWidth,
+        })
       }
-
-      const length = magnitude / 10
-      const angle = isSolo
-        ? config.angleOffset + (side * (i + 0.5) * Math.PI * 2) / bands.length
-        : getStereoBandAngle(i, bands.length, side, config.angleOffset)
-      const coords = BarsRenderer.getVolumeBarCoords({ centre, angle, length })
-
-      this._drawVolumeBar({
-        fill: getMagnitudeColor({
-          color: baseColor,
-          magnitude,
-          hueShiftDegrees,
-        }),
-        coords,
-      })
-    }
+    })
   }
 
   draw({ channels }: RendererDrawOptions) {
