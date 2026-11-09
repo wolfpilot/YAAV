@@ -5,7 +5,7 @@ import { formatSeconds, isArrayZeroedOut } from "../../utils/mathHelpers"
 import { getKeyCode } from "../../utils/inputHelpers"
 import { lockUserSelection, unlockUserSelection } from "../../utils/uiHelpers"
 import { fadeIn, fadeOut } from "../../utils/audioHelpers"
-import { getBassFftSize } from "../../utils/bassSpectrum"
+import { bassSpectrum, getBassFftSize } from "../../utils/bassSpectrum"
 import type { GUISettings } from "../../types"
 import type { PlayerElements, Track } from "./types"
 import type { ChannelData, SpectrumFrame } from "../Visualizer/types"
@@ -22,6 +22,7 @@ const initialState = {
 
 class Player {
   private _visualizer: Visualizer
+  private readonly _settings: GUISettings
   private _audio!: HTMLAudioElement
   private _audioCtx?: AudioContext
   private _analyserL!: AnalyserNode
@@ -36,6 +37,7 @@ class Player {
     canvasCtx: CanvasRenderingContext2D,
     settings: GUISettings
   ) {
+    this._settings = settings
     this._visualizer = new Visualizer(canvasCtx, settings)
 
     this._elapsedMs = 0
@@ -78,6 +80,34 @@ class Player {
     }
   }
 
+  /**
+   * Resize the bass analysers to resolve as many bands as the active variant needs.
+   */
+  private _syncBassFftSize() {
+    if (!this._audioCtx) {
+      return
+    }
+
+    const { visualization, bars } = this._settings
+    const isBars = visualization.variant === globalConfig.variant.bars
+    const bandCount = !isBars
+      ? bassSpectrum.bandCount
+      : bars.channels === globalConfig.channels.both
+        ? bars.ringBandCountBothChannels
+        : bars.ringBandCountSingleChannel
+    const fftSize = getBassFftSize(
+      this._audioCtx.sampleRate,
+      Math.max(bandCount, bassSpectrum.bandCount)
+    )
+
+    if (this._bassAnalyserL.fftSize === fftSize) {
+      return
+    }
+
+    this._bassAnalyserL.fftSize = fftSize
+    this._bassAnalyserR.fftSize = fftSize
+  }
+
   _getAudioData(): SpectrumFrame | undefined {
     // Unfortunately, after pausing there is a small delay until the bin data array empties out
     // which means that calling .pause() doesn't necessarily reflect the real state of the audio.
@@ -85,6 +115,8 @@ class Player {
     if (!this.state.isPlaying && this.state.isBinDataEmpty) {
       return
     }
+
+    this._syncBassFftSize()
 
     const channelLeftData = Player.getChannelData(
       this._analyserL,
