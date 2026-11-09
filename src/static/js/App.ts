@@ -62,7 +62,7 @@ class App {
         channels: config.channels.both,
         ringBandCountSingleChannel: barsConfig.ringBandCountSingleChannel,
         ringBandCountBothChannels: barsConfig.ringBandCountBothChannels,
-        glowBlur: barsConfig.glowBLur,
+        glowBlur: barsConfig.glowBlur,
         colorChannelL: { ...barsConfig.colorLeft },
         colorChannelR: { ...barsConfig.colorRight },
       },
