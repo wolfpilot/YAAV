@@ -13,6 +13,8 @@ export const config = {
   lineWidthMax: 30,
   lineWidthDynamic: (min: number, max: number, percent: number) =>
     min + percent * max,
+  uiRingHueShift: 15,
+  uiTrackHueShift: 30,
   color: { r: 75, g: 25, b: 225, a: 1 },
   fillDynamic: ({ r, g, b, a }: RgbaColor, opacity: number) =>
     `rgba(${r}, ${g}, ${b}, ${a * opacity})`,
