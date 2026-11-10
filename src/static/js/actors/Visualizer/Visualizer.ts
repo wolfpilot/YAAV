@@ -10,6 +10,7 @@ class Visualizer {
   private readonly _settings: GUISettings
   private _activeVariant: VisualizationVariant
   private _activeRenderer: Renderer
+  private _appliedUITheme?: string
 
   constructor(canvasCtx: CanvasRenderingContext2D, settings: GUISettings) {
     this._canvasCtx = canvasCtx
@@ -27,6 +28,22 @@ class Visualizer {
       this._activeVariant = this._settings.visualization.variant
       this._activeRenderer = this._createRenderer(this._activeVariant)
     }
+  }
+
+  private _syncUITheme(theme: UITheme) {
+    const serializedTheme = JSON.stringify(theme)
+
+    if (serializedTheme === this._appliedUITheme) return
+
+    this._appliedUITheme = serializedTheme
+
+    const rootStyle = document.documentElement.style
+
+    rootStyle.setProperty("--ui-accent", theme.accent)
+    rootStyle.setProperty("--ui-ring-start", theme.ringStart)
+    rootStyle.setProperty("--ui-ring-end", theme.ringEnd)
+    rootStyle.setProperty("--ui-track-start", theme.trackStart)
+    rootStyle.setProperty("--ui-track-end", theme.trackEnd)
   }
 
   private _drawUI(theme: UITheme) {
@@ -56,8 +73,12 @@ class Visualizer {
   }
 
   draw({ spectrum, elapsedMs }: VisualizerDrawOptions) {
-    const theme = getUITheme(this._settings.visualization.variant, this._settings)
+    const theme = getUITheme(
+      this._settings.visualization.variant,
+      this._settings
+    )
 
+    this._syncUITheme(theme)
     this._drawUI(theme)
     this._syncRenderer()
 
