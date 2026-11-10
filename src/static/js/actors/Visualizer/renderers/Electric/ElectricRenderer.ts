@@ -49,7 +49,7 @@ class ElectricRenderer implements Renderer {
           rotationAngle +
           ((j + 0.5) * Math.PI * 2) / bands.length
         const radius =
-          visualizerConfig.circle.radius +
+          visualizerConfig.ring.radius +
           length +
           config.centreOffset +
           i * config.ringSpacing

@@ -58,17 +58,11 @@ class Visualizer {
     gradient.addColorStop(0, theme.ringStart)
     gradient.addColorStop(1, theme.ringEnd)
 
-    this._canvasCtx.lineWidth = config.circle.lineWidth
+    this._canvasCtx.lineWidth = config.ring.lineWidth
     this._canvasCtx.strokeStyle = gradient
 
     this._canvasCtx.beginPath()
-    this._canvasCtx.arc(
-      centre.x,
-      centre.y,
-      config.circle.radius,
-      0,
-      Math.PI * 2
-    )
+    this._canvasCtx.arc(centre.x, centre.y, config.ring.radius, 0, Math.PI * 2)
     this._canvasCtx.stroke()
   }
 

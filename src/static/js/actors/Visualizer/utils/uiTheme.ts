@@ -1,7 +1,10 @@
 import { getHueShiftedColor } from "../../../utils/color"
 import { config } from "../config"
-import { config as electricConfig } from "../renderers/Electric/config"
-import type { GUISettings, VisualizationVariant } from "../../../types"
+import type {
+  GUISettings,
+  RgbaColor,
+  VisualizationVariant,
+} from "../../../types"
 
 export interface UITheme {
   accent: string
@@ -16,24 +19,23 @@ export const getUITheme = (
   settings: GUISettings
 ): UITheme => {
   switch (variant) {
-    case "electric": {
+    case "electric":
       const { color } = settings.electric
 
       return {
         accent: getHueShiftedColor(color, 0),
-        ringStart: getHueShiftedColor(color, -electricConfig.uiRingHueShift),
-        ringEnd: getHueShiftedColor(color, electricConfig.uiRingHueShift),
-        trackStart: getHueShiftedColor(color, -electricConfig.uiTrackHueShift),
-        trackEnd: getHueShiftedColor(color, electricConfig.uiTrackHueShift),
+        ringStart: getHueShiftedColor(color, -config.ring.hueShiftDegrees),
+        ringEnd: getHueShiftedColor(color, config.ring.hueShiftDegrees),
+        trackStart: getHueShiftedColor(color, -config.track.hueShiftDegrees),
+        trackEnd: getHueShiftedColor(color, config.track.hueShiftDegrees),
       }
-    }
     default:
       return {
-        accent: config.colors.accent,
-        ringStart: config.colors.ring[0],
-        ringEnd: config.colors.ring[1],
-        trackStart: config.colors.track[0],
-        trackEnd: config.colors.track[1],
+        accent: config.accent.color,
+        ringStart: config.ring.colors[0],
+        ringEnd: config.ring.colors[1],
+        trackStart: config.track.colors[0],
+        trackEnd: config.track.colors[1],
       }
   }
 }

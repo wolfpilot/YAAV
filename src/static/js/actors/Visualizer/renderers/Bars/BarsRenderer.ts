@@ -62,7 +62,7 @@ class BarsRenderer implements Renderer {
 
   private static getRingRadius(ringIndex: number): number {
     return (
-      visualizerConfig.circle.radius +
+      visualizerConfig.ring.radius +
       config.centreOffset +
       ringIndex * config.ringGap
     )
