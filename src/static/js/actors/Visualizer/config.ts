@@ -1,7 +1,16 @@
+// Defaults
 export const config = {
-  circle: {
+  accent: {
+    color: "blue",
+  },
+  ring: {
     radius: 150,
     lineWidth: 3,
-    stroke: ["blue", "purple"],
+    colors: ["blue", "purple"],
+    hueShiftDegrees: 15,
+  },
+  track: {
+    colors: ["blue", "purple"],
+    hueShiftDegrees: 30,
   },
 }

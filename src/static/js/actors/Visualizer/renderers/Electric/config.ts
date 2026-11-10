@@ -1,3 +1,5 @@
+import type { RgbaColor } from "../../../../types"
+
 export const config = {
   minFrequency: 40,
   maxFrequency: 12000,
@@ -11,5 +13,9 @@ export const config = {
   lineWidthMax: 30,
   lineWidthDynamic: (min: number, max: number, percent: number) =>
     min + percent * max,
-  fillDynamic: (opacity: number) => `rgba(75, 25, 225, ${opacity})`,
+  uiRingHueShift: 15,
+  uiTrackHueShift: 30,
+  color: { r: 75, g: 25, b: 225, a: 1 },
+  fillDynamic: ({ r, g, b, a }: RgbaColor, opacity: number) =>
+    `rgba(${r}, ${g}, ${b}, ${a * opacity})`,
 }

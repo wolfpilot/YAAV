@@ -1,4 +1,4 @@
-import type { HslaColor } from "./color"
+import type { HslaColor } from "../../../../utils/color"
 import type { config } from "./config"
 
 export type RingConfig = (typeof config.rings)[number]

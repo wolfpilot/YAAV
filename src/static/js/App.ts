@@ -76,6 +76,7 @@ class App {
         rotationPeriodSeconds: electricConfig.rotationPeriodSeconds,
         lineWidthMin: electricConfig.lineWidthMin,
         lineWidthMax: electricConfig.lineWidthMax,
+        color: { ...electricConfig.color },
       },
     }
 

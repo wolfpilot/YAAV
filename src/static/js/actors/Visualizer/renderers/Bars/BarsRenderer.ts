@@ -4,7 +4,8 @@ import { getCenter } from "../../../../utils/uiHelpers"
 import { movingAverage } from "../../../../utils/smoothing"
 import { config as visualizerConfig } from "../../config"
 import { getChannelBandGroups } from "./helpers"
-import { getMagnitudeColor, rgbToHsl } from "./color"
+import { rgbToHsl } from "../../../../utils/color"
+import { getMagnitudeColor } from "./color"
 import { config } from "./config"
 import type { BarsSettings } from "../../../../types"
 import type { RendererDrawOptions, Channel, Renderer } from "../../types"
@@ -61,7 +62,7 @@ class BarsRenderer implements Renderer {
 
   private static getRingRadius(ringIndex: number): number {
     return (
-      visualizerConfig.circle.radius +
+      visualizerConfig.ring.radius +
       config.centreOffset +
       ringIndex * config.ringGap
     )

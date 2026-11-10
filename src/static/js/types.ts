@@ -37,6 +37,7 @@ export interface ElectricSettings {
   rotationPeriodSeconds: number
   lineWidthMin: number
   lineWidthMax: number
+  color: RgbaColor
 }
 
 export interface GUISettings {

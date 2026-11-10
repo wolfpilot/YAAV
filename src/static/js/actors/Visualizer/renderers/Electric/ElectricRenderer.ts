@@ -34,7 +34,10 @@ class ElectricRenderer implements Renderer {
         this.settings.lineWidthMax,
         sqProgres
       )
-      this.canvasCtx.strokeStyle = config.fillDynamic(inverseSqProgress)
+      this.canvasCtx.strokeStyle = config.fillDynamic(
+        this.settings.color,
+        inverseSqProgress
+      )
 
       this.canvasCtx.beginPath()
 
@@ -46,7 +49,7 @@ class ElectricRenderer implements Renderer {
           rotationAngle +
           ((j + 0.5) * Math.PI * 2) / bands.length
         const radius =
-          visualizerConfig.circle.radius +
+          visualizerConfig.ring.radius +
           length +
           config.centreOffset +
           i * config.ringSpacing
