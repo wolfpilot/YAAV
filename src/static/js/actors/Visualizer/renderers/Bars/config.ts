@@ -19,6 +19,8 @@ export const config = {
   colorRight: { r: 25, g: 125, b: 225, a: 1 },
   glowBlur: 10,
   hueShiftDegrees: 225,
+  // Magnitude (0 - 255) at which the player UI mimics the bars' color
+  uiReferenceMagnitude: 100,
   saturationRange: { min: 75, max: 100 },
   lightnessRange: { min: 10, max: 90 },
 }
