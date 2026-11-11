@@ -3,7 +3,8 @@ import { getCenter } from "../../utils/uiHelpers"
 import type { GUISettings, VisualizationVariant } from "../../types"
 import type { Renderer, VisualizerDrawOptions } from "./types"
 import { createRenderer } from "./utils/rendererFactory"
-import { getUITheme, type RingSegment, type UITheme } from "./utils/uiTheme"
+import { RingSegment, UITheme } from "./ui/types"
+import { getUITheme } from "./ui/theme"
 
 class Visualizer {
   private readonly _canvasCtx: CanvasRenderingContext2D
@@ -41,7 +42,10 @@ class Visualizer {
 
     rootStyle.setProperty("--ui-accent", theme.accent)
     rootStyle.setProperty("--ui-ring-start", theme.ring[0].start)
-    rootStyle.setProperty("--ui-ring-end", theme.ring[theme.ring.length - 1].end)
+    rootStyle.setProperty(
+      "--ui-ring-end",
+      theme.ring[theme.ring.length - 1].end
+    )
     rootStyle.setProperty("--ui-track-start", theme.trackStart)
     rootStyle.setProperty("--ui-track-end", theme.trackEnd)
   }
