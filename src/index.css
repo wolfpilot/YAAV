@@ -4,11 +4,11 @@
 
 /* Defaults. May be overridden via the GUI panel. */
 :root {
-  --ui-accent: #5a2bae;
-  --ui-ring-start: #2f10c3;
-  --ui-ring-end: #8810c3;
-  --ui-track-start: #2f10c3;
-  --ui-track-end: #8810c3;
+  --ui-accent: #07a6c2;
+  --ui-ring-start: #10c3b1;
+  --ui-ring-end: #107cc3;
+  --ui-track-start: #10c3b1;
+  --ui-track-end: #107cc3;
 }
 
 [data-prevent-selection] {
