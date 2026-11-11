@@ -1,12 +1,12 @@
 // Defaults
 export const config = {
   accent: {
-    color: "blue",
+    color: "#5a2bae",
   },
   ring: {
     radius: 150,
     lineWidth: 3,
-    colors: ["blue", "purple"],
+    colors: ["#2f10c3", "#8810c3"],
     hueShiftDegrees: 15,
     // Canvas angles grow clockwise, with 0 pointing right and π/2 pointing down
     arcs: {
@@ -16,7 +16,7 @@ export const config = {
     },
   },
   track: {
-    colors: ["blue", "purple"],
+    colors: ["#2f10c3", "#8810c3"],
     hueShiftDegrees: 30,
   },
 }
