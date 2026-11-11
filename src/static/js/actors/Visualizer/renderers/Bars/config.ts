@@ -15,10 +15,12 @@ export const config = {
     { band: "highs", opacity: 0.5 },
   ] as const,
   lineWidths: { bass: 5, mids: 3.75, highs: 2.5 },
-  colorLeft: { r: 25, g: 125, b: 225, a: 1 },
-  colorRight: { r: 25, g: 125, b: 225, a: 1 },
+  colorLeft: { r: 90, g: 25, b: 225, a: 1 },
+  colorRight: { r: 90, g: 25, b: 225, a: 1 },
   glowBlur: 10,
-  hueShiftDegrees: 225,
+  hueShiftDegrees: -180,
+  // Magnitude (0 - 255) at which the player UI mimics the bars' color
+  uiReferenceMagnitude: 100,
   saturationRange: { min: 75, max: 100 },
   lightnessRange: { min: 10, max: 90 },
 }

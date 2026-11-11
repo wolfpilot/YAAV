@@ -43,13 +43,18 @@ export const rgbToHsl = ({ r, g, b, a }: RgbaColor): HslaColor => {
   }
 }
 
+export const shiftHue = (color: HslaColor, shiftDegrees: number): HslaColor => ({
+  ...color,
+  h: (((color.h + shiftDegrees) % 360) + 360) % 360,
+})
+
+/**
+ * Format as an opaque CSS color, ignoring alpha
+ */
+export const formatHsl = ({ h, s, l }: HslaColor): string =>
+  `hsl(${h}, ${s}%, ${l}%)`
+
 export const getHueShiftedColor = (
   color: RgbaColor,
   shiftDegrees: number
-): string => {
-  const { h, s, l } = rgbToHsl(color)
-
-  const hue = (((h + shiftDegrees) % 360) + 360) % 360
-
-  return `hsl(${hue}, ${s}%, ${l}%)`
-}
+): string => formatHsl(shiftHue(rgbToHsl(color), shiftDegrees))
