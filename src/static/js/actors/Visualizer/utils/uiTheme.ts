@@ -8,13 +8,33 @@ import type {
   VisualizationVariant,
 } from "../../../types"
 
+export type RingArc = keyof typeof config.ring.arcs
+
+/**
+ * A part of the ring, with a gradient running from the bottom to the top
+ */
+export interface RingSegment {
+  arc: RingArc
+  start: string
+  end: string
+}
+
 export interface UITheme {
   accent: string
-  ringStart: string
-  ringEnd: string
+  ring: RingSegment[]
   trackStart: string
   trackEnd: string
 }
+
+const getRingSegment = (
+  arc: RingArc,
+  color: RgbaColor,
+  hueOffset: number
+): RingSegment => ({
+  arc,
+  start: getHueShiftedColor(color, hueOffset - config.ring.hueShiftDegrees),
+  end: getHueShiftedColor(color, hueOffset + config.ring.hueShiftDegrees),
+})
 
 /**
  * Generic helper for getting a single (usually channel-based) theme
@@ -22,8 +42,7 @@ export interface UITheme {
 // prettier-ignore
 const getSingleColorTheme = (color: RgbaColor, hueOffset = 0): UITheme => ({
   accent: getHueShiftedColor(color, hueOffset),
-  ringStart: getHueShiftedColor(color, hueOffset - config.ring.hueShiftDegrees),
-  ringEnd: getHueShiftedColor(color, hueOffset + config.ring.hueShiftDegrees),
+  ring: [getRingSegment("full", color, hueOffset)],
   trackStart: getHueShiftedColor(color, hueOffset - config.track.hueShiftDegrees),
   trackEnd: getHueShiftedColor(color, hueOffset + config.track.hueShiftDegrees),
 })
@@ -34,7 +53,7 @@ const getBarsTheme = ({
   colorChannelR,
   hueShiftDegrees,
 }: BarsSettings): UITheme => {
-  // Two channels
+  // Two channels, with one half of the ring for each
   if (channels === globalConfig.channels.both) {
     const start = getHueShiftedColor(colorChannelL, hueShiftDegrees)
     const end = getHueShiftedColor(colorChannelR, hueShiftDegrees)
@@ -43,8 +62,10 @@ const getBarsTheme = ({
 
     return {
       accent,
-      ringStart: start,
-      ringEnd: end,
+      ring: [
+        getRingSegment("left", colorChannelL, hueShiftDegrees),
+        getRingSegment("right", colorChannelR, hueShiftDegrees),
+      ],
       trackStart: start,
       trackEnd: end,
     }
