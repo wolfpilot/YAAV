@@ -9,14 +9,16 @@ export const config = {
   centreOffset: 5,
   ringsAmount: 10,
   ringSpacing: 3,
-  hueShiftDegrees: 0,
   lineWidthMin: 0.5,
   lineWidthMax: 30,
   lineWidthDynamic: (min: number, max: number, percent: number) =>
     min + percent * max,
   uiRingHueShift: 15,
   uiTrackHueShift: 30,
-  color: { r: 75, g: 25, b: 225, a: 1 },
+  color: { r: 225, g: 25, b: 150, a: 1 },
   fillDynamic: ({ h, s, l, a }: HslaColor, opacity: number) =>
     `hsla(${h}, ${s}%, ${l}%, ${a * opacity})`,
+  hueShiftDegrees: 90,
+  // Band magnitude (0 - 255) at which the player UI mimics the rings' color
+  uiReferenceMagnitude: 100,
 }
