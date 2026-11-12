@@ -14,6 +14,10 @@ export const config = {
     { band: "mids", opacity: 0.75 },
     { band: "highs", opacity: 0.5 },
   ] as const,
+  // Faint ring behind the others, driven by the whole spectrum at once.
+  // It starts at the bass ring and reaches the highs ring, then extends
+  // past it by magnitude * lengthScale.
+  backgroundRing: { opacity: 0.01, lineWidth: 5, lengthScale: 0 },
   lineWidths: { bass: 5, mids: 2.25, highs: 1.75 },
   colorLeft: { r: 90, g: 25, b: 225, a: 1 },
   colorRight: { r: 90, g: 25, b: 225, a: 1 },
