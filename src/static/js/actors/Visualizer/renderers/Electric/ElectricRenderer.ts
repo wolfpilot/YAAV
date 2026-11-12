@@ -5,13 +5,65 @@ import { config } from "./config"
 import type { ElectricSettings } from "../../../../types"
 import type { RendererDrawOptions, Renderer } from "../../types"
 import { easeInOutCubic } from "../../../../utils/easings"
-import { rgbToHsl, shiftHue } from "../../../../utils/color"
+import { rgbToHsl, shiftHue, type HslaColor } from "../../../../utils/color"
 
 class ElectricRenderer implements Renderer {
   constructor(
     private readonly canvasCtx: CanvasRenderingContext2D,
     private readonly settings: ElectricSettings
   ) {}
+
+  /**
+   * The hue shifts with the magnitude of the band, up to the full shift
+   */
+  private _getBandColor(baseColor: HslaColor, magnitude: number): HslaColor {
+    const progress = Math.max(0, Math.min(magnitude / 255, 1))
+
+    return shiftHue(baseColor, this.settings.hueShiftDegrees * progress)
+  }
+
+  /**
+   * Get a gradient running around the ring, with a color for each band. The
+   * colors only depend on the bands, so every ring has the same colors.
+   */
+  private _createRingGradient({
+    bands,
+    baseColor,
+    centre,
+    rotationAngle,
+    opacity,
+  }: {
+    bands: number[]
+    baseColor: HslaColor
+    centre: ReturnType<typeof getCenter>
+    rotationAngle: number
+    opacity: number
+  }) {
+    const gradient = this.canvasCtx.createConicGradient(
+      config.angleOffset + rotationAngle,
+      centre.x,
+      centre.y
+    )
+
+    bands.forEach((magnitude, index) => {
+      gradient.addColorStop(
+        (index + 0.5) / bands.length,
+        config.fillDynamic(this._getBandColor(baseColor, magnitude), opacity)
+      )
+    })
+
+    // The start of the ring sits between the last and the first band
+    const seamMagnitude = (bands[0] + bands[bands.length - 1]) / 2
+    const seamColor = config.fillDynamic(
+      this._getBandColor(baseColor, seamMagnitude),
+      opacity
+    )
+
+    gradient.addColorStop(0, seamColor)
+    gradient.addColorStop(1, seamColor)
+
+    return gradient
+  }
 
   private _drawBands({
     bands,
@@ -36,10 +88,13 @@ class ElectricRenderer implements Renderer {
         this.settings.lineWidthMax,
         sqProgres
       )
-      this.canvasCtx.strokeStyle = config.fillDynamic(
-        shiftHue(baseColor, this.settings.hueShiftDegrees * progress),
-        inverseSqProgress
-      )
+      this.canvasCtx.strokeStyle = this._createRingGradient({
+        bands,
+        baseColor,
+        centre,
+        rotationAngle,
+        opacity: inverseSqProgress,
+      })
 
       this.canvasCtx.beginPath()
 
