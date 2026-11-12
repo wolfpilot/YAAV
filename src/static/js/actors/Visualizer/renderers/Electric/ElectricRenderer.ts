@@ -5,7 +5,8 @@ import { config } from "./config"
 import type { ElectricSettings } from "../../../../types"
 import type { RendererDrawOptions, Renderer } from "../../types"
 import { easeInOutCubic } from "../../../../utils/easings"
-import { rgbToHsl, shiftHue, type HslaColor } from "../../../../utils/color"
+import { rgbToHsl, type HslaColor } from "../../../../utils/color"
+import { getBandColor } from "./color"
 
 class ElectricRenderer implements Renderer {
   constructor(
@@ -13,13 +14,12 @@ class ElectricRenderer implements Renderer {
     private readonly settings: ElectricSettings
   ) {}
 
-  /**
-   * The hue shifts with the magnitude of the band, up to the full shift
-   */
   private _getBandColor(baseColor: HslaColor, magnitude: number): HslaColor {
-    const progress = Math.max(0, Math.min(magnitude / 255, 1))
-
-    return shiftHue(baseColor, this.settings.hueShiftDegrees * progress)
+    return getBandColor({
+      color: baseColor,
+      magnitude,
+      hueShiftDegrees: this.settings.hueShiftDegrees,
+    })
   }
 
   /**
