@@ -7,14 +7,18 @@ export const config = {
   midsMaxFrequency: 6000,
   smoothingWindowSize: 5,
   centreOffset: 10,
-  ringGap: 50,
+  ringGap: 75,
   // Ordered from the innermost to the outermost ring
   rings: [
     { band: "bass", opacity: 1 },
     { band: "mids", opacity: 0.75 },
     { band: "highs", opacity: 0.5 },
   ] as const,
-  lineWidths: { bass: 5, mids: 3.75, highs: 2.5 },
+  // Faint ring behind the others, driven by the whole spectrum at once.
+  // It starts at the bass ring and reaches the highs ring, then extends
+  // past it by magnitude * lengthScale.
+  backgroundRing: { opacity: 0.01, lineWidth: 5, lengthScale: 0 },
+  lineWidths: { bass: 5, mids: 2.25, highs: 1.75 },
   colorLeft: { r: 90, g: 25, b: 225, a: 1 },
   colorRight: { r: 90, g: 25, b: 225, a: 1 },
   glowBlur: 10,

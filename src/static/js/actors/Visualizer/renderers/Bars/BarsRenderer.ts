@@ -4,11 +4,17 @@ import { getCenter } from "../../../../utils/uiHelpers"
 import { movingAverage } from "../../../../utils/smoothing"
 import { config as visualizerConfig } from "../../config"
 import { getChannelBandGroups } from "./helpers"
+import { getChannelBands } from "../getChannelBands"
 import { rgbToHsl } from "../../../../utils/color"
 import { getMagnitudeColor } from "./color"
 import { config } from "./config"
 import type { BarsSettings } from "../../../../types"
-import type { RendererDrawOptions, Channel, Renderer } from "../../types"
+import type {
+  RendererDrawOptions,
+  Channel,
+  ChannelData,
+  Renderer,
+} from "../../types"
 import type {
   ChannelDrawContext,
   Point,
@@ -101,6 +107,7 @@ class BarsRenderer implements Renderer {
     bandCount,
     radius,
     lineWidth,
+    length,
     channelContext,
   }: {
     magnitude: number
@@ -108,6 +115,7 @@ class BarsRenderer implements Renderer {
     bandCount: number
     radius: number
     lineWidth: number
+    length: number
     channelContext: ChannelDrawContext
   }) {
     const { centre, side, isSolo, baseColor } = channelContext
@@ -122,7 +130,7 @@ class BarsRenderer implements Renderer {
       centre,
       angle,
       radius,
-      length: magnitude / 10,
+      length,
     })
     const fill = getMagnitudeColor({
       color: baseColor,
@@ -161,6 +169,43 @@ class BarsRenderer implements Renderer {
         bandCount: bands.length,
         radius,
         lineWidth: this.settings.lineWidths[ring.band],
+        length: magnitude / 10,
+        channelContext,
+      })
+    })
+  }
+
+  private _drawBackgroundRing({
+    data,
+    channelContext,
+  }: {
+    data: ChannelData
+    channelContext: ChannelDrawContext
+  }) {
+    const { opacity, lineWidth, lengthScale } = config.backgroundRing
+    const bandCount = this._getBandsPerRing(channelContext.isSolo)
+    const bands = movingAverage(
+      getChannelBands(data, bandCount, config.maxFrequency),
+      config.smoothingWindowSize
+    )
+    const radius = BarsRenderer.getRingRadius(0)
+    const highsRadius = BarsRenderer.getRingRadius(config.rings.length - 1)
+    const spanToHighs = highsRadius - radius
+
+    this.canvasCtx.globalAlpha = opacity
+
+    bands.forEach((magnitude, bandIndex) => {
+      if (magnitude === 0) {
+        return
+      }
+
+      this._drawBand({
+        magnitude,
+        bandIndex,
+        bandCount: bands.length,
+        radius,
+        lineWidth,
+        length: spanToHighs + magnitude * lengthScale,
         channelContext,
       })
     })
@@ -192,6 +237,8 @@ class BarsRenderer implements Renderer {
       midsMaxFrequency: config.midsMaxFrequency,
       maxFrequency: config.maxFrequency,
     })
+
+    this._drawBackgroundRing({ data: channel.data, channelContext })
 
     config.rings.forEach((ring, ringIndex) => {
       this._drawRing({
