@@ -5,12 +5,65 @@ import { config } from "./config"
 import type { ElectricSettings } from "../../../../types"
 import type { RendererDrawOptions, Renderer } from "../../types"
 import { easeInOutCubic } from "../../../../utils/easings"
+import { rgbToHsl, type HslaColor } from "../../../../utils/color"
+import { getBandColor } from "./color"
 
 class ElectricRenderer implements Renderer {
   constructor(
     private readonly canvasCtx: CanvasRenderingContext2D,
     private readonly settings: ElectricSettings
   ) {}
+
+  private _getBandColor(baseColor: HslaColor, magnitude: number): HslaColor {
+    return getBandColor({
+      color: baseColor,
+      magnitude,
+      hueShiftDegrees: this.settings.hueShiftDegrees,
+    })
+  }
+
+  /**
+   * Get a gradient running around the ring, with a color for each band. The
+   * colors only depend on the bands, so every ring has the same colors.
+   */
+  private _createRingGradient({
+    bands,
+    baseColor,
+    centre,
+    rotationAngle,
+    opacity,
+  }: {
+    bands: number[]
+    baseColor: HslaColor
+    centre: ReturnType<typeof getCenter>
+    rotationAngle: number
+    opacity: number
+  }) {
+    const gradient = this.canvasCtx.createConicGradient(
+      config.angleOffset + rotationAngle,
+      centre.x,
+      centre.y
+    )
+
+    bands.forEach((magnitude, index) => {
+      gradient.addColorStop(
+        (index + 0.5) / bands.length,
+        config.fillDynamic(this._getBandColor(baseColor, magnitude), opacity)
+      )
+    })
+
+    // The start of the ring sits between the last and the first band
+    const seamMagnitude = (bands[0] + bands[bands.length - 1]) / 2
+    const seamColor = config.fillDynamic(
+      this._getBandColor(baseColor, seamMagnitude),
+      opacity
+    )
+
+    gradient.addColorStop(0, seamColor)
+    gradient.addColorStop(1, seamColor)
+
+    return gradient
+  }
 
   private _drawBands({
     bands,
@@ -22,6 +75,7 @@ class ElectricRenderer implements Renderer {
     const centre = getCenter()
 
     const ringsAmount = this.settings.ringsAmount
+    const baseColor = rgbToHsl(this.settings.color)
 
     for (let i = 0; i < ringsAmount; i++) {
       const progress = ringsAmount === 1 ? 0 : i / (ringsAmount - 1)
@@ -34,10 +88,13 @@ class ElectricRenderer implements Renderer {
         this.settings.lineWidthMax,
         sqProgres
       )
-      this.canvasCtx.strokeStyle = config.fillDynamic(
-        this.settings.color,
-        inverseSqProgress
-      )
+      this.canvasCtx.strokeStyle = this._createRingGradient({
+        bands,
+        baseColor,
+        centre,
+        rotationAngle,
+        opacity: inverseSqProgress,
+      })
 
       this.canvasCtx.beginPath()
 
@@ -52,7 +109,7 @@ class ElectricRenderer implements Renderer {
           visualizerConfig.ring.radius +
           length +
           config.centreOffset +
-          i * config.ringSpacing
+          i * this.settings.ringSpacing
 
         const x = centre.x + Math.cos(angle) * radius
         const y = centre.y + Math.sin(angle) * radius

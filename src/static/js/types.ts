@@ -34,7 +34,9 @@ export interface BarsSettings {
 export interface ElectricSettings {
   bandCount: number
   ringsAmount: number
+  ringSpacing: number
   rotationPeriodSeconds: number
+  hueShiftDegrees: number
   lineWidthMin: number
   lineWidthMax: number
   color: RgbaColor

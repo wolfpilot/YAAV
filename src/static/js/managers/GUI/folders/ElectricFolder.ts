@@ -17,8 +17,14 @@ export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
   // Dynamics
   folder.addBinding(settings, "ringsAmount", {
     min: 1,
-    max: 10,
+    max: 15,
     step: 1,
+  })
+
+  folder.addBinding(settings, "ringSpacing", {
+    min: 0,
+    max: 50,
+    step: 0.5,
   })
 
   folder.addBinding(settings, "rotationPeriodSeconds", {
@@ -32,6 +38,12 @@ export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
     color: {
       alpha: true,
     },
+  })
+
+  folder.addBinding(settings, "hueShiftDegrees", {
+    min: -360,
+    max: 360,
+    step: 0.5,
   })
 
   // Sizes

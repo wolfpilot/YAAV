@@ -1,4 +1,4 @@
-import type { RgbaColor } from "../../../../types"
+import type { HslaColor } from "../../../../utils/color"
 
 export const config = {
   minFrequency: 40,
@@ -15,7 +15,10 @@ export const config = {
     min + percent * max,
   uiRingHueShift: 15,
   uiTrackHueShift: 30,
-  color: { r: 75, g: 25, b: 225, a: 1 },
-  fillDynamic: ({ r, g, b, a }: RgbaColor, opacity: number) =>
-    `rgba(${r}, ${g}, ${b}, ${a * opacity})`,
+  color: { r: 225, g: 25, b: 150, a: 1 },
+  fillDynamic: ({ h, s, l, a }: HslaColor, opacity: number) =>
+    `hsla(${h}, ${s}%, ${l}%, ${a * opacity})`,
+  hueShiftDegrees: 90,
+  // Band magnitude (0 - 255) at which the player UI mimics the rings' color
+  uiReferenceMagnitude: 100,
 }
