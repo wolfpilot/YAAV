@@ -22,12 +22,35 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #fff;
+  background: #000;
   font-family: sans-serif, Arial;
 }
 
 body {
   position: relative;
+}
+
+/*
+ * Soft backdrop that follows the track colors: transparent in the centre,
+ * reaching full strength at half the height and continuing to the edges.
+ * Painted as a plain gradient: masking it would quantize the fade to a few
+ * alpha steps and cause visible banding.
+ */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle 50vh at center,
+    transparent 0%,
+    color-mix(
+        in srgb,
+        color-mix(in srgb, var(--ui-track-start), var(--ui-track-end)) 2.5%,
+        transparent
+      )
+      100%
+  );
+  pointer-events: none;
 }
 
 canvas {
