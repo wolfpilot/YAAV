@@ -5,6 +5,7 @@ import { config } from "./config"
 import type { ElectricSettings } from "../../../../types"
 import type { RendererDrawOptions, Renderer } from "../../types"
 import { easeInOutCubic } from "../../../../utils/easings"
+import { rgbToHsl, shiftHue } from "../../../../utils/color"
 
 class ElectricRenderer implements Renderer {
   constructor(
@@ -22,6 +23,7 @@ class ElectricRenderer implements Renderer {
     const centre = getCenter()
 
     const ringsAmount = this.settings.ringsAmount
+    const baseColor = rgbToHsl(this.settings.color)
 
     for (let i = 0; i < ringsAmount; i++) {
       const progress = ringsAmount === 1 ? 0 : i / (ringsAmount - 1)
@@ -35,7 +37,7 @@ class ElectricRenderer implements Renderer {
         sqProgres
       )
       this.canvasCtx.strokeStyle = config.fillDynamic(
-        this.settings.color,
+        shiftHue(baseColor, this.settings.hueShiftDegrees * progress),
         inverseSqProgress
       )
 

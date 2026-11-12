@@ -36,6 +36,7 @@ export interface ElectricSettings {
   ringsAmount: number
   ringSpacing: number
   rotationPeriodSeconds: number
+  hueShiftDegrees: number
   lineWidthMin: number
   lineWidthMax: number
   color: RgbaColor

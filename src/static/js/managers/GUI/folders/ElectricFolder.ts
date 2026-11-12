@@ -40,6 +40,12 @@ export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
     },
   })
 
+  folder.addBinding(settings, "hueShiftDegrees", {
+    min: -360,
+    max: 360,
+    step: 0.5,
+  })
+
   // Sizes
   folder.addBinding(settings, "lineWidthMin", {
     min: 0.5,

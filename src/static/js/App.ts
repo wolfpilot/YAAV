@@ -74,6 +74,7 @@ class App {
         bandCount: electricConfig.bandCount,
         ringsAmount: electricConfig.ringsAmount,
         ringSpacing: electricConfig.ringSpacing,
+        hueShiftDegrees: electricConfig.hueShiftDegrees,
         rotationPeriodSeconds: electricConfig.rotationPeriodSeconds,
         lineWidthMin: electricConfig.lineWidthMin,
         lineWidthMax: electricConfig.lineWidthMax,
