@@ -34,6 +34,7 @@ export interface BarsSettings {
 export interface ElectricSettings {
   bandCount: number
   ringsAmount: number
+  ringSpacing: number
   rotationPeriodSeconds: number
   lineWidthMin: number
   lineWidthMax: number

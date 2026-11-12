@@ -52,7 +52,7 @@ class ElectricRenderer implements Renderer {
           visualizerConfig.ring.radius +
           length +
           config.centreOffset +
-          i * config.ringSpacing
+          i * this.settings.ringSpacing
 
         const x = centre.x + Math.cos(angle) * radius
         const y = centre.y + Math.sin(angle) * radius
