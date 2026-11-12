@@ -30,8 +30,6 @@ class Canvas {
    */
   draw() {
     this._canvasCtx.clearRect(0, 0, this._width, this._height)
-    this._canvasCtx.fillStyle = defaults.fill
-    this._canvasCtx.fillRect(0, 0, this._width, this._height)
   }
 
   resize() {
