@@ -15,7 +15,7 @@ export const config = {
     min + percent * max,
   uiRingHueShift: 15,
   uiTrackHueShift: 30,
-  color: { r: 225, g: 25, b: 150, a: 1 },
+  color: { r: 225, g: 25, b: 150, a: 0.75 },
   fillDynamic: ({ h, s, l, a }: HslaColor, opacity: number) =>
     `hsla(${h}, ${s}%, ${l}%, ${a * opacity})`,
   hueShiftDegrees: 90,

@@ -1,5 +1,5 @@
 import { config } from "../../../config"
-import type { BarsSettings } from "../../../types"
+import type { BarsSettings, RgbaColor } from "../../../types"
 import { Pane } from "tweakpane"
 
 export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
@@ -29,6 +29,8 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     step: 4,
   })
 
+  folder.addBlade({ view: "separator" })
+
   // Sizes
   folder.addBinding(settings.lineWidths, "bass", {
     label: "lineWidthBass",
@@ -51,19 +53,51 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     step: 0.25,
   })
 
+  folder.addBlade({ view: "separator" })
+
   // Colors
   const rangeOptions = { min: 0, max: 100, step: 1 }
 
-  folder.addBinding(settings, "colorChannelL", {
-    color: {
-      alpha: true,
-    },
+  const colorOptions = { color: { alpha: true } }
+
+  const linkedColorsBinding = folder.addBinding(settings, "linkedColors")
+  const colorLBinding = folder.addBinding(
+    settings,
+    "colorChannelL",
+    colorOptions
+  )
+  const colorRBinding = folder.addBinding(
+    settings,
+    "colorChannelR",
+    colorOptions
+  )
+
+  // Copy into the existing object so everything reading it stays in sync
+  const copyColor = (
+    from: RgbaColor,
+    to: RgbaColor,
+    toBinding: typeof colorLBinding
+  ) => {
+    Object.assign(to, from)
+    toBinding.refresh()
+  }
+
+  colorLBinding.on("change", () => {
+    if (settings.linkedColors) {
+      copyColor(settings.colorChannelL, settings.colorChannelR, colorRBinding)
+    }
   })
 
-  folder.addBinding(settings, "colorChannelR", {
-    color: {
-      alpha: true,
-    },
+  colorRBinding.on("change", () => {
+    if (settings.linkedColors) {
+      copyColor(settings.colorChannelR, settings.colorChannelL, colorLBinding)
+    }
+  })
+
+  linkedColorsBinding.on("change", () => {
+    if (settings.linkedColors) {
+      copyColor(settings.colorChannelL, settings.colorChannelR, colorRBinding)
+    }
   })
 
   folder.addBinding(settings, "hueShiftDegrees", {
