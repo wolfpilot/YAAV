@@ -383,6 +383,12 @@ class Player {
     this._audio.pause()
   }
 
+  _onEnded = () => {
+    this.state.isPlaying = false
+    this.state.isVolumeFading = false
+    this._elements.player.setAttribute("data-is-playing", "false")
+  }
+
   /**
    * @NOTE: On Chrome, this auto-play was temporarily disabled. For more info, see link below:
    * @NOTE: https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio
@@ -397,6 +403,11 @@ class Player {
       this.state.isVolumeFading = true
       this.state.isBinDataEmpty = false
       this._elements.player.setAttribute("data-is-playing", "true")
+
+      // Replay the track from the start once it has finished
+      if (this._audio.ended) {
+        this._audio.currentTime = 0
+      }
 
       this._audio.play()
 
@@ -421,6 +432,7 @@ class Player {
       this._onPointerDown(e)
     )
     this._audio.addEventListener("timeupdate", () => this._updateProgress())
+    this._audio.addEventListener("ended", this._onEnded)
   }
 
   _cacheSelectors() {
