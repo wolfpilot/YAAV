@@ -14,6 +14,8 @@ export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
     step: 16,
   })
 
+  folder.addBlade({ view: "separator" })
+
   // Dynamics
   folder.addBinding(settings, "ringsAmount", {
     min: 1,
@@ -27,11 +29,25 @@ export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
     step: 0.5,
   })
 
+  folder.addBinding(settings, "lineWidthMin", {
+    min: 0.5,
+    max: 5,
+    step: 0.5,
+  })
+
+  folder.addBinding(settings, "lineWidthMax", {
+    min: 5,
+    max: 30,
+    step: 0.5,
+  })
+
   folder.addBinding(settings, "rotationPeriodSeconds", {
     min: 20,
     max: 120,
     step: 1,
   })
+
+  folder.addBlade({ view: "separator" })
 
   // Colors
   folder.addBinding(settings, "color", {
@@ -43,19 +59,6 @@ export const addElectricFolder = (pane: Pane, settings: ElectricSettings) => {
   folder.addBinding(settings, "hueShiftDegrees", {
     min: -360,
     max: 360,
-    step: 0.5,
-  })
-
-  // Sizes
-  folder.addBinding(settings, "lineWidthMin", {
-    min: 0.5,
-    max: 5,
-    step: 0.5,
-  })
-
-  folder.addBinding(settings, "lineWidthMax", {
-    min: 5,
-    max: 30,
     step: 0.5,
   })
 }

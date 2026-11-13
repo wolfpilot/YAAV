@@ -29,6 +29,8 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     step: 4,
   })
 
+  folder.addBlade({ view: "separator" })
+
   // Sizes
   folder.addBinding(settings.lineWidths, "bass", {
     label: "lineWidthBass",
@@ -50,6 +52,8 @@ export const addBarsFolder = (pane: Pane, settings: BarsSettings) => {
     max: 5,
     step: 0.25,
   })
+
+  folder.addBlade({ view: "separator" })
 
   // Colors
   const rangeOptions = { min: 0, max: 100, step: 1 }
