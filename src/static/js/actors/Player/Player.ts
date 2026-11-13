@@ -404,6 +404,11 @@ class Player {
       this.state.isBinDataEmpty = false
       this._elements.player.setAttribute("data-is-playing", "true")
 
+      // Replay the track from the start once it has finished
+      if (this._audio.ended) {
+        this._audio.currentTime = 0
+      }
+
       this._audio.play()
 
       await fadeIn(this._audio)
