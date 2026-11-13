@@ -1,6 +1,8 @@
-# YAAV
+# [YAAV](https://wolfpilot.github.io/YAAV/)
 
-Yep, I'm doing it. I am building yet another audio visualizer. A JS Canvas experiment that turns a track into rings and bars.
+Yep, I'm doing it. I am building yet another audio visualizer.
+
+![Demo](docs/demo-intro.webp)
 
 ## Table of contents
 
@@ -11,6 +13,8 @@ Yep, I'm doing it. I am building yet another audio visualizer. A JS Canvas exper
 - [License](#license)
 
 ## How it works
+
+A JS Canvas experiment that creates visualizations from audio data.
 
 The core components are initialised by [`App`](src/static/js/App.ts):
 
@@ -38,6 +42,10 @@ Colours shift in hue, saturation and lightness.
 Draws a stack of rings that wobble with the music while slowly rotating. Every segment follows its own frequency.
 
 Rings shift in hue and fade out when quiet, so they dissolve gradually when the music stops.
+
+## [Demo](https://wolfpilot.github.io/YAAV/)
+
+See it in action here - [https://wolfpilot.github.io/YAAV/](https://wolfpilot.github.io/YAAV/)
 
 ## Getting started
 
