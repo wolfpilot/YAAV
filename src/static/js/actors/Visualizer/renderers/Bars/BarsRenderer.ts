@@ -192,7 +192,10 @@ class BarsRenderer implements Renderer {
     const highsRadius = BarsRenderer.getRingRadius(config.rings.length - 1)
     const spanToHighs = highsRadius - radius
 
+    // The ring is too faint for a glow to be visible, so skip the blur passes
+    this.canvasCtx.save()
     this.canvasCtx.globalAlpha = opacity
+    this.canvasCtx.shadowBlur = 0
 
     bands.forEach((magnitude, bandIndex) => {
       if (magnitude === 0) {
@@ -209,6 +212,8 @@ class BarsRenderer implements Renderer {
         channelContext,
       })
     })
+
+    this.canvasCtx.restore()
   }
 
   private _drawChannel({
