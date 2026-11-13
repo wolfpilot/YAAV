@@ -22,6 +22,8 @@ export const config = {
   colorLeft: { r: 90, g: 25, b: 225, a: 1 },
   colorRight: { r: 90, g: 25, b: 225, a: 1 },
   glowBlur: 10,
+  // Groups of adjacent colours for faster processing
+  colorGroups: 16,
   hueShiftDegrees: -180,
   // Magnitude (0 - 255) at which the player UI mimics the bars' color
   uiReferenceMagnitude: 100,

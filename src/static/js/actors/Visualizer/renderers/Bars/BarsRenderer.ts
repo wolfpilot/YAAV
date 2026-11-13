@@ -5,7 +5,7 @@ import { movingAverage } from "../../../../utils/smoothing"
 import { config as visualizerConfig } from "../../config"
 import { getChannelBandGroups } from "./helpers"
 import { getChannelBands } from "../getChannelBands"
-import { rgbToHsl } from "../../../../utils/color"
+import { rgbToHsl, type HslaColor } from "../../../../utils/color"
 import { getMagnitudeColor } from "./color"
 import { config } from "./config"
 import type { BarsSettings } from "../../../../types"
@@ -47,25 +47,6 @@ class BarsRenderer implements Renderer {
     return { xStart, yStart, xEnd, yEnd }
   }
 
-  private _drawVolumeBar({
-    fill,
-    coords,
-    lineWidth,
-  }: {
-    fill: string
-    coords: VolumeBarCoords
-    lineWidth: number
-  }) {
-    this.canvasCtx.lineWidth = lineWidth
-    this.canvasCtx.strokeStyle = fill
-    this.canvasCtx.shadowColor = fill
-
-    this.canvasCtx.beginPath()
-    this.canvasCtx.moveTo(coords.xStart, coords.yStart)
-    this.canvasCtx.lineTo(coords.xEnd, coords.yEnd)
-    this.canvasCtx.stroke()
-  }
-
   private static getRingRadius(ringIndex: number): number {
     return (
       visualizerConfig.ring.radius +
@@ -101,46 +82,83 @@ class BarsRenderer implements Renderer {
       : this.settings.ringBandCountBothChannels
   }
 
-  private _drawBand({
-    magnitude,
-    bandIndex,
-    bandCount,
-    radius,
-    lineWidth,
-    length,
-    channelContext,
-  }: {
-    magnitude: number
-    bandIndex: number
-    bandCount: number
-    radius: number
-    lineWidth: number
-    length: number
-    channelContext: ChannelDrawContext
-  }) {
-    const { centre, side, isSolo, baseColor } = channelContext
+  private static getColorGroup(magnitude: number): number {
+    const progress = Math.max(0, Math.min(magnitude / 255, 1))
 
-    const angle = BarsRenderer.getBandAngle({
-      bandIndex,
-      bandCount,
-      side,
-      isSolo,
-    })
-    const coords = BarsRenderer.getVolumeBarCoords({
-      centre,
-      angle,
-      radius,
-      length,
-    })
-    const fill = getMagnitudeColor({
+    return Math.min(
+      config.colorGroups - 1,
+      Math.floor(progress * config.colorGroups)
+    )
+  }
+
+  /** Get the magnitude at the middle of a color group. */
+  private static getGroupMagnitude(group: number): number {
+    return ((group + 0.5) / config.colorGroups) * 255
+  }
+
+  private _getGroupFill(group: number, baseColor: HslaColor): string {
+    return getMagnitudeColor({
       color: baseColor,
-      magnitude,
+      magnitude: BarsRenderer.getGroupMagnitude(group),
       hueShiftDegrees: this.settings.hueShiftDegrees,
       saturationRange: this.settings.saturationRange,
       lightnessRange: this.settings.lightnessRange,
     })
+  }
 
-    this._drawVolumeBar({ fill, coords, lineWidth })
+  /**
+   * Draw all bands of a ring with one stroke per color group instead of one
+   * per bar. Strokes (and their glow) are the expensive part of drawing.
+   */
+  private _drawBands({
+    bands,
+    radius,
+    lineWidth,
+    getLength,
+    channelContext,
+  }: {
+    bands: number[]
+    radius: number
+    lineWidth: number
+    getLength: (magnitude: number) => number
+    channelContext: ChannelDrawContext
+  }) {
+    const { centre, side, isSolo, baseColor } = channelContext
+    const paths: Path2D[] = []
+
+    bands.forEach((magnitude, bandIndex) => {
+      if (magnitude === 0) {
+        return
+      }
+
+      const angle = BarsRenderer.getBandAngle({
+        bandIndex,
+        bandCount: bands.length,
+        side,
+        isSolo,
+      })
+      const { xStart, yStart, xEnd, yEnd } = BarsRenderer.getVolumeBarCoords({
+        centre,
+        angle,
+        radius,
+        length: getLength(magnitude),
+      })
+      const group = BarsRenderer.getColorGroup(magnitude)
+      const path = (paths[group] ??= new Path2D())
+
+      path.moveTo(xStart, yStart)
+      path.lineTo(xEnd, yEnd)
+    })
+
+    this.canvasCtx.lineWidth = lineWidth
+
+    paths.forEach((path, group) => {
+      const fill = this._getGroupFill(group, baseColor)
+
+      this.canvasCtx.strokeStyle = fill
+      this.canvasCtx.shadowColor = fill
+      this.canvasCtx.stroke(path)
+    })
   }
 
   private _drawRing({
@@ -154,24 +172,14 @@ class BarsRenderer implements Renderer {
     bands: number[]
     channelContext: ChannelDrawContext
   }) {
-    const radius = BarsRenderer.getRingRadius(ringIndex)
-
     this.canvasCtx.globalAlpha = ring.opacity
 
-    bands.forEach((magnitude, bandIndex) => {
-      if (magnitude === 0) {
-        return
-      }
-
-      this._drawBand({
-        magnitude,
-        bandIndex,
-        bandCount: bands.length,
-        radius,
-        lineWidth: this.settings.lineWidths[ring.band],
-        length: magnitude / 10,
-        channelContext,
-      })
+    this._drawBands({
+      bands,
+      radius: BarsRenderer.getRingRadius(ringIndex),
+      lineWidth: this.settings.lineWidths[ring.band],
+      getLength: (magnitude) => magnitude / 8,
+      channelContext,
     })
   }
 
@@ -192,23 +200,20 @@ class BarsRenderer implements Renderer {
     const highsRadius = BarsRenderer.getRingRadius(config.rings.length - 1)
     const spanToHighs = highsRadius - radius
 
+    // The ring is too faint for a glow to be visible, so skip the blur passes
+    this.canvasCtx.save()
     this.canvasCtx.globalAlpha = opacity
+    this.canvasCtx.shadowBlur = 0
 
-    bands.forEach((magnitude, bandIndex) => {
-      if (magnitude === 0) {
-        return
-      }
-
-      this._drawBand({
-        magnitude,
-        bandIndex,
-        bandCount: bands.length,
-        radius,
-        lineWidth,
-        length: spanToHighs + magnitude * lengthScale,
-        channelContext,
-      })
+    this._drawBands({
+      bands,
+      radius,
+      lineWidth,
+      getLength: (magnitude) => spanToHighs + magnitude * lengthScale,
+      channelContext,
     })
+
+    this.canvasCtx.restore()
   }
 
   private _drawChannel({
