@@ -6,7 +6,7 @@ import type { ElectricSettings } from "../../../../types"
 import type { RendererDrawOptions, Renderer } from "../../types"
 import { easeInOutCubic } from "../../../../utils/easings"
 import { rgbToHsl, type HslaColor } from "../../../../utils/color"
-import { getBandColor } from "./color"
+import { getBandColor, getBandOpacity } from "./color"
 
 class ElectricRenderer implements Renderer {
   constructor(
@@ -20,6 +20,22 @@ class ElectricRenderer implements Renderer {
       magnitude,
       hueShiftDegrees: this.settings.hueShiftDegrees,
     })
+  }
+
+  private _getBandFill(
+    baseColor: HslaColor,
+    magnitude: number,
+    ringOpacity: number
+  ): string {
+    const bandOpacity = getBandOpacity({
+      magnitude,
+      ...config.bandOpacity,
+    })
+
+    return config.fillDynamic(
+      this._getBandColor(baseColor, magnitude),
+      ringOpacity * bandOpacity
+    )
   }
 
   /**
@@ -48,16 +64,13 @@ class ElectricRenderer implements Renderer {
     bands.forEach((magnitude, index) => {
       gradient.addColorStop(
         (index + 0.5) / bands.length,
-        config.fillDynamic(this._getBandColor(baseColor, magnitude), opacity)
+        this._getBandFill(baseColor, magnitude, opacity)
       )
     })
 
     // The start of the ring sits between the last and the first band
     const seamMagnitude = (bands[0] + bands[bands.length - 1]) / 2
-    const seamColor = config.fillDynamic(
-      this._getBandColor(baseColor, seamMagnitude),
-      opacity
-    )
+    const seamColor = this._getBandFill(baseColor, seamMagnitude, opacity)
 
     gradient.addColorStop(0, seamColor)
     gradient.addColorStop(1, seamColor)
