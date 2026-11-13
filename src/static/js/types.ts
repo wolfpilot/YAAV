@@ -27,6 +27,7 @@ export interface BarsSettings {
   hueShiftDegrees: number
   saturationRange: MinMaxRange
   lightnessRange: MinMaxRange
+  linkedColors: boolean
   colorChannelL: RgbaColor
   colorChannelR: RgbaColor
 }

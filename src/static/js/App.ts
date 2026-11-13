@@ -67,6 +67,7 @@ class App {
         hueShiftDegrees: barsConfig.hueShiftDegrees,
         saturationRange: { ...barsConfig.saturationRange },
         lightnessRange: { ...barsConfig.lightnessRange },
+        linkedColors: barsConfig.linkedColors,
         colorChannelL: { ...barsConfig.colorLeft },
         colorChannelR: { ...barsConfig.colorRight },
       },

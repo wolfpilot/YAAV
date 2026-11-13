@@ -19,6 +19,8 @@ export const config = {
   // past it by magnitude * lengthScale.
   backgroundRing: { opacity: 0.01, lineWidth: 5, lengthScale: 0 },
   lineWidths: { bass: 5, mids: 2.25, highs: 1.75 },
+  // Keep the left and right colors identical when edited in the GUI
+  linkedColors: true,
   colorLeft: { r: 90, g: 25, b: 225, a: 1 },
   colorRight: { r: 90, g: 25, b: 225, a: 1 },
   glowBlur: 10,
