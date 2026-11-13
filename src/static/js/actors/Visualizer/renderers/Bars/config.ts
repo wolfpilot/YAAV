@@ -21,8 +21,8 @@ export const config = {
   lineWidths: { bass: 5, mids: 2.25, highs: 1.75 },
   // Keep the left and right colors identical when edited in the GUI
   linkedColors: true,
-  colorLeft: { r: 90, g: 25, b: 225, a: 1 },
-  colorRight: { r: 90, g: 25, b: 225, a: 1 },
+  colorLeft: { r: 90, g: 25, b: 225, a: 0.75 },
+  colorRight: { r: 90, g: 25, b: 225, a: 0.75 },
   glowBlur: 10,
   // Groups of adjacent colours for faster processing
   colorGroups: 16,
