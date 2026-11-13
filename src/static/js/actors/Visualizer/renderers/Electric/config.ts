@@ -21,4 +21,9 @@ export const config = {
   hueShiftDegrees: 90,
   // Band magnitude (0 - 255) at which the player UI mimics the rings' color
   uiReferenceMagnitude: 100,
+  // Band opacity follows its magnitude, so rings fade out when music stops
+  bandOpacity: {
+    // Magnitude (0 - 255) at which a band is fully opaque
+    fullMagnitude: 100,
+  },
 }
