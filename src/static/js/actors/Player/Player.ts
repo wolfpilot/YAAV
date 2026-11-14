@@ -22,7 +22,8 @@ const initialState = {
 
 class Player {
   private _visualizer: Visualizer
-  private readonly _settings: GUISettings
+  private _settings: GUISettings
+  private _track: Track
   private _audio!: HTMLAudioElement
   private _audioCtx?: AudioContext
   private _analyserL!: AnalyserNode
@@ -33,9 +34,15 @@ class Player {
   private _elapsedMs: number
   private _lastPlayingSampleTime?: number
 
-  constructor(canvasCtx: CanvasRenderingContext2D, settings: GUISettings) {
-    this._settings = settings
+  constructor(
+    canvasCtx: CanvasRenderingContext2D,
+    settings: GUISettings,
+    track: Track
+  ) {
     this._visualizer = new Visualizer(canvasCtx, settings)
+
+    this._settings = settings
+    this._track = track
 
     this._elapsedMs = 0
 
@@ -305,12 +312,12 @@ class Player {
     _merger.connect(this._audioCtx.destination, 0, 0)
   }
 
-  _loadTrack(track: Track) {
-    this._audio.src = track.source.href
+  _loadTrack() {
+    this._audio.src = this._track.source.href
     this._audio.load()
 
-    this._elements.artistName.textContent = track.artistName
-    this._elements.trackName.textContent = track.trackName
+    this._elements.artistName.textContent = this._track.artistName
+    this._elements.trackName.textContent = this._track.trackName
   }
 
   /**
@@ -346,7 +353,7 @@ class Player {
     this.state.hasUserInteracted = true
 
     this._unlockAudioContext()
-    this._loadTrack(config.track)
+    this._loadTrack()
 
     this._audio
       .play()
