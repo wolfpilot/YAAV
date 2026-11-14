@@ -23,7 +23,7 @@ export const getDistinctFrequencyBands = (
     Math.ceil(upperFrequency / binWidth)
   )
 
-  const count = Math.min(bandCount, Math.max(0, lastBin - firstBin))
+  const count = Math.max(0, Math.min(bandCount, lastBin - firstBin))
   const bands = new Uint8Array(count)
 
   let start = firstBin
