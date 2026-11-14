@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "author": "Razvan Negrea <howl@wolfpilot.co> (www.wolfpilot.co)",
   "license": "MIT",
+  "@parcel/resolver-default": {
+    "packageExports": true
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "predev": "rimraf .parcel-cache dist",
@@ -30,6 +33,7 @@
     "typescript": "^7.0.2"
   },
   "dependencies": {
+    "music-metadata": "^12.4.0",
     "tweakpane": "^4.0.5"
   }
 }
