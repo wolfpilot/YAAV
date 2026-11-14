@@ -8,6 +8,8 @@ Yep, I'm doing it. I am building yet another audio visualizer.
 
 - [How it works](#how-it-works)
 - [Demo](#demo)
+  - [Bars](#bars)
+  - [Electric](#electric)
 - [Getting started](#getting-started)
 - [Resources](#resources)
 - [License](#license)
@@ -23,13 +25,17 @@ The core components are initialised by [`App`](src/static/js/App.ts):
 - [`Visualizer`](src/static/js/actors/Visualizer/Visualizer.ts) draws the ring around the play button, then lets the active variant draw the rest.
 - [`GUI`](src/static/js/managers/GUI/GUI.ts) controls live overrides for the variants, channels, colours, etc.
 
+## Demo
+
+See it in action here - [https://wolfpilot.github.io/YAAV/](https://wolfpilot.github.io/YAAV/)
+
 ### Variants
 
 Each variant has its own renderer and config, and you can switch between them live from the GUI.
 
 The louder a frequency is, the more its colour changes. The play button, ring and progress bar follow the colours of the active variant, so the player always matches what you see.
 
-[`Bars`](src/static/js/actors/Visualizer/renderers/Bars/BarsRenderer.ts)
+### Bars
 
 Draws three rings of bars, from the inside out: bass, mids and highs. All rings have the same number of bars so they line up like an extension of each other.
 
@@ -37,15 +43,49 @@ When both channels are selected, the left one fills the left half and the right 
 
 Colours shift in hue, saturation and lightness.
 
-[`Electric`](src/static/js/actors/Visualizer/renderers/Electric/ElectricRenderer.ts)
+---
+
+**Features**
+
+> Channels
+>
+> Draw the left channel, the right channel or both at once.
+
+https://github.com/user-attachments/assets/25b6c458-e8c4-4098-be9d-5299cf9a8bc1
+
+> Band count
+>
+> More bands means more definition, but also more work for your browser.
+
+https://github.com/user-attachments/assets/22bc36da-6ee0-47d2-9f9f-78376286cdae
+
+> Colours
+>
+> Pick a colour for each channel. Turn on `linkedColors` and both will move together.
+
+https://github.com/user-attachments/assets/0d665e5e-5596-4665-b296-23de19bd0e26
+
+### Electric
 
 Draws a stack of rings that wobble with the music while slowly rotating. Every segment follows its own frequency.
 
 Rings shift in hue and fade out when quiet, so they dissolve gradually when the music stops.
 
-## [Demo](https://wolfpilot.github.io/YAAV/)
+---
 
-See it in action here - [https://wolfpilot.github.io/YAAV/](https://wolfpilot.github.io/YAAV/)
+**Features**
+
+> Physics
+>
+> Control the number of rings, their thickness and even how fast everything rotates!
+
+https://github.com/user-attachments/assets/e804257e-ceac-49d9-b64b-3eb03da1500d
+
+> Dynamics
+>
+> Changing the `hueShiftDegrees` makes hues rotate with the magnitude (i.e. volume) of each frequency.
+
+https://github.com/user-attachments/assets/4c65e866-bbe0-4306-8757-4d4905238fb0
 
 ## Getting started
 
