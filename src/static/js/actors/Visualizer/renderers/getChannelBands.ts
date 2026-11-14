@@ -49,7 +49,12 @@ export const getChannelBands = (
   totalBandCount: number,
   maxFrequency: number
 ): number[] => {
-  const bassBandCount = getBassBandCount(data)
+  // Few total bands must still leave room for the upper range, so the bass
+  // takes at most half of them
+  const bassBandCount = Math.min(
+    getBassBandCount(data),
+    Math.max(1, Math.floor(totalBandCount / 2))
+  )
   const bassBands = getBassBands(data, bassBandCount)
 
   const upperBands = getUpperBands(
